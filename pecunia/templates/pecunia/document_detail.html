@@ -17,11 +17,11 @@
             https://pecunia.huma-num.fr/documents/{{ document.display_id }}
         </div>
         <br/>
-        <div>{{ document|prop_label:'source_type'|capitalize }}: {{ document|prop:'source_type' }}</div>
+        <div>{{ document|prop_label:'source_type'|capitalize }}: {{ document|prop:'source_type'|html }}</div>
         <div>{{ document|prop_label:'language'|capitalize }}: {{ document|prop:'language' }}</div>
         <div>{{ document|prop_label:'date'|capitalize }}: {{ document|prop:'date' }}</div>
-        <div>{{ document|prop_label:'source_reference'|capitalize }}: {{ document|prop:'source_reference' }}</div>
-        <div>{{ document|prop_label:'provenance'|capitalize }}: {{ document|prop:'provenance' }}</div>
+        <div>{{ document|prop_label:'source_reference'|capitalize }}: {{ document|prop:'source_reference'|html }}</div>
+        <div>{{ document|prop_label:'provenance'|capitalize }}: {{ document|prop:'provenance'|html }}</div>
         <br/>
         <div {% if document.translation %}style="display: grid; grid-template-columns: auto auto;"{% endif %}>
             <div class="text-wrapper">
@@ -34,5 +34,7 @@
                 <article>{{ document|prop_mtv_value:'translation' }}</article>
             {% endif %}
         </div>
+        <div>{{ document|prop_label:'bibliography'|capitalize }}: {{ document|prop:'bibliography'|html }}</div>
+        <div>{{ document|prop_label:'commentary'|capitalize }}: {{ document|prop:'commentary' }}</div>
     </div>
 {% endblock %}

@@ -75,8 +75,6 @@ def prop(item: object, prop_key_mapping: str) -> str:
     statements = item.statement_set.filter(mainSnak__propertysnak__property=prop)
     if statements:
         statement = statements[0].mainSnak.value
-        if isinstance(statement, m.Item):
-            return label_or_default(statement, translation.get_language())
         return statements[0].mainSnak.value
     return "-"
 
