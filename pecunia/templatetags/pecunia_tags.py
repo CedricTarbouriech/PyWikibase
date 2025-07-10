@@ -190,7 +190,7 @@ def snak_type(snak: m.Snak) -> int:
 @register.filter
 def html(value: m.Value) -> str:
     if isinstance(value, m.Item):
-        return mark_safe(f"<a href='{reverse('item_display', args=[value.display_id])}'>{label_or_default(value, get_language())}</a>") # Fixme Code de langue
+        return mark_safe(f"<a href='{reverse('item_display', args=[value.display_id])}'>{label_or_default(value, get_language())}</a>")
     elif isinstance(value, m.UrlValue):
         return mark_safe(f"<a href='{value.value}'>{value.value}</a>")
     else:
