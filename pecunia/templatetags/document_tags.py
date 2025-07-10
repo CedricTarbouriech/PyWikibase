@@ -1,4 +1,4 @@
-from typing import re
+import re
 
 from django import template
 from django.core.exceptions import ObjectDoesNotExist
