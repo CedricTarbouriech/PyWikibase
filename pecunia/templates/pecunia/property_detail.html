@@ -45,5 +45,12 @@
                 {% endif %}
             </tr>
         </table>
+        <div><p>This property is used by:</p>
+            <ul>
+                {% for linked_item in linked_items %}
+                    <li><a href='{% url 'item_display' linked_item %}#P{{ object.display_id }}'>Q{{ linked_item }}</a></li>
+                {% endfor %}
+            </ul>
+        </div>
     </div>
 {% endblock %}

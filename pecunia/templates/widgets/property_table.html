@@ -1,9 +1,9 @@
 {% load pecunia_tags %}
 {% load i18n %}
 {% get_current_language as LANGUAGE_CODE %}
-<table data-property-id="{{ prop.display_id }}">
+<table id="P{{ prop.display_id }}" data-property-id="{{ prop.display_id }}">
     {% for stat in statement %}
-        <tr data-statement-id="{{ stat.id }}">
+        <tr  data-statement-id="{{ stat.id }}">
             {% if forloop.counter == 1 %}
 
                 {% if user.is_authenticated %}

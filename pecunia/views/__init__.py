@@ -1,6 +1,7 @@
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.core.exceptions import ObjectDoesNotExist
 from django.core.paginator import Paginator
+from django.http import Http404
 from django.shortcuts import redirect, render
 from django.urls import reverse, reverse_lazy
 from django.views.generic import TemplateView, FormView, DetailView
@@ -147,6 +148,20 @@ class PropertyDisplay(DetailView):
 
     def get_object(self, queryset=None):
         return m.Property.objects.get(display_id=self.kwargs['display_id'])
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        try:
+            prop = kwargs['object']
+            stmts = m.Statement.objects.filter(mainSnak__propertysnak__property=prop)
+            linked_items = []
+            for stmt in stmts:
+                linked_items.append(stmt.subject.display_id)
+            context['linked_items'] = sorted(linked_items)
+        except ObjectDoesNotExist as e:
+            raise Http404 from e
+
+        return context
 
 
 class PropertyCreation(LoginRequiredMixin, FormView):
