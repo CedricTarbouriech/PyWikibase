@@ -4,10 +4,8 @@ from django import template
 from django.core.exceptions import ObjectDoesNotExist
 from django.urls import reverse
 from django.utils import translation
-from django.utils.html import linebreaks
 from django.utils.safestring import mark_safe
 from django.utils.translation import gettext_lazy, get_language
-
 from lxml import etree
 
 import wikibase.models as m
