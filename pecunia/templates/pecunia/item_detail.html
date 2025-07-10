@@ -39,14 +39,22 @@
                 {% endif %}
             </tr>
         </table>
-    </div>
-    <div class="statements" style="margin: -1em 1em 2em; ">
-        {% for prop, statement in statements %}
-            {% include "widgets/property_table.html" %}
-        {% endfor %}
+        <div class="statements">
+            {% for prop, statement in statements %}
+                {% include "widgets/property_table.html" %}
+            {% endfor %}
 
-        {% if user.is_authenticated %}
-            <a id="btn-new-statement" class="button" href="#">{% trans "global.statement.new" %}</a>
+            {% if user.is_authenticated %}
+                <a id="btn-new-statement" class="button" href="#">{% trans "global.statement.new" %}</a>
+            {% endif %}
+        </div>
+        {% if linked_items|length != 0 %}
+            <p>This item is used by:</p>
+            <ul>
+                {% for linked_item in linked_items %}
+                    <li><a href='{% url 'item_display' linked_item %}'>Q{{ linked_item }}</a></li>
+                {% endfor %}
+            </ul>
         {% endif %}
     </div>
 {% endblock %}
