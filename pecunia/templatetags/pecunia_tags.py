@@ -156,8 +156,8 @@ def highlight_words(value):
 
     # Conteneur HTML
     output = ""
-    if root.line_numbers:
-        output += root.line_numbers
+    if root.text:
+        output += root.text
 
     for el in root:
         output += handle_tag(el)
