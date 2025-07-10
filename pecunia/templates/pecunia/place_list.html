@@ -1,0 +1,25 @@
+{% extends "base.html" %}
+{% load i18n %}
+{% load pecunia_tags %}
+{% block content %}
+    <h1>{% trans "form.place.list_title" %}</h1>
+{#    <a class="button" href='{% url "place_create" %}'>{% trans "form.place.new" %}</a>#}
+    <table>
+        <tr>
+            <th>{% trans "form.place.name" %}</th>
+            <th>{% trans "form.place.description" %}</th>
+            <th>{% trans "global.action" %}</th>
+        </tr>
+        {% for item in items %}
+        <tr>
+            <td>{{ item|label:LANGUAGE_CODE }}</td>
+            <td>{{ item|description:LANGUAGE_CODE }}</td>
+            <td>
+{#                <a class="button" href='{% url "place_display" item.id %}'>{% trans "global.see" %}</a>#}
+{#                <a class="button" href='{% url "place_update" item.id %}'>{% trans "global.edit" %}</a>#}
+{#                <a class="button" href='{% url "place_delete" item.id %}'>{% trans "global.delete" %}</a>#}
+            </td>
+        </tr>
+        {% endfor %}
+    </table>
+{% endblock %}

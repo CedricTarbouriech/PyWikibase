@@ -1,0 +1,49 @@
+{% extends "base.html" %}
+{% load pecunia_tags %}
+{% load i18n %}
+{% get_current_language as LANGUAGE_CODE %}
+{% block content %}
+    <h1>Property P{{ object.display_id }}</h1>
+    <div style="margin: -1em 1em 2em; ">
+        <div style="">
+            {{ object.data_type.class_name }}
+        </div>
+        {#        <div style="border: solid 1px gray; border-radius: 5px; width:500px; padding:5px">#}
+        {#            http://pecunia.huma-num.fr/property/{{ prop.display_id }}#}
+        {#        </div>#}
+        <table>
+            <tr>
+                <th>{% trans "global.language_code" %}</th>
+                <th>{% trans "form.entity.label" %}</th>
+                <th>{% trans "form.entity.description" %}</th>
+
+                {% if user.is_authenticated %}
+                    <th>{% trans "global.action" %}</th>
+                {% endif %}
+            </tr>
+            <tr>
+                <td>en</td>
+                <td>{{ object|label:"en" }}</td>
+                <td>{{ object|description:"en" }}</td>
+
+                {% if user.is_authenticated %}
+                    <td><a class="button"
+                           href='{% url "property_update_labeldescription" object.display_id "en" %}'>{% trans "global.edit" %}</a>
+                    </td>
+                {% endif %}
+            </tr>
+            <tr>
+                <td>fr</td>
+                <td>{{ object|label:"fr" }}</td>
+                <td>{{ object|description:"fr" }}</td>
+
+                {% if user.is_authenticated %}
+                    <td>
+                        <a class="button"
+                           href='{% url "property_update_labeldescription" object.display_id "fr" %}'>{% trans "global.edit" %}</a>
+                    </td>
+                {% endif %}
+            </tr>
+        </table>
+    </div>
+{% endblock %}

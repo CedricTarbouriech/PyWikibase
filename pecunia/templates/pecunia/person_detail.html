@@ -1,0 +1,17 @@
+{% extends "base.html" %}
+{% load i18n %}
+{% block content %}
+    <h1>👤&nbsp;{{ person.name }}</h1>
+    <div style="margin: -1em 1em 2em;">
+        <a href='{% url "person_update" person.id %}'>{% trans "global.edit" %}</a> -
+        <a href="{% url "person_list" %}">{% trans "global.back" %}</a>
+    </div>
+    <div style="margin: -1em 1em 2em; ">
+        <div style="border: solid 1px gray; border-radius: 5px; width:500px; padding:5px">
+            http://pecunia.huma-num.fr/persons/{{ person.id }}
+        </div>
+        <br/>
+        <div>Sex: {{ person.get_sex_display }}</div>
+        <div>Status: {{ person.status }}</div>
+    </div>
+{% endblock %}

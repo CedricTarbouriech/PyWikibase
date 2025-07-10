@@ -1,0 +1,38 @@
+{% extends "base.html" %}
+{% load pecunia_tags %}
+{% load i18n %}
+{% get_current_language as LANGUAGE_CODE %}
+{% block content %}
+    <h1>{% trans "form.property.list_title" %}</h1>
+
+    {% if user.is_authenticated %}
+        <a class="button" href='{% url "property_create" %}'>{% trans "form.property.new" %}</a>
+    {% endif %}
+
+    {% include "widgets/pagination.html" %}
+    <table>
+        <tr>
+            <th>{% trans "global.id" %}</th>
+            <th>{% trans "form.entity.label" %}</th>
+            <th>{% trans "form.entity.description" %}</th>
+            <th>{% trans "global.action" %}</th>
+        </tr>
+
+        {% for item in page_obj %}
+            <tr>
+                <td>P{{ item.display_id }}</td>
+                <td>{{ item|label_or_default:LANGUAGE_CODE }}</td>
+                <td>{{ item|description_or_default:LANGUAGE_CODE }}</td>
+                <td>
+                    <a class="button" href='{% url "property_display" item.display_id %}'>{% trans "global.see" %}</a>
+
+                    {% if user.is_authenticated %}
+                        <a class="button"
+                           href='{% url "property_delete" item.display_id %}'>{% trans "global.delete" %}</a>
+                    {% endif %}
+                </td>
+            </tr>
+        {% endfor %}
+    </table>
+    {% include "widgets/pagination.html" %}
+{% endblock %}

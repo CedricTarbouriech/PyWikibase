@@ -1,0 +1,52 @@
+{% load i18n %}
+{% load static %}
+{% get_current_language as LANGUAGE_CODE %}
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="icon" type="image/png" href="{% static "pecunia/images/favicon.png" %}">
+    <link rel="stylesheet" href="{% static "pecunia/css/simple.min.css" %}">
+    <link rel="stylesheet" href="{% static "pecunia/css/style.css" %}">
+    <script type="text/javascript" src="{% static "pecunia/js/jquery-3.7.1.min.js" %}"></script>
+    <script src="{% static "pecunia/js/editor.js" %}"></script>
+    <script type="module" src="{% static "pecunia/js/wikibase/util.js" %}"></script>
+    <script type="module" src="{% static "pecunia/js/wikibase/wikibase.js" %}"></script>
+
+    <title>Document</title>
+</head>
+<body style="grid-template-columns: 1fr min(60rem,90%) 1fr;" data-lang="{{ LANGUAGE_CODE }}">
+<header>
+    <nav style="display: grid; grid-template-columns: auto auto">
+        <div>
+            <a class="button" style="color: black" href='{% url "index" %}'>{% trans 'nav.home' %}</a>
+            <a class="button" style="color: black" href='{% url "document_list" %}'>{% trans 'nav.document' %}</a>
+            {#            <a class="button" style="color: black" href='{% url "person_list" %}' disabled>{% trans 'nav.person' %}</a>#}
+            {#            <a class="button" style="color: black" href='{% url "place_list" %}' disabled>{% trans 'nav.place' %}</a>#}
+            <a class="button" style="color: black" href='{% url "item_list" %}'>{% trans 'nav.item' %}</a>
+            <a class="button" style="color: black" href='{% url "property_list" %}'>{% trans 'nav.property' %}</a>
+        </div>
+        <div style="display: flex">
+            <form method="post" action="{% url 'set_language' %}">
+                {% csrf_token %}
+                <select id="language-select" name="language">
+                    <option value="en" {% if LANGUAGE_CODE == "en" %}selected{% endif %}>English</option>
+                    <option value="fr" {% if LANGUAGE_CODE == "fr" %}selected{% endif %}>Français</option>
+                </select>
+                <button type="submit">{% trans 'nav.language.submit' %}</button>
+            </form>
+            {% if user.is_authenticated %}
+                <form method="post" action="{% url 'logout' %}">
+                    {% csrf_token %}
+                    <button class="button" type="submit">{% trans 'nav.logout' %}</button>
+                </form>
+            {% else %}
+                <a class="button" href="{% url 'login' %}">{% trans 'nav.login' %}</a>
+            {% endif %}
+        </div>
+    </nav>
+</header>
+{% block content %}{% endblock %}
+</body>
+</html>

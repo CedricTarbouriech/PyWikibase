@@ -1,0 +1,301 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) YEAR THE PACKAGE'S COPYRIGHT HOLDER
+# This file is distributed under the same license as the PACKAGE package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
+#
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: PACKAGE VERSION\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2025-07-02 16:09+0200\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: LANGUAGE <LL@li.org>\n"
+"Language: \n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+
+#: .\pecunia\forms.py:14 .\pecunia\forms.py:29
+msgid "document.text"
+msgstr "Text"
+
+#: .\pecunia\forms.py:18
+msgid "document.title"
+msgstr "Title"
+
+#: .\pecunia\forms.py:19
+msgid "document.title_language"
+msgstr "Title Language"
+
+#: .\pecunia\forms.py:21
+msgid "document.type"
+msgstr "Type"
+
+#: .\pecunia\forms.py:23
+msgid "document.author"
+msgstr "Author"
+
+#: .\pecunia\forms.py:24
+msgid "document.author_function"
+msgstr "Author’s function"
+
+#: .\pecunia\forms.py:25
+msgid "document.date"
+msgstr "Date"
+
+#: .\pecunia\forms.py:26
+msgid "document.language"
+msgstr "Language"
+
+#: .\pecunia\forms.py:30
+msgid "document.translation_language"
+msgstr "Translation language"
+
+#: .\pecunia\forms.py:32
+msgid "document.translation"
+msgstr "Translation"
+
+#: .\pecunia\forms.py:33
+msgid "document.place"
+msgstr "Place"
+
+#: .\pecunia\forms.py:58
+msgid "person.name"
+msgstr "Name"
+
+#: .\pecunia\forms.py:59
+msgid "person.function"
+msgstr "Function"
+
+#: .\pecunia\forms.py:68 .\pecunia\forms.py:93 .\pecunia\forms.py:117
+msgid "global.language"
+msgstr "Language"
+
+#: .\pecunia\forms.py:70 .\pecunia\forms.py:119
+#: .\pecunia\templates\pecunia\item_detail.html:11
+#: .\pecunia\templates\pecunia\item_list.html:15
+#: .\pecunia\templates\pecunia\property_detail.html:17
+#: .\pecunia\templates\pecunia\property_list.html:16
+msgid "form.entity.label"
+msgstr "Label"
+
+#: .\pecunia\forms.py:71 .\pecunia\forms.py:120
+#: .\pecunia\templates\pecunia\item_detail.html:12
+#: .\pecunia\templates\pecunia\item_list.html:16
+#: .\pecunia\templates\pecunia\property_detail.html:18
+#: .\pecunia\templates\pecunia\property_list.html:17
+msgid "form.entity.description"
+msgstr "Description"
+
+#: .\pecunia\forms.py:82
+msgid "statement.type"
+msgstr "Type"
+
+#: .\pecunia\forms.py:99
+msgid "global.entity"
+msgstr "Entity"
+
+#: .\pecunia\forms.py:108
+msgid "global.property"
+msgstr "Property"
+
+#: .\pecunia\forms.py:122
+msgid "form.property.type"
+msgstr "Type"
+
+#: .\pecunia\templates\base.html:22
+msgid "nav.home"
+msgstr "Home"
+
+#: .\pecunia\templates\base.html:23
+msgid "nav.document"
+msgstr "Documents"
+
+#: .\pecunia\templates\base.html:26
+msgid "nav.item"
+msgstr "Items"
+
+#: .\pecunia\templates\base.html:27
+msgid "nav.property"
+msgstr "Properties"
+
+#: .\pecunia\templates\base.html:36
+msgid "nav.language.submit"
+msgstr "Switch"
+
+#: .\pecunia\templates\base.html:41
+msgid "nav.logout"
+msgstr "Log out"
+
+#: .\pecunia\templates\base.html:44
+msgid "nav.login"
+msgstr "Log in"
+
+#: .\pecunia\templates\pecunia\confirm_delete.html:6
+msgid "global.confirm"
+msgstr "Confirm"
+
+#: .\pecunia\templates\pecunia\confirm_delete.html:7
+#: .\pecunia\templates\pecunia\document_form.html:7
+#: .\pecunia\templates\pecunia\item_creation.html:7
+#: .\pecunia\templates\pecunia\item_update_labeldescription.html:7
+#: .\pecunia\templates\pecunia\person_form.html:7
+#: .\pecunia\templates\pecunia\place_form.html:6
+#: .\pecunia\templates\pecunia\property_creation.html:7
+#: .\pecunia\templates\pecunia\property_update_labeldescription.html:7
+#: .\pecunia\templates\pecunia\statement_create.html:7
+#: .\pecunia\templates\pecunia\statement_update.html:7
+msgid "global.cancel"
+msgstr "Cancel"
+
+#: .\pecunia\templates\pecunia\document_detail.html:10
+#: .\pecunia\templates\pecunia\document_list.html:26
+#: .\pecunia\templates\pecunia\item_detail.html:25
+#: .\pecunia\templates\pecunia\item_detail.html:37
+#: .\pecunia\templates\pecunia\person_detail.html:6
+#: .\pecunia\templates\pecunia\person_list.html:23
+#: .\pecunia\templates\pecunia\place_detail.html:8
+#: .\pecunia\templates\pecunia\property_detail.html:31
+#: .\pecunia\templates\pecunia\property_detail.html:43
+#: .\pecunia\templates\widgets\property_table.html:31
+msgid "global.edit"
+msgstr "Edit"
+
+#: .\pecunia\templates\pecunia\document_detail.html:12
+#: .\pecunia\templates\pecunia\person_detail.html:7
+#: .\pecunia\templates\pecunia\place_detail.html:10
+msgid "global.back"
+msgstr "Back"
+
+#: .\pecunia\templates\pecunia\document_form.html:6
+#: .\pecunia\templates\pecunia\item_creation.html:6
+#: .\pecunia\templates\pecunia\item_update_labeldescription.html:6
+#: .\pecunia\templates\pecunia\person_form.html:6
+#: .\pecunia\templates\pecunia\place_form.html:5
+#: .\pecunia\templates\pecunia\property_creation.html:6
+#: .\pecunia\templates\pecunia\property_update_labeldescription.html:6
+#: .\pecunia\templates\pecunia\statement_update.html:6
+msgid "global.save"
+msgstr "Save"
+
+#: .\pecunia\templates\pecunia\document_list.html:6
+msgid "form.document.list_title"
+msgstr "Document list:"
+
+#: .\pecunia\templates\pecunia\document_list.html:8
+msgid "form.document.new"
+msgstr "Create a new document"
+
+#: .\pecunia\templates\pecunia\document_list.html:12
+msgid "form.document.title"
+msgstr "Title"
+
+#: .\pecunia\templates\pecunia\document_list.html:13
+msgid "form.document.description"
+msgstr "Description"
+
+#: .\pecunia\templates\pecunia\document_list.html:14
+#: .\pecunia\templates\pecunia\item_detail.html:15
+#: .\pecunia\templates\pecunia\item_list.html:17
+#: .\pecunia\templates\pecunia\person_list.html:14
+#: .\pecunia\templates\pecunia\place_list.html:11
+#: .\pecunia\templates\pecunia\property_detail.html:21
+#: .\pecunia\templates\pecunia\property_list.html:18
+msgid "global.action"
+msgstr "Actions"
+
+#: .\pecunia\templates\pecunia\document_list.html:22
+#: .\pecunia\templates\pecunia\item_list.html:26
+#: .\pecunia\templates\pecunia\person_list.html:22
+#: .\pecunia\templates\pecunia\property_list.html:27
+msgid "global.see"
+msgstr "See"
+
+#: .\pecunia\templates\pecunia\document_list.html:28
+#: .\pecunia\templates\pecunia\item_list.html:29
+#: .\pecunia\templates\pecunia\person_list.html:24
+#: .\pecunia\templates\pecunia\property_list.html:31
+#: .\pecunia\templates\widgets\property_table.html:32
+msgid "global.delete"
+msgstr "Delete"
+
+#: .\pecunia\templates\pecunia\index.html:4
+msgid "global.welcome_message"
+msgstr "Welcome to Pecunia Project Home page!"
+
+#: .\pecunia\templates\pecunia\item_detail.html:10
+#: .\pecunia\templates\pecunia\property_detail.html:16
+msgid "global.language_code"
+msgstr "Language code"
+
+#: .\pecunia\templates\pecunia\item_detail.html:49
+msgid "global.statement.new"
+msgstr "Add new statement"
+
+#: .\pecunia\templates\pecunia\item_list.html:6
+msgid "form.item.list_title"
+msgstr "Item list"
+
+#: .\pecunia\templates\pecunia\item_list.html:8
+msgid "form.item.new"
+msgstr "Create a new item"
+
+#: .\pecunia\templates\pecunia\item_list.html:14
+#: .\pecunia\templates\pecunia\property_list.html:15
+msgid "global.id"
+msgstr "ID"
+
+#: .\pecunia\templates\pecunia\person_list.html:5
+msgid "form.person.list_title"
+msgstr "Person list"
+
+#: .\pecunia\templates\pecunia\person_list.html:8
+msgid "form.person.new"
+msgstr "Create a new person"
+
+#: .\pecunia\templates\pecunia\person_list.html:12
+msgid "form.person.name"
+msgstr "Name"
+
+#: .\pecunia\templates\pecunia\person_list.html:13
+msgid "form.person.description"
+msgstr "Description"
+
+#: .\pecunia\templates\pecunia\place_list.html:5
+msgid "form.place.list_title"
+msgstr "Place list"
+
+#: .\pecunia\templates\pecunia\place_list.html:9
+msgid "form.place.name"
+msgstr "Name"
+
+#: .\pecunia\templates\pecunia\place_list.html:10
+msgid "form.place.description"
+msgstr "Description"
+
+#: .\pecunia\templates\pecunia\property_list.html:6
+msgid "form.property.list_title"
+msgstr "Property list"
+
+#: .\pecunia\templates\pecunia\property_list.html:9
+msgid "form.property.new"
+msgstr "Create a new property"
+
+#: .\pecunia\templates\pecunia\statement_create.html:6
+msgid "global.next"
+msgstr "Next"
+
+#: .\pecunia\templates\widgets\property_table.html:42
+msgid "global.statement_value.new"
+msgstr "Add new value"
+
+#: .\pecunia\templatetags\pecunia_tags.py:21
+msgid "no label"
+msgstr ""
+
+#: .\pecunia\templatetags\pecunia_tags.py:40
+msgid "-"
+msgstr ""

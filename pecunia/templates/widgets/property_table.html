@@ -1,0 +1,46 @@
+{% load pecunia_tags %}
+{% load i18n %}
+{% get_current_language as LANGUAGE_CODE %}
+<table data-property-id="{{ prop.display_id }}">
+    {% for stat in statement %}
+        <tr data-statement-id="{{ stat.id }}">
+            {% if forloop.counter == 1 %}
+
+                {% if user.is_authenticated %}
+                    <td class="property-cell" rowspan="{{ statement|length|add:1 }}">
+                        <a href='{% url "property_display" prop.display_id %}'>{{ prop|label_or_default:LANGUAGE_CODE }}</a>
+                    </td>
+                {% else %}
+                    <td class="property-cell" rowspan="{{ statement|length }}">
+                        <a href='{% url "property_display" prop.display_id %}'>{{ prop|label_or_default:LANGUAGE_CODE }}</a>
+                    </td>
+                {% endif %}
+            {% endif %}
+            <td class="value-cell">{{ stat.rank }}
+                {% if stat.mainSnak|snak_type == 0 %}
+                    {{ stat.mainSnak.value|html }}
+                {% elif stat.mainSnak|snak_type == 1 %}
+                    <i>Unknown value</i>
+                {% elif stat.mainSnak|snak_type == 2 %}
+                    <i>No value</i>
+                {% endif %}
+            </td>
+            {% if user.is_authenticated %}
+                <td class="actions-cell">
+                    <a class="button btn-edit-value" href='#'>{% trans "global.edit" %}</a>
+                    <a class="button btn-delete-value" href='#'>{% trans "global.delete" %}</a>
+                </td>
+            {% endif %}
+        </tr>
+    {% endfor %}
+
+    {% if user.is_authenticated %}
+        <tr style="line-height: 14px">
+            <td colspan="2">
+                <a class="button btn-add-value" data-property="{{ prop.display_id }}" href='#'>
+                    {% trans "global.statement_value.new" %}
+                </a>
+            </td>
+        </tr>
+    {% endif %}
+</table>

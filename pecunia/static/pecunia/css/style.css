@@ -1,0 +1,56 @@
+span.tagged-element {
+    color: green;
+}
+
+.typed::before {
+    content: '';
+    width: 1.2em;
+    height: 1.2em;
+    vertical-align: middle;
+    margin-right: 0.2em;
+    display: inline-block;
+    background-size: contain;
+    background-repeat: no-repeat;
+}
+
+.type-place::before {
+    background-image: url('https://upload.wikimedia.org/wikipedia/commons/4/4a/Android_Emoji_1f3e0.svg');
+}
+
+.type-person::before {
+    background-image: url('https://upload.wikimedia.org/wikipedia/commons/c/c8/Android_Emoji_1f464.svg');
+}
+
+.type-resource::before {
+    background-image: url('https://upload.wikimedia.org/wikipedia/commons/d/d8/Android_Emoji_1f48e.svg');
+}
+
+.type-group::before {
+    background-image: url('https://upload.wikimedia.org/wikipedia/commons/3/39/Emojione_BW_1F465.svg');
+}
+
+.text-wrapper {
+    display: flex;
+    border: 1px solid #ccc;
+    max-width: 800px;
+}
+
+.line-numbers {
+    background-color: #f0f0f0;
+    color: #888;
+    text-align: right;
+    padding: 10px 5px;
+    user-select: none;
+}
+
+.line-numbers div {
+    height: 1.5em; /* hauteur de ligne */
+}
+
+article {
+    width: 100%;
+    padding: 10px;
+    white-space: pre; /* préserve les retours à la ligne */
+    overflow-x: auto;
+    margin-bottom: 0;
+}

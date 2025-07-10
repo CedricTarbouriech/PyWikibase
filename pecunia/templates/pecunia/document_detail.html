@@ -1,0 +1,38 @@
+ {% extends "base.html" %}
+{% load pecunia_tags %}
+{% load document_tags %}
+{% load i18n %}
+{% get_current_language as LANGUAGE_CODE %}
+{% block content %}
+    <h1>🗎&nbsp;{{ document|prop:'title' }}</h1>
+    <div style="margin: -1em 1em 2em;">
+        {% if user.is_authenticated %}
+            <a href='{% url "item_display" document.display_id %}'>Éditer l’élément</a> -
+            <a href='{% url "document_update" document.display_id %}'>{% trans "global.edit" %}</a> -
+        {% endif %}
+        <a href="{% url "document_list" %}">{% trans "global.back" %}</a>
+    </div>
+    <div style="margin: -1em 1em 2em; ">
+        <div style="border: solid 1px gray; border-radius: 5px; width:500px; padding:5px">
+            https://pecunia.huma-num.fr/documents/{{ document.display_id }}
+        </div>
+        <br/>
+        <div>{{ document|prop_label:'source_type'|capitalize }}: {{ document|prop:'source_type' }}</div>
+        <div>{{ document|prop_label:'language'|capitalize }}: {{ document|prop:'language' }}</div>
+        <div>{{ document|prop_label:'date'|capitalize }}: {{ document|prop:'date' }}</div>
+        <div>{{ document|prop_label:'source_reference'|capitalize }}: {{ document|prop:'source_reference' }}</div>
+        <div>{{ document|prop_label:'provenance'|capitalize }}: {{ document|prop:'provenance' }}</div>
+        <br/>
+        <div {% if document.translation %}style="display: grid; grid-template-columns: auto auto;"{% endif %}>
+            <div class="text-wrapper">
+                <div class="line-numbers">
+                    {{ document|line_numbers }}
+                </div>
+                <article>{{ document|prop_mtv_value:'text'|highlight_words }}</article>
+            </div>
+            {% if document.translation %}
+                <article>{{ document|prop_mtv_value:'translation' }}</article>
+            {% endif %}
+        </div>
+    </div>
+{% endblock %}

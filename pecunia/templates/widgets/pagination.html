@@ -1,0 +1,24 @@
+{% load pecunia_tags %}
+<div class="pagination">
+    <span class="step-links">
+        {% if page_obj.has_previous %}
+            <a href="?page=1&limit={{ page_obj.paginator.per_page }}">&laquo; first</a>
+            <a href="?page={{ page_obj.previous_page_number }}&limit={{ page_obj.paginator.per_page }}">previous</a>
+        {% endif %}
+
+        <span class="current">
+            Page {{ page_obj.number }} of {{ page_obj.paginator.num_pages }}.
+        </span>
+
+        {% if page_obj.has_next %}
+            <a href="?page={{ page_obj.next_page_number }}&limit={{ page_obj.paginator.per_page }}">next</a>
+            <a href="?page={{ page_obj.paginator.num_pages }}&limit={{ page_obj.paginator.per_page }}">last &raquo;</a>
+        {% endif %}
+    </span>
+    <span>
+        {% for number in "5,10,25,50"|split:"," %}
+            <a href="?page={{ page_obj.number }}&limit={{ number }}">{{ number }}</a>
+        {% endfor %}
+        
+    </span>
+</div>
