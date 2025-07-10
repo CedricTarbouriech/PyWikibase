@@ -194,4 +194,4 @@ def html(value: m.Value) -> str:
     elif isinstance(value, m.UrlValue):
         return mark_safe(f"<a href='{value.value}'>{value.value}</a>")
     else:
-        return mark_safe(linebreaks(value))
+        return mark_safe(value)
