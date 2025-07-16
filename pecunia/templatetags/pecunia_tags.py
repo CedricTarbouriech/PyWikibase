@@ -106,14 +106,12 @@ def prop_label(item: object, prop_key_mapping: str) -> str:
 
 
 def handle_tag(el: etree._Element) -> str:
-    # print(
-    #     f"appel de handle_tag avec tag={el.tag}, attribs={el.attrib}, text={el.text}, tail='{el.tail}', children={el.getchildren()}")
     output = ""
     inner = ""
     for child in el.getchildren():
-        # print(el, child)
         inner += handle_tag(child)
     text = el.text or ''
+    text = text.strip().replace('\n', ' ')
     if el.tag == 'w':
         w_text = text or inner
         w_type = el.get("type", "")
@@ -123,6 +121,8 @@ def handle_tag(el: etree._Element) -> str:
         else:
             output += f'<span class="tagged-element {"typed type-" + w_type if w_type else ""}">{w_text}</span>'
     elif el.tag == 'lb' and int(el.attrib['n']) != 0:
+        if 'break' in el.attrib and el.attrib['break'] == "no" or 'type' in el.attrib and el.attrib['type'] == "worddiv":
+            output += '-'
         output += '<br>'
     elif el.tag == 'orig':
         w_text = text.strip() + inner
@@ -131,9 +131,45 @@ def handle_tag(el: etree._Element) -> str:
         w_text = text.strip()
         w_text = ''.join(c + ("\u0323" if not c.isspace() else "") for c in w_text)
         output += w_text + inner
+    elif el.tag == 'gap':
+        # if 'extent' in el.attrib and el.attrib['extent'] == 'unknown' and el.attrib['reason'] == 'lost':
+        #     output += ""
+        # else:
+        res = ''
+        if 'quantity' in el.attrib:
+            character_number = int(el.attrib['quantity'])
+            res = "." * character_number
+        elif 'extent' in el.attrib:
+            res = "----"
+        if el.attrib['reason'] == 'lost':
+            res = f"[{res}]"
+        output += res
+    elif el.tag == 'del':
+        res = text + inner
+        if res[0] == '[' and res[-1] == ']':
+            res = res[1:-1]
+        output += f"〚{res}〛"
     elif el.tag == 'supplied':
-        w_text = text.strip() or ''
-        output += f"[{w_text}]"
+        reason = el.attrib['reason']
+        if reason == 'lost':
+            output += f"[{text}]"
+        elif reason == 'omitted':
+            output += f"<{text}>"
+    elif el.tag == 'surplus':
+        output += f"{{{text}}}"
+    elif el.tag == 'choice':
+        output += f"<{text + inner}>"
+    elif el.tag == 'sic':
+        return ""
+    elif el.tag == 'expan':
+        output += f"{text + inner}"
+    elif el.tag == 'ex':
+        final = ")"
+        if 'cert' in el.attrib and el.attrib['cert'] == 'low':
+            final = "?)"
+        output += f"({text + inner}{final}"
+    elif el.tag == 'space':
+        output += 'v.'
     elif el.tag == 'g':
         output += f"(({el.attrib['type']}))"
     elif el.text:
@@ -149,7 +185,6 @@ def handle_tag(el: etree._Element) -> str:
 def highlight_words(value):
     if not value:
         return ''
-    value = value.replace('\r\n', ' ')
     root = etree.fromstring(f"<xml>{value}</xml>")
 
     # Conteneur HTML
@@ -159,7 +194,9 @@ def highlight_words(value):
 
     for el in root:
         output += handle_tag(el)
-
+    # Removed first <br>
+    if output.startswith('<br>'):
+        output = output[4:]
     return mark_safe(output)
 
 
