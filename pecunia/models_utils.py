@@ -11,10 +11,20 @@ def get_documents():
                                  statement__mainSnak__propertysnak__propertyvaluesnak__value=get_item_mapping(
                                      'document'))
 
+def get_places():
+    """
+    Returns a queryset of items classified as places.
+    :return: Queryset of items classified as places.
+    """
+    return m.Item.objects.filter(statement__mainSnak__propertysnak__property=get_property_mapping('is_a'),
+                                 statement__mainSnak__propertysnak__propertyvaluesnak__value=get_item_mapping(
+                                     'place'))
 
 def get_document_by_id(display_id: int) -> m.Item:
     return get_documents().get(display_id=display_id)
 
+def get_place_by_id(display_id: int) -> m.Item:
+    return get_places().get(display_id=display_id)
 
 def create_document(lang_code, title):
     item = wbapi.create_item()
