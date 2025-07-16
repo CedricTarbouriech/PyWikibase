@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2025-07-02 16:09+0200\n"
+"POT-Creation-Date: 2025-07-11 16:45+0200\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -106,31 +106,39 @@ msgstr "Property"
 msgid "form.property.type"
 msgstr "Type"
 
-#: .\pecunia\templates\base.html:22
+#: .\pecunia\templates\base.html:23
 msgid "nav.home"
 msgstr "Home"
 
-#: .\pecunia\templates\base.html:23
+#: .\pecunia\templates\base.html:24
 msgid "nav.document"
 msgstr "Documents"
 
+#: .\pecunia\templates\base.html:25
+msgid "nav.person"
+msgstr "Person"
+
 #: .\pecunia\templates\base.html:26
+msgid "nav.place"
+msgstr "Place"
+
+#: .\pecunia\templates\base.html:27
 msgid "nav.item"
 msgstr "Items"
 
-#: .\pecunia\templates\base.html:27
+#: .\pecunia\templates\base.html:28
 msgid "nav.property"
 msgstr "Properties"
 
-#: .\pecunia\templates\base.html:36
+#: .\pecunia\templates\base.html:37
 msgid "nav.language.submit"
 msgstr "Switch"
 
-#: .\pecunia\templates\base.html:41
+#: .\pecunia\templates\base.html:42
 msgid "nav.logout"
 msgstr "Log out"
 
-#: .\pecunia\templates\base.html:44
+#: .\pecunia\templates\base.html:45
 msgid "nav.login"
 msgstr "Log in"
 
@@ -143,15 +151,13 @@ msgstr "Confirm"
 #: .\pecunia\templates\pecunia\item_creation.html:7
 #: .\pecunia\templates\pecunia\item_update_labeldescription.html:7
 #: .\pecunia\templates\pecunia\person_form.html:7
-#: .\pecunia\templates\pecunia\place_form.html:6
+#: .\pecunia\templates\pecunia\place_form.html:7
 #: .\pecunia\templates\pecunia\property_creation.html:7
 #: .\pecunia\templates\pecunia\property_update_labeldescription.html:7
-#: .\pecunia\templates\pecunia\statement_create.html:7
-#: .\pecunia\templates\pecunia\statement_update.html:7
 msgid "global.cancel"
 msgstr "Cancel"
 
-#: .\pecunia\templates\pecunia\document_detail.html:10
+#: .\pecunia\templates\pecunia\document_detail.html:11
 #: .\pecunia\templates\pecunia\document_list.html:26
 #: .\pecunia\templates\pecunia\item_detail.html:25
 #: .\pecunia\templates\pecunia\item_detail.html:37
@@ -160,11 +166,11 @@ msgstr "Cancel"
 #: .\pecunia\templates\pecunia\place_detail.html:8
 #: .\pecunia\templates\pecunia\property_detail.html:31
 #: .\pecunia\templates\pecunia\property_detail.html:43
-#: .\pecunia\templates\widgets\property_table.html:31
+#: .\pecunia\templates\widgets\property_table.html:30
 msgid "global.edit"
 msgstr "Edit"
 
-#: .\pecunia\templates\pecunia\document_detail.html:12
+#: .\pecunia\templates\pecunia\document_detail.html:13
 #: .\pecunia\templates\pecunia\person_detail.html:7
 #: .\pecunia\templates\pecunia\place_detail.html:10
 msgid "global.back"
@@ -174,10 +180,9 @@ msgstr "Back"
 #: .\pecunia\templates\pecunia\item_creation.html:6
 #: .\pecunia\templates\pecunia\item_update_labeldescription.html:6
 #: .\pecunia\templates\pecunia\person_form.html:6
-#: .\pecunia\templates\pecunia\place_form.html:5
+#: .\pecunia\templates\pecunia\place_form.html:6
 #: .\pecunia\templates\pecunia\property_creation.html:6
 #: .\pecunia\templates\pecunia\property_update_labeldescription.html:6
-#: .\pecunia\templates\pecunia\statement_update.html:6
 msgid "global.save"
 msgstr "Save"
 
@@ -218,7 +223,7 @@ msgstr "See"
 #: .\pecunia\templates\pecunia\item_list.html:29
 #: .\pecunia\templates\pecunia\person_list.html:24
 #: .\pecunia\templates\pecunia\property_list.html:31
-#: .\pecunia\templates\widgets\property_table.html:32
+#: .\pecunia\templates\widgets\property_table.html:31
 msgid "global.delete"
 msgstr "Delete"
 
@@ -231,7 +236,7 @@ msgstr "Welcome to Pecunia Project Home page!"
 msgid "global.language_code"
 msgstr "Language code"
 
-#: .\pecunia\templates\pecunia\item_detail.html:49
+#: .\pecunia\templates\pecunia\item_detail.html:48
 msgid "global.statement.new"
 msgstr "Add new statement"
 
@@ -284,18 +289,17 @@ msgstr "Property list"
 msgid "form.property.new"
 msgstr "Create a new property"
 
-#: .\pecunia\templates\pecunia\statement_create.html:6
-msgid "global.next"
-msgstr "Next"
-
-#: .\pecunia\templates\widgets\property_table.html:42
+#: .\pecunia\templates\widgets\property_table.html:41
 msgid "global.statement_value.new"
 msgstr "Add new value"
 
-#: .\pecunia\templatetags\pecunia_tags.py:21
+#: .\pecunia\templatetags\pecunia_tags.py:22
 msgid "no label"
 msgstr ""
 
-#: .\pecunia\templatetags\pecunia_tags.py:40
+#: .\pecunia\templatetags\pecunia_tags.py:41
 msgid "-"
 msgstr ""
+
+#~ msgid "global.next"
+#~ msgstr "Next"
