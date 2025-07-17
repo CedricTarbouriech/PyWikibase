@@ -58,9 +58,9 @@ export async function createPropertySelector(lang_code) {
   return $propertySelector;
 }
 
-export async function createSnakInput(lang_code, datatype, defaultValue = null) {
-  switch (datatype) {
-    case 'Item':
+const datatypeHandlers = {
+  Item: {
+    createInput: async (langCode, defaultValue) => {
       const data = await getAsJson('/api/items', 'Erreur de chargement des éléments.');
 
       let $valueInput = $('<select class="value-selector">');
@@ -69,7 +69,7 @@ export async function createSnakInput(lang_code, datatype, defaultValue = null) 
       }
 
       Object.entries(data).forEach(([key, value]) => {
-        let itemName = getLabel(value, lang_code);
+        let itemName = getLabel(value, langCode);
         const $option = $('<option>')
           .val(key)
           .text(itemName);
@@ -79,32 +79,58 @@ export async function createSnakInput(lang_code, datatype, defaultValue = null) 
         $valueInput.append($option);
       });
       return $valueInput;
-    case 'StringValue':
-    case 'UrlValue':
+    },
+
+    getValue: ($input) => {
+      return {item: $input.find('.value-selector option:selected').val()};
+    }
+  },
+  StringValue: {
+    createInput: async (langCode, defaultValue) => {
       return $('<input>').attr('type', 'text').val(defaultValue ? defaultValue.value : "");
-    case 'MonolingualTextValue':
+    },
+    getValue: ($input) => {
+      return {value: $input.find('input').val()};
+
+    }
+  },
+  UrlValue: {
+    createInput: async (langCode, defaultValue) => {
+      return $('<input>').attr('type', 'text').val(defaultValue ? defaultValue.value : "");
+    },
+    getValue: ($input) => {
+      return {value: $input.find('input').val()};
+
+    }
+  },
+  MonolingualTextValue: {
+    createInput: async (langCode, defaultValue) => {
       const $languageInput = $('<input>').attr('type', 'text').attr('placeholder', 'Language code').val(defaultValue ? defaultValue.lang : "");
       const $textInput = $('<input>').attr('type', 'text').attr('placeholder', 'Text').val(defaultValue ? defaultValue.value : "");
       return $('<span>').append($languageInput, $textInput);
-  }
-}
-
-export function getValueFromInputTd(datatype, $valueInputTd) {
-  switch (datatype) {
-    case 'Item':
-      return {item: $valueInputTd.find('.value-selector option:selected').val()};
-    case 'StringValue':
-    case 'UrlValue':
-      return {value: $valueInputTd.find('input').val()};
-    case 'MonolingualTextValue':
-      const values = $valueInputTd.find('input').map(function () {
+    },
+    getValue: ($input) => {
+      const values = $input.find('input').map(function () {
         return $(this).val();
       }).get();
       return {
         language: values[0],
         value: values[1]
       }
+    }
   }
+};
+
+export async function createSnakInput(langCode, datatype, defaultValue = null) {
+  const handler = datatypeHandlers[datatype];
+  if (!handler) throw new Error(`No input creator for datatype: ${datatype}.`)
+  return handler.createInput(langCode, defaultValue);
+}
+
+export function getValueFromInputTd(datatype, $valueInputTd) {
+  const handler = datatypeHandlers[datatype];
+  if (!handler) throw new Error(`No value extractor for datatype: ${datatype}.`)
+  return handler.getValue($valueInputTd);
 }
 
 /**
