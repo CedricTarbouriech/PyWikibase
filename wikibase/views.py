@@ -61,12 +61,14 @@ class StatementAddApiView(LoginRequiredMixin, View):
                 value = m.QuantityValue(number=post_data['value']['number'])
                 value.save()
             else:
-                raise Exception(f"Unknown type: {type_name}")
+                raise Exception(f"Unknown datatype: {type_name}")
             snak = m.PropertyValueSnak(property=prop, value=value)
         elif type_field_value == "1":
             snak = m.PropertySomeValueSnak(property=prop)
         elif type_field_value == "2":
             snak = m.PropertyNoValueSnak(property=prop)
+        else:
+            raise Exception(f"Unknown snak type: {type_field_value}")
 
         snak.save()
         statement = m.Statement(subject=subject, mainSnak=snak, rank=0)
