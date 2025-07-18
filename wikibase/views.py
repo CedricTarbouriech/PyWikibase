@@ -57,6 +57,8 @@ class StatementAddApiView(LoginRequiredMixin, View):
             elif type_name == 'UrlValue':
                 value = m.UrlValue(value=post_data['value']['value'])
                 value.save()
+            else:
+                raise Exception(f"Unknown type: {type_name}")
             snak = m.PropertyValueSnak(property=prop, value=value)
         elif type_field_value == "1":
             snak = m.PropertySomeValueSnak(property=prop)
