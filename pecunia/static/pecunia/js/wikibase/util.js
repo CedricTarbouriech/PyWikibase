@@ -91,7 +91,6 @@ const datatypeHandlers = {
     },
     getValue: ($input) => {
       return {value: $input.find('input').val()};
-
     }
   },
   UrlValue: {
@@ -100,7 +99,6 @@ const datatypeHandlers = {
     },
     getValue: ($input) => {
       return {value: $input.find('input').val()};
-
     }
   },
   MonolingualTextValue: {
@@ -118,7 +116,15 @@ const datatypeHandlers = {
         value: values[1]
       }
     }
-  }
+  },
+  QuantityValue: {
+    createInput: async (langCode, defaultValue) => {
+      return $('<input>').attr('type', 'text').val(defaultValue ? defaultValue.number : "");
+    },
+    getValue: ($input) => {
+      return {number: $input.find('input').val()};
+    }
+  },
 };
 
 export async function createSnakInput(langCode, datatype, defaultValue = null) {

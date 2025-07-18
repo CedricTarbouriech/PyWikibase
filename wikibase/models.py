@@ -157,15 +157,20 @@ class StringValue(DataValue):
     def __str__(self):
         return self.value
 
+
 class UrlValue(DataValue):
     value = models.TextField()
 
     def __str__(self):
         return self.value
 
+
 # Removed lower and upper bound, and created subclass with unit.
 class QuantityValue(DataValue):
     number = models.FloatField()
+
+    def __str__(self):
+        return f"{self.number}"
 
 
 class UnitQuantityValue(QuantityValue):

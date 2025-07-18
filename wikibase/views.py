@@ -57,6 +57,9 @@ class StatementAddApiView(LoginRequiredMixin, View):
             elif type_name == 'UrlValue':
                 value = m.UrlValue(value=post_data['value']['value'])
                 value.save()
+            elif type_name == 'QuantityValue':
+                value = m.QuantityValue(number=post_data['value']['number'])
+                value.save()
             else:
                 raise Exception(f"Unknown type: {type_name}")
             snak = m.PropertyValueSnak(property=prop, value=value)
@@ -96,6 +99,8 @@ class StatementApiView(View):
                 value = {'value': snak.value.value}
             elif property_type == 'Item':
                 value = {'id': snak.value.display_id}
+            elif property_type == 'QuantityValue':
+                value = {'number': snak.value.number}
         elif type(snak) == m.PropertySomeValueSnak:
             value_presence_type = "1"
         elif type(snak) == m.PropertyNoValueSnak:
@@ -125,6 +130,10 @@ def json_to_python(type_name, value):
         return value
     elif type_name == 'StringValue':
         value = m.StringValue(value=value['value'])
+        value.save()
+        return value
+    elif type_name == 'QuantityValue':
+        value = m.QuantityValue(number=value['number'])
         value.save()
         return value
 
