@@ -1,4 +1,4 @@
- {% extends "base.html" %}
+{% extends "base.html" %}
 {% load pecunia_tags %}
 {% load document_tags %}
 {% load i18n %}
@@ -23,17 +23,19 @@
         <div>{{ document|prop_label:'source_reference'|capitalize }}: {{ document|prop:'source_reference'|html }}</div>
         <div>{{ document|prop_label:'provenance'|capitalize }}: {{ document|prop:'provenance'|html }}</div>
         <br/>
-        <div {% if document.translation %}style="display: grid; grid-template-columns: auto auto;"{% endif %}>
-            <div class="text-wrapper">
-                <div class="line-numbers">
-                    {{ document|line_numbers }}
+        {% if document|has_prop:'text' %}
+            <div {% if document.translation %}style="display: grid; grid-template-columns: auto auto;"{% endif %}>
+                <div class="text-wrapper">
+                    <div class="line-numbers">
+                        {{ document|line_numbers }}
+                    </div>
+                    <article>{{ document|prop_mtv_value:'text'|highlight_words }}</article>
                 </div>
-                <article>{{ document|prop_mtv_value:'text'|highlight_words }}</article>
+                {% if document.translation %}
+                    <article>{{ document|prop_mtv_value:'translation' }}</article>
+                {% endif %}
             </div>
-            {% if document.translation %}
-                <article>{{ document|prop_mtv_value:'translation' }}</article>
-            {% endif %}
-        </div>
+        {% endif %}
         <div>{{ document|prop_label:'bibliography'|capitalize }}: {{ document|prop:'bibliography'|html }}</div>
         <div>{{ document|prop_label:'commentary'|capitalize }}: {{ document|prop:'commentary' }}</div>
     </div>

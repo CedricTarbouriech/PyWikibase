@@ -220,6 +220,10 @@ def snak_type(snak: m.Snak) -> int:
     elif isinstance(snak, m.PropertyNoValueSnak):
         return 2
 
+@register.filter
+def has_prop(value: m.Value, prop_key:str) -> bool:
+    return value.statement_set.filter(mainSnak__propertysnak__property=get_property_mapping(prop_key)).count() != 0
+
 
 @register.filter
 def html(value: m.Value) -> str:
