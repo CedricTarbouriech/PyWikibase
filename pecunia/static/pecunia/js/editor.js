@@ -31,6 +31,7 @@ function addResourceTag() {
 
 function parseAnnotationTextArea() {
   const $textfield = $('#textfield');
+  if (!$textfield.length) return;
   const textValue = $textfield.val().toString();
   let $matchDiv = $('div#matchResult');
   if ($matchDiv.length === 0) {
