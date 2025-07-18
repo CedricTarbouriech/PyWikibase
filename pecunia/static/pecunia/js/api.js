@@ -50,7 +50,7 @@ export async function fetchPropertyDataType(propertyId) {
  */
 export async function createStatement(snakType, propertyId, entityId, value) {
   return await postAsJson('/api/statement/add', 'Erreur lors de l’ajout d’un statement.', {
-    type: snakType,
+    snak_type: snakType,
     prop_id: propertyId,
     entity_id: entityId,
     value: value

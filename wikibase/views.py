@@ -36,13 +36,13 @@ class ItemApiView(View):
 class StatementAddApiView(LoginRequiredMixin, View):
     def post(self, request, *args, **kwargs):
         post_data = json.loads(request.body.decode('utf-8'))
-        type_field_value = post_data.get('type')
+        type_field_value = post_data.get('snak_type')
         prop = m.Property.objects.get(display_id=post_data.get('prop_id'))
         # FIXME: Not compatible if we want to add statements to properties
         subject = m.Item.objects.get(display_id=post_data.get('entity_id'))
 
         snak = None
-        if type_field_value == "value":
+        if type_field_value == "0":
             value = None
             type_name = prop.data_type.class_name
             if type_name == 'Item':
@@ -58,9 +58,9 @@ class StatementAddApiView(LoginRequiredMixin, View):
                 value = m.UrlValue(value=post_data['value']['value'])
                 value.save()
             snak = m.PropertyValueSnak(property=prop, value=value)
-        elif type_field_value == "somevalue":
+        elif type_field_value == "1":
             snak = m.PropertySomeValueSnak(property=prop)
-        elif type_field_value == "novalue":
+        elif type_field_value == "2":
             snak = m.PropertyNoValueSnak(property=prop)
 
         snak.save()
