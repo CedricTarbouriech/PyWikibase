@@ -178,10 +178,25 @@ async function deleteValue(event) {
   }
 }
 
+function generateLeafletMap() {
+  const $map = $(this);
+  const id = $map.attr('id');
+  const latitude = parseFloat($map.data('lat'));
+  const longitude = parseFloat($map.data('lon'));
+
+  const map = L.map(id).setView([latitude, longitude], 6);
+  L.tileLayer('https://dh.gu.se/tiles/imperium/{z}/{x}/{y}.png', {
+    attribution: '&copy; <a href="http://imperium.ahlfeldt.se/">DARE</a>',
+    maxZoom: 10
+  }).addTo(map);
+  L.marker([latitude, longitude]).addTo(map);
+}
+
 $(function () {
   $('#btn-new-statement').on('click', addNewStatement);
   $('.statements')
     .on('click', '.btn-add-value', addnewSnak)
     .on('click', '.btn-edit-value', editSnak)
     .on('click', '.btn-delete-value', deleteValue);
+  $('.map').each(generateLeafletMap);
 });

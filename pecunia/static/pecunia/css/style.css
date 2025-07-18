@@ -54,3 +54,9 @@ article {
     overflow-x: auto;
     margin-bottom: 0;
 }
+
+.map {
+    width: 400px;
+    height: 300px;
+    border: 2px solid #333;
+}

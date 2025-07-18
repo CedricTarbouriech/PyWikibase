@@ -125,6 +125,23 @@ const datatypeHandlers = {
       return {number: $input.find('input').val()};
     }
   },
+  GlobeCoordinatesValue: {
+    createInput: async (langCode, defaultValue) => {
+      const $latitudeInput = $('<input>').attr('type', 'text').attr('placeholder', 'latitude').val(defaultValue ? defaultValue.latitude : "");
+      const $longitudeInput = $('<input>').attr('type', 'text').attr('placeholder', 'longitude').val(defaultValue ? defaultValue.longitude : "");
+      return $('<span>').append($latitudeInput, $longitudeInput);
+    },
+    getValue: ($input) => {
+      const values = $input.find('input').map(function () {
+        return $(this).val();
+      }).get();
+      return {
+        latitude: values[0],
+        longitude: values[1]
+      }
+    }
+  },
+  TimeValue: {}
 };
 
 export async function createSnakInput(langCode, datatype, defaultValue = null) {

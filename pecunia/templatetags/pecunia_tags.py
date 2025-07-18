@@ -121,7 +121,8 @@ def handle_tag(el: etree._Element) -> str:
         else:
             output += f'<span class="tagged-element {"typed type-" + w_type if w_type else ""}">{w_text}</span>'
     elif el.tag == 'lb' and int(el.attrib['n']) != 0:
-        if 'break' in el.attrib and el.attrib['break'] == "no" or 'type' in el.attrib and el.attrib['type'] == "worddiv":
+        if 'break' in el.attrib and el.attrib['break'] == "no" or 'type' in el.attrib and el.attrib[
+            'type'] == "worddiv":
             output += '-'
         output += '<br>'
     elif el.tag == 'orig':
@@ -223,8 +224,15 @@ def snak_type(snak: m.Snak) -> int:
 @register.filter
 def html(value: m.Value) -> str:
     if isinstance(value, m.Item):
-        return mark_safe(f"<a href='{reverse('item_display', args=[value.display_id])}'>{label_or_default(value, get_language())}</a>")
+        return mark_safe(
+            f"<a href='{reverse('item_display', args=[value.display_id])}'>{label_or_default(value, get_language())}</a>")
     elif isinstance(value, m.UrlValue):
         return mark_safe(f"<a href='{value.value}'>{value.value}</a>")
+    elif isinstance(value, m.GlobeCoordinatesValue):
+        return mark_safe(
+            f"<span>{value.latitude}, {value.longitude}"
+            f"<div id='map-{value.id}' class='map' "
+            f"data-lat='{value.latitude}' data-lon='{value.longitude}'></div></span>"
+        )
     else:
         return mark_safe(value)
