@@ -43,7 +43,7 @@ async function addNewStatement(event) {
     const $selectedOption = $propertySelector.find('option:selected');
     const datatype = $selectedOption.data('type');
     const propertyId = $selectedOption.val();
-    const data = await createStatement('value', propertyId, $('h1').data('item_id'), getValueFromInputTd(datatype, $valueInputTd));
+    const data = await createStatement('0', propertyId, $('h1').data('item_id'), getValueFromInputTd(datatype, $valueInputTd));
     $table.replaceWith(data.updatedHtml);
     $table.find('.btn-add-value').on('click', addnewSnak);
   };
