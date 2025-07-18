@@ -2,7 +2,7 @@ from django.contrib.auth.mixins import LoginRequiredMixin
 from django.core.exceptions import ObjectDoesNotExist
 from django.core.paginator import Paginator
 from django.http import Http404
-from django.shortcuts import redirect, render
+from django.shortcuts import redirect
 from django.urls import reverse, reverse_lazy
 from django.views.generic import TemplateView, FormView, DetailView
 
@@ -13,6 +13,7 @@ from .place_views import PlaceDashboard, PlaceDisplay, PlaceCreation, PlaceUpdat
 from ..forms import ItemLabelDescriptionForm, PropertyLabelDescriptionForm
 
 DEFAULT_PAGINATOR_LIMIT = 25
+
 
 class Home(TemplateView):
     template_name = 'pecunia/index.html'
