@@ -107,6 +107,8 @@ class StatementApiView(View):
                 value = {'value': snak.value.value}
             elif property_type == 'Item':
                 value = {'id': snak.value.display_id}
+            elif property_type == 'UrlValue':
+                value = {'value': snak.value.value}
             elif property_type == 'QuantityValue':
                 value = {'number': snak.value.number}
             elif property_type == 'GlobeCoordinatesValue':
