@@ -10,7 +10,7 @@ class InstanceDashboardView(TemplateView):
 
     def dispatch(self, request, *args, **kwargs):
         if not get_item_mapping(self.item_mapping_key):
-            raise Http404()
+            raise Http404(f"Item mapping '{self.item_mapping_key}' does not exist.")
         return super().dispatch(request, *args, **kwargs)
 
     def get_context_data(self, **kwargs):
