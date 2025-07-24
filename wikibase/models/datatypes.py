@@ -1,4 +1,5 @@
 from django.core import exceptions
+from django.core.exceptions import ValidationError
 from django.db import models
 
 from .base import Value, Item, DescribedEntity
@@ -76,13 +77,36 @@ class MonolingualTextValue(DataValue):
     def __str__(self):
         return f'({self.lang_code}) {self.value}'
 
+
 class Label(MonolingualTextValue):
-    described_entity = models.ForeignKey(DescribedEntity, on_delete=models.PROTECT)
+    described_entity = models.ForeignKey(DescribedEntity, related_name='labels', on_delete=models.PROTECT)
+
+    def save(self, *args, **kwargs):
+        self.full_clean()
+        super().save(*args, **kwargs)
+
+    def clean(self):
+        if Label.objects.exclude(pk=self.pk).filter(
+                described_entity=self.described_entity,
+                lang_code=self.lang_code
+        ).exists():
+            raise ValidationError("A label is already defined for this entity")
 
 
 class Description(MonolingualTextValue):
-    described_entity = models.ForeignKey(DescribedEntity, on_delete=models.PROTECT)
+    described_entity = models.ForeignKey(DescribedEntity, related_name='descriptions', on_delete=models.PROTECT)
+
+    def save(self, *args, **kwargs):
+        self.full_clean()
+        super().save(*args, **kwargs)
+
+    def clean(self):
+        if Description.objects.exclude(pk=self.pk).filter(
+                described_entity=self.described_entity,
+                lang_code=self.lang_code
+        ).exists():
+            raise ValidationError("A description is already defined for this entity")
 
 
 class Alias(MonolingualTextValue):
-    described_entity = models.ForeignKey(DescribedEntity, on_delete=models.PROTECT)
+    described_entity = models.ForeignKey(DescribedEntity, related_name='aliases', on_delete=models.PROTECT)

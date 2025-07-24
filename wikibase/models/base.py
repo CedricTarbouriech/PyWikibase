@@ -52,7 +52,7 @@ class Datatype(Entity):
 
 class DescribedEntity(Entity):
     def get_labels(self):
-        return self.labels.monolingualtextvalue_set.all()
+        return self.labels.all()
 
     def __str__(self):
         return f': <{self.get_labels()[0]}>' if self.get_labels() else ''
