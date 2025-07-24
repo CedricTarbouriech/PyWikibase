@@ -14,13 +14,13 @@ class PropertyApiView(View):
         if prop_id:
             prop = m.Property.objects.get(display_id=prop_id)
             return JsonResponse({'type': prop.data_type.class_name,
-                                 'labels': {mlt.lang_code: mlt.value for mlt in
+                                 'labels': {mlt.language: mlt.value for mlt in
                                             prop.labels.monolingualtextvalue_set.all()}})
         else:
             properties = {}
             for prop in m.Property.objects.all():
                 properties[prop.display_id] = {'type': prop.data_type.class_name,
-                                               'labels': {mlt.lang_code: mlt.value for mlt in
+                                               'labels': {mlt.language: mlt.value for mlt in
                                                           prop.labels.monolingualtextvalue_set.all()}}
             return JsonResponse(properties)
 
@@ -30,7 +30,7 @@ class ItemApiView(View):
         items = {}
         for item in m.Item.objects.all():
             items[item.display_id] = {
-                'labels': {mlt.lang_code: mlt.value for mlt in item.labels.monolingualtextvalue_set.all()}}
+                'labels': {mlt.language: mlt.value for mlt in item.labels.monolingualtextvalue_set.all()}}
         return JsonResponse(items)
 
 
@@ -100,7 +100,7 @@ class StatementApiView(View):
             property_type = snak.property.data_type.class_name
             if property_type == 'MonolingualTextValue':
                 value = {
-                    'lang': snak.value.lang_code,
+                    'lang': snak.value.language,
                     'value': snak.value.value
                 }
             elif property_type == 'StringValue':

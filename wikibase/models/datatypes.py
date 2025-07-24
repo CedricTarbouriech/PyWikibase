@@ -71,11 +71,11 @@ class GlobeCoordinatesValue(DataValue):
 
 
 class MonolingualTextValue(DataValue):
-    lang_code = models.CharField(max_length=3)
+    language = models.CharField(max_length=3)
     value = models.TextField()
 
     def __str__(self):
-        return f'({self.lang_code}) {self.value}'
+        return f'({self.language}) {self.value}'
 
 
 class Label(MonolingualTextValue):
@@ -88,7 +88,7 @@ class Label(MonolingualTextValue):
     def clean(self):
         if Label.objects.exclude(pk=self.pk).filter(
                 described_entity=self.described_entity,
-                lang_code=self.lang_code
+                language=self.language
         ).exists():
             raise ValidationError("A label is already defined for this entity")
 
@@ -103,7 +103,7 @@ class Description(MonolingualTextValue):
     def clean(self):
         if Description.objects.exclude(pk=self.pk).filter(
                 described_entity=self.described_entity,
-                lang_code=self.lang_code
+                language=self.language
         ).exists():
             raise ValidationError("A description is already defined for this entity")
 
