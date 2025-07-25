@@ -1,6 +1,6 @@
 from django.contrib import admin
 
-from wikibase.models import PropertyMapping, ItemMapping, DataValue, Datatype
+from wikibase.models import PropertyMapping, ItemMapping, Datatype
 
 
 # Register your models here.
@@ -14,5 +14,6 @@ class PropertyMappingAdmin(admin.ModelAdmin):
 class ItemMappingAdmin(admin.ModelAdmin):
     list_display = ["key", "item"]
     search_fields = ["key", "item__display_id"]
+
 
 admin.site.register(Datatype)
