@@ -7,14 +7,10 @@ import wikibase.models as m
 
 def get_instances_of(item):
     return m.Item.objects.filter(
-        statement__mainSnak__propertysnak__propertyvaluesnak__value=item)  # TODO: get subclasses
+        statement__mainsnak__value=item)  # TODO: get subclasses
 
 
 class DocumentForm(forms.Form):
-    text = forms.CharField(widget=forms.Textarea(attrs={'id': 'textfield'}), label=gettext_lazy('document.text'))
-
-
-class DocumentFormOld(forms.Form):
     title = forms.CharField(label=gettext_lazy('document.title'))
     title_language = forms.ChoiceField(label=gettext_lazy('document.title_language'),
                                        choices=(('en', 'English'), ('fr', 'Français')))
@@ -22,34 +18,30 @@ class DocumentFormOld(forms.Form):
     # function_type = forms.ChoiceField(label=gettext_lazy('document.function'))
     author = forms.ChoiceField(label=gettext_lazy('document.author'))
     author_function = forms.ChoiceField(label=gettext_lazy('document.author_function'))
-    date = forms.CharField(label=gettext_lazy('document.date'))  # FIXME after implementing date
-    language = forms.ChoiceField(label=gettext_lazy('document.language'),
-                                 choices=(('grc', 'Ancient greek'), ('la', 'Latin')))  # TODO: use items
-    text = forms.CharField(widget=forms.Textarea(attrs={'id': 'textfield', 'oninput': 'parseAnnotationTextArea()'}),
-                           label=gettext_lazy('document.text'))
-    translation_language = forms.ChoiceField(label=gettext_lazy('document.translation_language'),
-                                             choices=(('en', 'English'), ('fr', 'Français')))
-    translation = forms.CharField(widget=forms.Textarea, label=gettext_lazy('document.translation'), required=False)
+    # date = forms.CharField(label=gettext_lazy('document.date'))  # FIXME after implementing date
+    # calendar = forms.ChoiceField(label=gettext_lazy('document.calendar'))
+    # language = forms.ChoiceField(label=gettext_lazy('document.language'),
+    #                              choices=(('grc', 'Ancient greek'), ('la', 'Latin')))  # TODO: use items
     place = forms.ChoiceField(label=gettext_lazy('document.place'))
 
     # TODO: Main editions, see also, bibliography
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        # self.fields['title_language'].choices = [(x.display_id, tags.label_or_default(x, get_language())) for x in
-        #                                          get_instances_of(m.Item.objects.get(display_id=19))]
-        self.fields['source_type'].choices = [(x.display_id, tags.label_or_default(x, get_language())) for x in
-                                              get_instances_of(m.Item.objects.get(display_id=12))]
-        # self.fields['language'].choices = [(x.display_id, tags.label_or_default(x, get_language())) for x in
-        #                                    get_instances_of(m.Item.objects.get(display_id=18))]
-        # self.fields['function_type'].choices = [(x.display_id, tags.label_or_default(x, get_language())) for x in
-        #                                         m.Item.objects.all()]
-        self.fields['author_function'].choices = [(x.display_id, tags.label_or_default(x, get_language())) for x in
-                                                  m.Item.objects.all()]
-        # self.fields['translation_language'].choices = [(x.display_id, tags.label_or_default(x, get_language())) for x in
-        #                                                m.Item.objects.all()]
-        self.fields['place'].choices = [(x.display_id, tags.label_or_default(x, get_language())) for x in
-                                        get_instances_of(m.Item.objects.get(display_id=3))]
+    #     self.fields['title_language'].choices = [(x.display_id, tags.label_or_default(x, get_language())) for x in
+    #                                              get_instances_of(m.Item.objects.get(display_id=19))]
+    #     self.fields['source_type'].choices = [(x.display_id, tags.label_or_default(x, get_language())) for x in
+    #                                           get_instances_of(m.Item.objects.get(display_id=12))]
+    #     self.fields['language'].choices = [(x.display_id, tags.label_or_default(x, get_language())) for x in
+    #                                        get_instances_of(m.Item.objects.get(display_id=18))]
+    #     self.fields['function_type'].choices = [(x.display_id, tags.label_or_default(x, get_language())) for x in
+    #                                             m.Item.objects.all()]
+    #     self.fields['author_function'].choices = [(x.display_id, tags.label_or_default(x, get_language())) for x in
+    #                                               m.Item.objects.all()]
+    #     self.fields['translation_language'].choices = [(x.display_id, tags.label_or_default(x, get_language())) for x in
+    #                                                    m.Item.objects.all()]
+    #     self.fields['place'].choices = [(x.display_id, tags.label_or_default(x, get_language())) for x in
+    #                                     get_instances_of(m.Item.objects.get(display_id=3))]
         self.fields['author'].choices = [(x.display_id, tags.label_or_default(x, get_language())) for x in
                                          m.Item.objects.all()]
 
@@ -91,7 +83,7 @@ class StringStatementUpdateForm(StatementUpdateForm):
 
 class MonolingualTextStatementUpdateForm(StatementUpdateForm):
     language = forms.ChoiceField(label=gettext_lazy('global.language'), choices=(
-    ('en', 'English'), ('fr', 'Français'), ('la', 'Latin'), ('grc', 'Ancient greek')))
+        ('en', 'English'), ('fr', 'Français'), ('la', 'Latin'), ('grc', 'Ancient greek')))
     value = forms.CharField(widget=forms.Textarea)
 
 
@@ -121,12 +113,14 @@ class PropertyLabelDescriptionForm(forms.Form):
                                   widget=forms.TextInput(attrs={'size': 80}), strip=True, required=False)
     type = forms.ChoiceField(label=gettext_lazy('form.property.type'),
                              choices=(
-                                 ("StringValue", 'String'),
                                  ("Item", 'Item'),
-                                 ("MonolingualTextValue", 'Monolingual string'),
+                                 ("Property", 'Property'),
+                                 ("StringValue", 'String'),
                                  ("UrlValue", 'URL'),
                                  ("QuantityValue", 'Quantity'),
+                                 ("TimeValue", 'Time'),
                                  ("GlobeCoordinatesValue", 'Globe coordinates'),
+                                 ("MonolingualTextValue", 'Monolingual string')
                              ))
 
     def __init__(self, *args, **kwargs):

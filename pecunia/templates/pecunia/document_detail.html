@@ -18,12 +18,13 @@
         </div>
         <br/>
         <div>{{ document|prop_label:'source_type'|capitalize }}: {{ document|prop:'source_type'|html }}</div>
-        <div>{{ document|prop_label:'language'|capitalize }}: {{ document|prop:'language' }}</div>
+        <div>{{ document|prop_label:'language'|capitalize }}: {{ document|prop:'language'|html }}</div>
         <div>{{ document|prop_label:'date'|capitalize }}: {{ document|prop:'date' }}</div>
-        <div>{{ document|prop_label:'source_reference'|capitalize }}: {{ document|prop:'source_reference'|html }}</div>
+        <div>{{ document|prop_label:'main_edition'|capitalize }}: {{ document|prop:'main_edition'|html }}</div>
+        <div>{{ document|prop_label:'see_also'|capitalize }}: {{ document|prop:'see_also'|html }}</div>
         <div>{{ document|prop_label:'provenance'|capitalize }}: {{ document|prop:'provenance'|html }}</div>
-        <br/>
         {% if document|has_prop:'text' %}
+        <br/>
             <div {% if document.translation %}style="display: grid; grid-template-columns: auto auto;"{% endif %}>
                 <div class="text-wrapper">
                     <div class="line-numbers">
@@ -35,6 +36,7 @@
                     <article>{{ document|prop_mtv_value:'translation' }}</article>
                 {% endif %}
             </div>
+        <br/>
         {% endif %}
         <div>{{ document|prop_label:'bibliography'|capitalize }}: {{ document|prop:'bibliography'|html }}</div>
         <div>{{ document|prop_label:'commentary'|capitalize }}: {{ document|prop:'commentary' }}</div>

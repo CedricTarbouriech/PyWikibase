@@ -1,8 +1,7 @@
 from __future__ import annotations
 
-from django.core import exceptions
-from django.core.validators import MaxValueValidator, MinValueValidator
 from django.db import models
+from django.db.models import OneToOneField
 from django.db.models.fields.related_descriptors import ForwardManyToOneDescriptor
 from model_utils.managers import InheritanceManager
 
@@ -16,43 +15,61 @@ class InheritanceForeignKey(models.ForeignKey):
     forward_related_accessor_class = InheritanceForwardManyToOneDescriptor
 
 
-
-class IriField(models.TextField):
-    pass
-
-
 class Value(models.Model):
     objects = InheritanceManager()
 
 
 class Entity(Value):
-    pass
+    def get_value(self, prop: Property) -> Value | None:
+        statements = self.statements.filter(mainsnak__property=prop)
+        return statements[0].mainsnak.value if statements else None
 
-class Datatype(Entity):
-    class_name = models.CharField(max_length=50)
+    def add_value(self, prop: Property, value: Value, rank: int = 0) -> Statement:
+        """
+        Adds a statement composed of a property, a value and a rank to a subject.
+        :param prop:
+        :param value:
+        :param rank:
+        :return:
+        """
+        assert value.__class__ is prop.data_type.type
+        snak = PropertySnak.objects.create(property=prop, type=0, value=value)
+        statement = Statement(subject=self, mainsnak=snak, rank=rank)
+        statement.clean_fields()
+        statement.save()
+        return statement
 
-    def validate_constraints(self, exclude=None):
-        if exclude and 'class_name' not in exclude:
-            if not issubclass(self.type, Value):
-                raise exceptions.ValidationError(
-                    'invalid value for class_name',
-                    'Datatype.class_name type error'
-                )
-
-    @property
-    def type(self) -> type[Value]:
-        return globals()[self.class_name]
-
-    def __str__(self):
-        return f'Datatype[{self.class_name}]'
-
-    def __repr__(self):
-        return f'Datatype[{self.class_name}]'
+    def set_value(self, prop: Property, value: Value) -> None:
+        statement = self.statements.filter(mainsnak__property=prop)
+        if statement:
+            statement[0].mainsnak = value
 
 
 class DescribedEntity(Entity):
     def get_labels(self):
         return self.labels.all()
+
+    def add_or_set_label(self, language: str, text: str) -> None:
+        """
+        Adds a label to a described entity. Replace the label if already existing.
+        :param language:
+        :param text:
+        :return:
+        """
+        if self.labels.filter(language=language).exists():
+            label = self.labels.get(language=language)
+            label.text = text
+            label.save()
+        else:
+            self.labels.create(language=language, text=text)
+
+    def add_description(self, language: str, text: str) -> None:
+        if self.descriptions.filter(language=language).exists():
+            description = self.descriptions.get(language=language)
+            description.text = text
+            description.save()
+        else:
+            self.descriptions.create(language=language, text=text)
 
     def __str__(self):
         return f': <{self.get_labels()[0]}>' if self.get_labels() else ''
@@ -62,13 +79,13 @@ class Item(DescribedEntity):
     display_id = models.IntegerField(default=1, unique=True)
 
     def save(self, *args, **kwargs):
-        if self._state.adding:
+        if self.pk is None:
             last_id = Item.objects.all().aggregate(largest=models.Max('display_id'))['largest']
 
             if last_id is not None:
                 self.display_id = last_id + 1
 
-        super(Item, self).save(*args, **kwargs)
+        super().save(*args, **kwargs)
 
     def __str__(self):
         return f"Q{self.display_id}{super().__str__()}"
@@ -76,13 +93,10 @@ class Item(DescribedEntity):
 
 class Property(DescribedEntity):
     display_id = models.IntegerField(default=1, unique=True)
-    data_type = models.ForeignKey(Datatype, on_delete=models.PROTECT, related_name='properties')
-
-    def __str__(self):
-        return f"P{self.display_id}" + super().__str__()
+    data_type = models.ForeignKey('Datatype', on_delete=models.PROTECT, related_name='properties')
 
     def save(self, *args, **kwargs):
-        if self._state.adding:
+        if self.pk is None:
             last_id = Property.objects.all().aggregate(largest=models.Max('display_id'))['largest']
 
             if last_id is not None:
@@ -90,58 +104,85 @@ class Property(DescribedEntity):
 
         super(Property, self).save(*args, **kwargs)
 
-
-class Snak(models.Model):
-    objects = InheritanceManager()
-
-
-class PropertySnak(Snak):
-    property = InheritanceForeignKey(Property, on_delete=models.PROTECT)
-    # Null if main snak, non-null if auxiliary snak
-    statement = models.ForeignKey('Statement', on_delete=models.CASCADE, null=True, blank=True)
+    def __str__(self):
+        return f"P{self.display_id}" + super().__str__()
 
 
-class PropertyValueSnak(PropertySnak):
-    value = InheritanceForeignKey(Value, on_delete=models.PROTECT)
+class PropertyType(models.IntegerChoices):
+    VALUE = 0, "value"
+    SOME_VALUE = 1, "somevalue"
+    NO_VALUE = 2, "novalue"
+
+
+class PropertySnak(models.Model):
+    property = InheritanceForeignKey(Property, on_delete=models.PROTECT, related_name='using_as_property_snaks')
+    type = models.IntegerField(choices=PropertyType.choices)
+    # TODO: make sure that if value is instance of Datatype, it should be used by only 1 statement.
+    value = InheritanceForeignKey(
+        Value,
+        on_delete=models.PROTECT,
+        related_name='using_as_value_snaks',
+        null=True,
+        blank=True
+    )
+
+    def delete(self, *args, **kwargs):
+        keep_value = isinstance(self.value, Entity)
+        value = self.value  # stocker avant la suppression de self
+        super().delete(*args, **kwargs)
+
+        if not keep_value:
+            value.delete()
+
+    def save(self, *args, **kwargs):
+        self.full_clean()
+        super().save(*args, **kwargs)
 
     def __str__(self):
-        return f"{self.property} --> {self.value}"
+        if self.type == PropertyType.VALUE:
+            value = self.value
+        elif self.type == PropertyType.SOME_VALUE:
+            value = "*somevalue*"
+        elif self.type == PropertyType.NO_VALUE:
+            value = "*novalue*"
+        else:
+            raise Exception(f"Impossible valuee for type in PropertySnak: {self.type}")
+        return f"{self.property} --> {value}"
 
 
-class PropertySomeValueSnak(PropertySnak):
-    pass
-
-
-class PropertyNoValueSnak(PropertySnak):
-    pass
+class StatementRank(models.IntegerChoices):
+    VALUE = -1, "deprecated"
+    SOME_VALUE = 0, "normal"
+    NO_VALUE = 1, "preferred"
 
 
 class Statement(models.Model):
-    subject = InheritanceForeignKey(Entity, on_delete=models.CASCADE)
-    mainSnak = InheritanceForeignKey(Snak, on_delete=models.CASCADE, related_name='statements')
-    rank = models.IntegerField(choices=((-1, "Deprecated"), (0, "Normal"), (1, "Preferred")),
-                               validators=[MinValueValidator(-1), MaxValueValidator(1)])
+    subject = InheritanceForeignKey(Entity, on_delete=models.CASCADE, related_name='statements')
+    mainsnak = OneToOneField(PropertySnak, on_delete=models.PROTECT, related_name='used_in_statements')
+    rank = models.IntegerField(choices=StatementRank)
+
+    def delete(self, *args, **kwargs):
+        mainsnak = self.mainsnak
+        super().delete(*args, **kwargs)
+        mainsnak.delete()
+
+    def save(self, *args, **kwargs):
+        self.full_clean()
+        super().save(*args, **kwargs)
 
     def __repr__(self):
-        return f"[{self.rank}] {self.subject} -- {self.mainSnak}"
+        return f"[{self.rank}] {self.subject} -- {self.mainsnak}"
 
 
 class ReferenceRecord(models.Model):
-    statement = models.ForeignKey(Statement, on_delete=models.CASCADE, related_name='references')
-    snak = InheritanceForeignKey(Snak, on_delete=models.PROTECT)
+    statement = models.ForeignKey(Statement, on_delete=models.CASCADE, related_name='reference_records')
 
 
-class PropertyMapping(models.Model):
-    """
-    Maps symbolic keys to be used in code to the corresponding property.
-    """
-    key = models.CharField(max_length=255, unique=True)
-    property = models.ForeignKey(Property, on_delete=models.SET_NULL, blank=True, null=True)
+class ReferenceSnak(models.Model):
+    reference = models.ForeignKey(ReferenceRecord, on_delete=models.CASCADE, related_name='snaks')
+    snak = models.OneToOneField(PropertySnak, on_delete=models.CASCADE, related_name='references')
 
 
-class ItemMapping(models.Model):
-    """
-    Maps symbolic keys to be used in code to the corresponding item.
-    """
-    key = models.CharField(max_length=255, unique=True)
-    item = models.ForeignKey(Item, on_delete=models.SET_NULL, blank=True, null=True)
+class Qualifier(models.Model):
+    statement = models.ForeignKey(Statement, on_delete=models.CASCADE, related_name='qualifiers')
+    snak = models.ForeignKey(PropertySnak, on_delete=models.CASCADE)

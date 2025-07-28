@@ -2,14 +2,14 @@ from django.http import Http404
 from django.views.generic import TemplateView
 
 from wikibase import models as m
-from wikibase.mapping import get_item_mapping, get_property_mapping
+from wikibase.models import ItemMapping, PropertyMapping
 
 
 class InstanceDashboardView(TemplateView):
     item_mapping_key = None
 
     def dispatch(self, request, *args, **kwargs):
-        if not get_item_mapping(self.item_mapping_key):
+        if not ItemMapping.has(self.item_mapping_key):
             raise Http404(f"Item mapping '{self.item_mapping_key}' does not exist.")
         return super().dispatch(request, *args, **kwargs)
 
@@ -18,13 +18,13 @@ class InstanceDashboardView(TemplateView):
 
         items = m.Item.objects.all()
         result = []
-        is_a_prop = get_property_mapping('is_a')
+        is_a_prop = PropertyMapping.get('is_a')
+        item_mapping = ItemMapping.get(self.item_mapping_key)
         for item in items:
-            if not item.statement_set.exists():
+            if not item.statements.exists():
                 continue
-            if item.statement_set.filter(mainSnak__propertysnak__property=is_a_prop,
-                                         mainSnak__propertysnak__propertyvaluesnak__value=get_item_mapping(
-                                             self.item_mapping_key)).exists():
+            if item.statements.filter(mainsnak__property=is_a_prop,
+                                      mainsnak__value=item_mapping).exists():
                 result.append(item)
 
         context['items'] = result

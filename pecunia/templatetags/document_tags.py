@@ -5,7 +5,7 @@ from django.core.exceptions import ObjectDoesNotExist
 from django.utils.safestring import mark_safe
 
 import wikibase.models as m
-from wikibase.mapping import get_property_mapping
+from wikibase.models import PropertyMapping
 
 register = template.Library()
 
@@ -13,12 +13,12 @@ register = template.Library()
 @register.filter
 def line_numbers(document: m.Item) -> str:
     try:
-        prop = get_property_mapping('text')
+        prop = PropertyMapping.get('text')
         if not prop:
             return f"Missing property mapping for key: {'text'}"
-        statements = document.statement_set.filter(mainSnak__propertysnak__property=prop)
+        statements = document.statements.filter(mainsnak__property=prop)
 
-        max_n = max(map(int, re.findall('<lb n="(\d+)', statements[0].mainSnak.value.value)))
+        max_n = max(map(int, re.findall('<lb n="(\d+)', statements[0].mainsnak.value.text)))
         output = ""
         for i in range(1, max_n + 1):
             output += f"<div>{i}</div>"
@@ -26,6 +26,3 @@ def line_numbers(document: m.Item) -> str:
         return mark_safe(output)
     except ObjectDoesNotExist:
         return "-"
-
-
-

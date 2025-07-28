@@ -5,11 +5,11 @@ from django.shortcuts import redirect
 from django.urls import reverse, reverse_lazy
 from django.views.generic import TemplateView, FormView
 
-import pecunia.models_utils as mutils
 from pecunia.forms import DocumentForm
+from pecunia.models import Document
 from pecunia.views.abstract import InstanceDashboardView
-from wikibase import models as m, api as wbapi
-from wikibase.mapping import get_property_mapping
+from wikibase import models as m
+from wikibase.models import PropertyMapping
 
 
 class DocumentDashboard(InstanceDashboardView):
@@ -23,7 +23,7 @@ class DocumentDisplay(TemplateView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         try:
-            doc = mutils.get_document_by_id(kwargs['display_id'])
+            doc = Document.get_by_id(kwargs['display_id'])
         except ObjectDoesNotExist as e:
             raise Http404 from e
 
@@ -36,25 +36,22 @@ class DocumentCreation(LoginRequiredMixin, FormView):
     form_class = DocumentForm
 
     def form_valid(self, form):
+        document = Document()
         lang_code = 'en'
-        title = form.cleaned_data['title']
-        document = mutils.create_document(lang_code, title)
-        document = mutils.set_author(document, m.Item.objects.get(display_id=form.cleaned_data['author']))
-        wbapi.add_value_property(document, get_property_mapping('author_function'),
-                                 m.Item.objects.get(display_id=form.cleaned_data['author_function']))
-        date = m.StringValue(value=form.cleaned_data['date'])
-        date.save()
-        wbapi.add_value_property(document, get_property_mapping('date'), date)
-        text = m.MonolingualTextValue(lang_code=form.cleaned_data['language'], value=form.cleaned_data['text'])
-        text.save()
-        wbapi.add_value_property(document, get_property_mapping('text'), text)
-        translation = m.MonolingualTextValue(lang_code=form.cleaned_data['translation_language'],
-                                             value=form.cleaned_data['translation'])
-        translation.save()
-        wbapi.add_value_property(document, get_property_mapping('translation'), translation)
-        wbapi.add_value_property(document, get_property_mapping('provenance'),
-                                 m.Item.objects.get(display_id=form.cleaned_data['place']))
-
+        title = m.MonolingualTextValue(language=lang_code,
+                                       text=form.cleaned_data['title'])
+        document.set_title(title)
+        document.set_author(m.Item.objects.get(display_id=form.cleaned_data['author']))
+        document.set_author_function(m.Item.objects.get(display_id=form.cleaned_data['author_function']))
+        # date = m.TimeValue.create_from(value=form.cleaned_data['date'])
+        # document.set_date(date)
+        text = m.MonolingualTextValue(language=form.cleaned_data['language'], text=form.cleaned_data['text'])
+        document.set_text(text)
+        translation = m.MonolingualTextValue(language=form.cleaned_data['translation_language'],
+                                             text=form.cleaned_data['translation'])
+        document.set_translation(translation)
+        document.set_provenance(m.Item.objects.get(display_id=form.cleaned_data['place']))
+        document.save()
         self.kwargs['display_id'] = document.display_id
         return super().form_valid(form)
 
@@ -68,8 +65,9 @@ class DocumentUpdate(LoginRequiredMixin, FormView):
 
     def form_valid(self, form):
         display_id = self.kwargs['display_id']
-        document = mutils.get_document_by_id(display_id)
-        document = mutils.set_text(document, form.cleaned_data['text'])
+        document = Document.get_by_id(display_id)
+        document.set_text(form.cleaned_data['text'])
+        document.save()
         return super().form_valid(form)
 
     def get_success_url(self):
@@ -77,13 +75,16 @@ class DocumentUpdate(LoginRequiredMixin, FormView):
 
     def get_initial(self):
         document = m.Item.objects.get(display_id=self.kwargs['display_id'])
+        text = document.get_value(PropertyMapping.get('text'))
+        text_data = {}
+        if text:
+            text_data['language'] = text.language
+            text_data['text'] = text.text
         # Préremplir les données du formulaire
         return {
-            'title': wbapi.get_value_property(document, get_property_mapping('title')),
-            'date': wbapi.get_value_property(document, get_property_mapping('date')),
-            'language': wbapi.get_value_property(document, get_property_mapping('text')).lang_code,
-            'text': wbapi.get_value_property(document, get_property_mapping('text')).value,
-        }
+            'title': document.get_value(PropertyMapping.get('title')),
+            'date': document.get_value(PropertyMapping.get('date')),
+        }.update(text_data)
 
 
 class DocumentDelete(LoginRequiredMixin, TemplateView):

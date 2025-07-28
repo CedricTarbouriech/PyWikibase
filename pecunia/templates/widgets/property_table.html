@@ -17,11 +17,11 @@
                 {% endif %}
             {% endif %}
             <td class="value-cell">{{ stat.rank }}
-                {% if stat.mainSnak|snak_type == 0 %}
-                    {{ stat.mainSnak.value|html }}
-                {% elif stat.mainSnak|snak_type == 1 %}
+                {% if stat.mainsnak.type == 0 %}
+                    {{ stat.mainsnak.value|html }}
+                {% elif stat.mainsnak.type == 1 %}
                     <i>Unknown value</i>
-                {% elif stat.mainSnak|snak_type == 2 %}
+                {% elif stat.mainsnak.type == 2 %}
                     <i>No value</i>
                 {% endif %}
             </td>

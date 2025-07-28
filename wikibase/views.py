@@ -6,22 +6,24 @@ from django.template.loader import render_to_string
 from django.views.generic import View
 
 from wikibase import models as m
-from wikibase.mapping import get_item_mapping
+from wikibase.models import PropertyType, ItemMapping
 
 
 class PropertyApiView(View):
     def get(self, request, prop_id=None):
         if prop_id:
             prop = m.Property.objects.get(display_id=prop_id)
-            return JsonResponse({'type': prop.data_type.class_name,
-                                 'labels': {mlt.language: mlt.value for mlt in
-                                            prop.labels.monolingualtextvalue_set.all()}})
+            return JsonResponse({
+                'type': prop.data_type.class_name,
+                'labels': {mlt.language: mlt.text for mlt in prop.labels.all()}
+            })
         else:
             properties = {}
             for prop in m.Property.objects.all():
-                properties[prop.display_id] = {'type': prop.data_type.class_name,
-                                               'labels': {mlt.language: mlt.value for mlt in
-                                                          prop.labels.monolingualtextvalue_set.all()}}
+                properties[prop.display_id] = {
+                    'type': prop.data_type.class_name,
+                    'labels': {mlt.language: mlt.text for mlt in prop.labels.all()}
+                }
             return JsonResponse(properties)
 
 
@@ -30,27 +32,26 @@ class ItemApiView(View):
         items = {}
         for item in m.Item.objects.all():
             items[item.display_id] = {
-                'labels': {mlt.language: mlt.value for mlt in item.labels.monolingualtextvalue_set.all()}}
+                'labels': {mlt.language: mlt.text for mlt in item.labels.all()}}
         return JsonResponse(items)
 
 
 class StatementAddApiView(LoginRequiredMixin, View):
     def post(self, request, *args, **kwargs):
         post_data = json.loads(request.body.decode('utf-8'))
-        type_field_value = post_data.get('snak_type')
+        type_field_value = int(post_data.get('snak_type'))
         prop = m.Property.objects.get(display_id=post_data.get('prop_id'))
         # FIXME: Not compatible if we want to add statements to properties
         subject = m.Item.objects.get(display_id=post_data.get('entity_id'))
 
-        snak = None
-        if type_field_value == "0":
-            value = None
+        value = None
+        if type_field_value == PropertyType.VALUE:
             type_name = prop.data_type.class_name
             if type_name == 'Item':
                 value = m.Item.objects.get(display_id=post_data['value']['item'])
             elif type_name == 'MonolingualTextValue':
-                value = m.MonolingualTextValue(lang_code=post_data['value']['language'],
-                                               value=post_data['value']['value'])
+                value = m.MonolingualTextValue(language=post_data['value']['language'],
+                                               text=post_data['value']['value'])
                 value.save()
             elif type_name == 'StringValue':
                 value = m.StringValue(value=post_data['value']['value'])
@@ -64,20 +65,14 @@ class StatementAddApiView(LoginRequiredMixin, View):
             elif type_name == 'GlobeCoordinatesValue':
                 data = post_data['value']
                 value = m.GlobeCoordinatesValue(latitude=data['latitude'], longitude=data['longitude'],
-                                                precision='0.0000001', unit=get_item_mapping('earth'))
+                                                precision='0.0000001', unit=ItemMapping.get('earth'))
                 value.save()
             else:
                 raise Exception(f"Unknown datatype: {type_name}")
-            snak = m.PropertyValueSnak(property=prop, value=value)
-        elif type_field_value == "1":
-            snak = m.PropertySomeValueSnak(property=prop)
-        elif type_field_value == "2":
-            snak = m.PropertyNoValueSnak(property=prop)
-        else:
-            raise Exception(f"Unknown snak type: {type_field_value}")
+        snak = m.PropertySnak(property=prop, value=value, type=type_field_value)
 
         snak.save()
-        statement = m.Statement(subject=subject, mainSnak=snak, rank=0)
+        statement = m.Statement(subject=subject, mainsnak=snak, rank=0)
         statement.save()
 
         data = {
@@ -92,36 +87,31 @@ class StatementAddApiView(LoginRequiredMixin, View):
 class StatementApiView(View):
     def get(self, request, statement_id):
         statement = m.Statement.objects.get(id=statement_id)
-        snak = statement.mainSnak
+        snak = statement.mainsnak
         value_presence_type = None
         value = None
-        if type(snak) == m.PropertyValueSnak:
-            value_presence_type = "0"
-            property_type = snak.property.data_type.class_name
-            if property_type == 'MonolingualTextValue':
-                value = {
-                    'lang': snak.value.language,
-                    'value': snak.value.value
-                }
-            elif property_type == 'StringValue':
-                value = {'value': snak.value.value}
-            elif property_type == 'Item':
-                value = {'id': snak.value.display_id}
-            elif property_type == 'UrlValue':
-                value = {'value': snak.value.value}
-            elif property_type == 'QuantityValue':
-                value = {'number': snak.value.number}
-            elif property_type == 'GlobeCoordinatesValue':
-                value = {'latitude': snak.value.latitude, 'longitude': snak.value.longitude}
-        elif type(snak) == m.PropertySomeValueSnak:
-            value_presence_type = "1"
-        elif type(snak) == m.PropertyNoValueSnak:
-            value_presence_type = "2"
+        value_presence_type = "0"
+        property_type = snak.property.data_type.class_name
+        if property_type == 'MonolingualTextValue':
+            value = {
+                'lang': snak.value.language,
+                'value': snak.value.text
+            }
+        elif property_type == 'StringValue':
+            value = {'value': snak.value.text}
+        elif property_type == 'Item':
+            value = {'id': snak.value.display_id}
+        elif property_type == 'UrlValue':
+            value = {'value': snak.value.text}
+        elif property_type == 'QuantityValue':
+            value = {'number': snak.value.number}
+        elif property_type == 'GlobeCoordinatesValue':
+            value = {'latitude': snak.value.latitude, 'longitude': snak.value.longitude}
         snak_data = {
             'id': snak.id,
             'propertyId': snak.property.display_id,
             'propertyType': snak.property.data_type.class_name,
-            'snak_type': value_presence_type,
+            'snak_type': snak.type,
             'value': value
         }
 
@@ -137,7 +127,7 @@ def json_to_python(type_name, value):
     if type_name == 'Item':
         return m.Item.objects.get(display_id=value['item'])
     elif type_name == 'MonolingualTextValue':
-        value = m.MonolingualTextValue(lang_code=value['language'], value=value['value'])
+        value = m.MonolingualTextValue(language=value['language'], text=value['value'])
         value.save()
         return value
     elif type_name == 'StringValue':
@@ -149,8 +139,10 @@ def json_to_python(type_name, value):
         value.save()
         return value
     elif type_name == 'GlobeCoordinatesValue':
-        value = m.GlobeCoordinatesValue(latitude=value['latitude'], longitude=value['longitude'], precision='0.0000001',
-                                        unit=get_item_mapping('earth'))
+        value = m.GlobeCoordinatesValue(latitude=value['latitude'],
+                                        longitude=value['longitude'],
+                                        precision='0.0000001',
+                                        unit=ItemMapping.get('earth'))
         value.save()
         return value
 
@@ -161,23 +153,17 @@ class StatementUpdateApiView(LoginRequiredMixin, View):
         statement_id = post_data.get('statement_id')
         statement = m.Statement.objects.get(id=statement_id)
 
-        main_snak = statement.mainSnak
+        main_snak = statement.mainsnak
         prop = main_snak.property
         prop_type = prop.property.data_type.class_name
 
         next_snak_type = int(post_data.get('snak_type'))
-        new_snak = None
-
-        if next_snak_type == 0:
-            new_snak = m.PropertyValueSnak(property=prop, value=json_to_python(prop_type, post_data['value']))
-        elif next_snak_type == 1:
-            new_snak = m.PropertySomeValueSnak(property=prop)
-        elif next_snak_type == 2:
-            new_snak = m.PropertyNoValueSnak(property=prop)
+        new_snak = m.PropertySnak(property=prop, value=json_to_python(prop_type, post_data['value']),
+                                  type=next_snak_type)
 
         new_snak.save()
 
-        statement.mainSnak = new_snak
+        statement.mainsnak = new_snak
         statement.rank = post_data.get('rank')
         statement.save()
 
@@ -196,12 +182,8 @@ class StatementDeleteApiView(LoginRequiredMixin, View):
         statement_id = post_data.get('statement_id')
         statement = m.Statement.objects.get(id=statement_id)
         subject = statement.subject
-        prop = statement.mainSnak.property
-        main_snak = statement.mainSnak
+        prop = statement.mainsnak.property
 
-        if main_snak == m.PropertyValueSnak and main_snak.property.data_type.class_name != "Item":
-            main_snak.value.delete()
-        statement.mainSnak.delete()
         statement.delete()
 
-        return JsonResponse({'number': subject.statement_set.filter(mainSnak__propertysnak__property=prop).count()})
+        return JsonResponse({'number': subject.statements.filter(mainsnak__property=prop).count()})

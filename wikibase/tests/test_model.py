@@ -4,12 +4,9 @@ import wikibase.models as m
 
 
 def check_has_described_entity_fields(test_case, entity) -> None:
-    test_case.assertIsInstance(entity.labels, m.MultilingualTextValue)
-    test_case.assertEqual(0, entity.labels.monolingualtextvalue_set.count())
-    test_case.assertIsInstance(entity.descriptions, m.MultilingualTextValue)
-    test_case.assertEqual(0, entity.descriptions.monolingualtextvalue_set.count())
-    test_case.assertIsInstance(entity.aliases, m.MultilingualMultiTextValue)
-    test_case.assertEqual(0, entity.aliases.monolingualmultitextvalue_set.count())
+    test_case.assertEqual(0, entity.labels.count())
+    test_case.assertEqual(0, entity.descriptions.count())
+    test_case.assertEqual(0, entity.aliases.count())
 
 
 class DescribedEntityTestCase(TestCase):
@@ -24,7 +21,7 @@ class ItemTestCase(TestCase):
         item = m.Item.objects.create()
         self.assertIsInstance(item, m.Item)
         check_has_described_entity_fields(self, item)
-        self.assertEqual(11, item.id) # 7 datatypes + 3 multi*textvalue = 10; so new item is 11
+        self.assertEqual(9, item.id) # 8 datatypes ; so new item is 9
         self.assertEqual(1, item.display_id)
 
     def test_second_display_id(self):
@@ -49,7 +46,8 @@ class PropertyTestCase(TestCase):
         prop = m.Property.objects.create(data_type=self.data_type)
         self.assertIsInstance(prop, m.Property)
         check_has_described_entity_fields(self, prop)
-        self.assertEqual(11, prop.id) # 7 datatypes + 3 multi*textvalue = 10; so new property is 11
+        print(m.Value.objects.all())
+        self.assertEqual(9, prop.id) # 8 datatypes ; so new item is 9
         self.assertEqual(1, prop.display_id)
 
     def test_second_display_id(self):
@@ -76,3 +74,42 @@ class DataTypeTestCase(TestCase):
         self.assertEqual(m.Datatype.objects.get(class_name='TimeValue').type, m.TimeValue)
         self.assertEqual(m.Datatype.objects.get(class_name='GlobeCoordinatesValue').type, m.GlobeCoordinatesValue)
         self.assertEqual(m.Datatype.objects.get(class_name='MonolingualTextValue').type, m.MonolingualTextValue)
+
+class DeleteTestCase(TestCase):
+    def test_delete_snak(self):
+        self.assertEqual(m.QuantityValue.objects.count(), 0)
+        self.assertEqual(m.PropertySnak.objects.count(), 0)
+        p = m.Property.objects.create(data_type=m.Datatype.objects.get(class_name='QuantityValue'))
+        v = m.QuantityValue.objects.create(number=7)
+        sn = m.PropertySnak.objects.create(property=p, type=0, value=v)
+        self.assertEqual(m.QuantityValue.objects.count(), 1)
+        self.assertEqual(m.PropertySnak.objects.count(), 1)
+        self.assertEqual(m.QuantityValue.objects.all()[0], v)
+        self.assertEqual(m.PropertySnak.objects.all()[0], sn)
+
+        sn.delete()
+
+        self.assertEqual(m.PropertySnak.objects.count(), 0)
+        self.assertEqual(m.QuantityValue.objects.count(), 0)
+
+    def test_delete_statement(self):
+        self.assertEqual(m.QuantityValue.objects.count(), 0)
+        self.assertEqual(m.PropertySnak.objects.count(), 0)
+        self.assertEqual(m.Statement.objects.count(), 0)
+        i = m.Item.objects.create()
+        p = m.Property.objects.create(data_type=m.Datatype.objects.get(class_name='QuantityValue'))
+        v = m.QuantityValue.objects.create(number=7)
+        sn = m.PropertySnak.objects.create(property=p, type=0, value=v)
+        st = m.Statement.objects.create(subject=i, mainsnak=sn, rank=0)
+        self.assertEqual(m.QuantityValue.objects.count(), 1)
+        self.assertEqual(m.PropertySnak.objects.count(), 1)
+        self.assertEqual(m.Statement.objects.count(), 1)
+        self.assertEqual(m.QuantityValue.objects.all()[0], v)
+        self.assertEqual(m.PropertySnak.objects.all()[0], sn)
+        self.assertEqual(m.Statement.objects.all()[0], st)
+
+        st.delete()
+
+        self.assertEqual(m.Statement.objects.count(), 0)
+        self.assertEqual(m.PropertySnak.objects.count(), 0)
+        self.assertEqual(m.QuantityValue.objects.count(), 0)

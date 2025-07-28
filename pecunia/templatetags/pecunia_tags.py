@@ -9,15 +9,15 @@ from django.utils.translation import gettext_lazy, get_language
 from lxml import etree
 
 import wikibase.models as m
-from wikibase.mapping import get_property_mapping
+from wikibase.models import PropertyMapping
 
 register = template.Library()
 
 
 @register.filter
-def label(value: m.DescribedEntity, lang_code: str) -> str:
+def label(described_entity: m.DescribedEntity, lang_code: str) -> str:
     try:
-        return value.labels.monolingualtextvalue_set.get(lang_code=lang_code).value
+        return described_entity.labels.get(language=lang_code).text
     except ObjectDoesNotExist:
         return gettext_lazy('no label')
 
@@ -25,10 +25,10 @@ def label(value: m.DescribedEntity, lang_code: str) -> str:
 @register.filter
 def label_or_default(value: m.DescribedEntity, lang_code: str) -> str:
     try:
-        return value.labels.monolingualtextvalue_set.get(lang_code=lang_code).value
+        return value.labels.get(language=lang_code).text
     except ObjectDoesNotExist:
         try:
-            return value.labels.monolingualtextvalue_set.get(lang_code='en')
+            return value.labels.get(language='en')
         except ObjectDoesNotExist:
             return "-"
 
@@ -36,7 +36,7 @@ def label_or_default(value: m.DescribedEntity, lang_code: str) -> str:
 @register.filter
 def description(value: m.DescribedEntity, lang_code: str) -> str:
     try:
-        return value.descriptions.monolingualtextvalue_set.get(lang_code=lang_code).value or "-"
+        return value.descriptions.get(language=lang_code).text or "-"
     except ObjectDoesNotExist:
         return gettext_lazy('-')
 
@@ -44,10 +44,10 @@ def description(value: m.DescribedEntity, lang_code: str) -> str:
 @register.filter
 def description_or_default(value: m.DescribedEntity, lang_code: str) -> str:
     try:
-        return value.descriptions.monolingualtextvalue_set.get(lang_code=lang_code).value or "-"
+        return value.descriptions.get(language=lang_code).text or "-"
     except ObjectDoesNotExist:
         try:
-            return value.descriptions.monolingualtextvalue_set.get(lang_code='en') or "-"
+            return value.descriptions.get(language='en') or "-"
         except ObjectDoesNotExist:
             return "-"
 
@@ -69,24 +69,23 @@ def capitalize(s: str) -> str:
 
 @register.filter
 def prop(item: object, prop_key_mapping: str) -> str:
-    prop = get_property_mapping(prop_key_mapping)
+    prop = PropertyMapping.get(prop_key_mapping)
     if not prop:
         return f"Missing property mapping for key: {prop_key_mapping}"
-    statements = item.statement_set.filter(mainSnak__propertysnak__property=prop)
+    statements = item.statements.filter(mainsnak__property=prop)
     if statements:
-        statement = statements[0].mainSnak.value
-        return statements[0].mainSnak.value
+        return statements[0].mainsnak.value
     return "-"
 
 
 @register.filter
-def prop_mtv_value(item: object, prop_key_mapping: str) -> str:
+def prop_mtv_value(item: m.Entity, prop_key_mapping: str) -> str:
     try:
-        prop = get_property_mapping(prop_key_mapping)
+        prop = PropertyMapping.get(prop_key_mapping)
         if not prop:
             return f"Missing property mapping for key: {prop_key_mapping}"
-        statements = item.statement_set.filter(mainSnak__propertysnak__property=prop)
-        return statements[0].mainSnak.value.value
+        statements = item.statements.filter(mainsnak__property=prop)
+        return statements[0].mainsnak.value.text
     except ObjectDoesNotExist:
         return "-"
 
@@ -94,13 +93,13 @@ def prop_mtv_value(item: object, prop_key_mapping: str) -> str:
 @register.filter
 def prop_label(item: object, prop_key_mapping: str) -> str:
     try:
-        prop = get_property_mapping(prop_key_mapping)
+        prop = PropertyMapping.get(prop_key_mapping)
         if not prop:
             return f"Missing property mapping for key: {prop_key_mapping}"
-        return prop.labels.monolingualtextvalue_set.get(lang_code=translation.get_language()).value
+        return prop.labels.get(language=translation.get_language()).text
     except ObjectDoesNotExist:
         try:
-            return prop.labels.monolingualtextvalue_set.get(lang_code="en").value
+            return prop.labels.get(language="en").text
         except ObjectDoesNotExist:
             return "-"
 
@@ -155,11 +154,11 @@ def handle_tag(el: etree._Element) -> str:
         if reason == 'lost':
             output += f"[{text}]"
         elif reason == 'omitted':
-            output += f"<{text}>"
+            output += f"&#60;{text}&#62;"
     elif el.tag == 'surplus':
         output += f"{{{text}}}"
     elif el.tag == 'choice':
-        output += f"<{text + inner}>"
+        output += f"&#60;{text + inner}&#62;"
     elif el.tag == 'sic':
         return ""
     elif el.tag == 'expan':
@@ -212,17 +211,8 @@ def generate_div_for_lb(value):
 
 
 @register.filter
-def snak_type(snak: m.Snak) -> int:
-    if isinstance(snak, m.PropertyValueSnak):
-        return 0
-    elif isinstance(snak, m.PropertySomeValueSnak):
-        return 1
-    elif isinstance(snak, m.PropertyNoValueSnak):
-        return 2
-
-@register.filter
-def has_prop(value: m.Value, prop_key:str) -> bool:
-    return value.statement_set.filter(mainSnak__propertysnak__property=get_property_mapping(prop_key)).count() != 0
+def has_prop(value: m.Entity, prop_key: str) -> bool:
+    return value.statements.filter(mainsnak__property=PropertyMapping.get(prop_key)).count() != 0
 
 
 @register.filter

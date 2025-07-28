@@ -6,7 +6,7 @@ from django.shortcuts import redirect
 from django.urls import reverse, reverse_lazy
 from django.views.generic import TemplateView, FormView, DetailView
 
-from wikibase import api as wbapi, models as m
+from wikibase import models as m
 from .document_views import DocumentDashboard, DocumentDisplay, DocumentCreation, DocumentUpdate, DocumentDelete
 from .person_views import PersonDashboard, PersonDisplay, PersonCreation, PersonUpdate, PersonDelete
 from .place_views import PlaceDashboard, PlaceDisplay, PlaceCreation, PlaceUpdate, PlaceDelete
@@ -25,8 +25,7 @@ class ModelDashboardView(TemplateView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         items = self.model.objects.all()
-        paginator = Paginator(items,
-                              self.request.GET.get("limit") or DEFAULT_PAGINATOR_LIMIT)  # Show 25 contacts per page.
+        paginator = Paginator(items, self.request.GET.get("limit") or DEFAULT_PAGINATOR_LIMIT)
 
         page_number = self.request.GET.get("page")
         page_obj = paginator.get_page(page_number)
@@ -50,19 +49,19 @@ class ItemDisplay(TemplateView):
         context['item'] = item
 
         props = set()
-        for statement_prop in item.statement_set.all():
-            props.add(statement_prop.mainSnak.propertysnak.property)
+        for statement_prop in item.statements.all():
+            props.add(statement_prop.mainsnak.property)
 
         statements = []
         for prop in props:
             values = []
-            for statement in item.statement_set.filter(mainSnak__propertysnak__property=prop):
+            for statement in item.statements.filter(mainsnak__property=prop):
                 values.append(statement)
             statements.append((prop, values))
         context['statements'] = statements
 
         linked_items = []
-        for stmt in m.Statement.objects.filter(mainSnak__propertysnak__propertyvaluesnak__value=item):
+        for stmt in m.Statement.objects.filter(mainsnak__value=item):
             linked_items.append(stmt.subject.display_id)
         context['linked_items'] = sorted(linked_items)
         return context
@@ -80,13 +79,13 @@ class ItemUpdateLabelDescription(LoginRequiredMixin, FormView):
         kwargs['display_id'] = display_id
         kwargs['initial']['language'] = lang
         try:
-            label = item.labels.monolingualtextvalue_set.get(lang_code=lang)
-            kwargs['initial']['label'] = label.value
+            label = item.labels.get(language=lang)
+            kwargs['initial']['label'] = label.text
         except ObjectDoesNotExist:
             pass
         try:
-            description = item.descriptions.monolingualtextvalue_set.get(lang_code=lang)
-            kwargs['initial']['description'] = description.value
+            description = item.descriptions.get(language=lang)
+            kwargs['initial']['description'] = description.text
         except ObjectDoesNotExist:
             pass
         return kwargs
@@ -97,8 +96,10 @@ class ItemUpdateLabelDescription(LoginRequiredMixin, FormView):
             language_code = self.kwargs['lang']
             label = form.cleaned_data['label']
             description = form.cleaned_data['description']
-            wbapi.add_label(item, language_code, label)
-            wbapi.add_description(item, language_code, description)
+            if label:
+                item.add_or_set_label(language_code, label)
+            if description:
+                item.add_description(language_code, description)
             self.kwargs['display_id'] = item.display_id
         return super().form_valid(form)
 
@@ -113,15 +114,17 @@ class ItemCreation(LoginRequiredMixin, FormView):
     def form_valid(self, form):
         if form.is_valid():
             # Creation of the property
-            item = wbapi.create_item()
+            item = m.Item.objects.create()
             self.kwargs['display_id'] = item.display_id
 
             # Creation of the label and the description
             language_code = form.cleaned_data['language']
             label = form.cleaned_data['label']
             description = form.cleaned_data['description']
-            wbapi.add_label(item, language_code, label)
-            wbapi.add_description(item, language_code, description)
+            if label:
+                item.add_or_set_label(language_code, label)
+            if description:
+                item.add_description(language_code, description)
 
         return super().form_valid(form)
 
@@ -159,7 +162,7 @@ class PropertyDisplay(DetailView):
         context = super().get_context_data(**kwargs)
         try:
             prop = kwargs['object']
-            stmts = m.Statement.objects.filter(mainSnak__propertysnak__property=prop)
+            stmts = m.Statement.objects.filter(mainsnak__property=prop)
             linked_items = []
             for stmt in stmts:
                 linked_items.append(stmt.subject.display_id)
@@ -178,15 +181,18 @@ class PropertyCreation(LoginRequiredMixin, FormView):
         if form.is_valid():
             # Creation of the property
             datatype = form.cleaned_data['type']
-            prop = wbapi.create_property(datatype=m.Datatype.objects.get(class_name=datatype))
+            prop = m.Property(data_type=m.Datatype.objects.get(class_name=datatype))
+            prop.save()
             self.kwargs['display_id'] = prop.display_id
 
             # Creation of the label and the description
             language_code = form.cleaned_data['language']
             label = form.cleaned_data['label']
             description = form.cleaned_data['description']
-            wbapi.add_label(prop, language_code, label)
-            wbapi.add_description(prop, language_code, description)
+            if label:
+                prop.add_or_set_label(language_code, label)
+            if description:
+                prop.add_description(language_code, description)
 
         return super().form_valid(form)
 
@@ -207,13 +213,13 @@ class PropertyUpdateLabelDescription(LoginRequiredMixin, FormView):
         kwargs['initial']['language'] = lang
         kwargs['initial']['type'] = prop.data_type.class_name
         try:
-            label = prop.labels.monolingualtextvalue_set.get(lang_code=lang)
-            kwargs['initial']['label'] = label.value
+            label = prop.labels.get(language=lang)
+            kwargs['initial']['label'] = label.text
         except ObjectDoesNotExist:
             pass
         try:
-            description = prop.descriptions.monolingualtextvalue_set.get(lang_code=lang)
-            kwargs['initial']['description'] = description.value
+            description = prop.descriptions.get(language=lang)
+            kwargs['initial']['description'] = description.text
         except ObjectDoesNotExist:
             pass
         return kwargs
@@ -224,8 +230,10 @@ class PropertyUpdateLabelDescription(LoginRequiredMixin, FormView):
             language_code = self.kwargs['lang']
             label = form.cleaned_data['label']
             description = form.cleaned_data['description']
-            wbapi.add_label(prop, language_code, label)
-            wbapi.add_description(prop, language_code, description)
+            if label:
+                prop.add_or_set_label(language_code, label)
+            if description:
+                prop.add_description(language_code, description)
             self.kwargs['display_id'] = prop.display_id
         return super().form_valid(form)
 

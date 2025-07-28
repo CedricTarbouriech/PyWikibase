@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2025-07-11 16:45+0200\n"
+"POT-Creation-Date: 2025-07-25 13:04+0200\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -18,63 +18,47 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=(n > 1);\n"
 
-#: .\pecunia\forms.py:14 .\pecunia\forms.py:29
-msgid "document.text"
-msgstr "Text"
-
-#: .\pecunia\forms.py:18
+#: .\pecunia\forms.py:14
 msgid "document.title"
 msgstr "Titre"
 
-#: .\pecunia\forms.py:19
+#: .\pecunia\forms.py:15
 msgid "document.title_language"
 msgstr "Langue du titre"
 
-#: .\pecunia\forms.py:21
+#: .\pecunia\forms.py:17
 msgid "document.type"
 msgstr "Type"
 
-#: .\pecunia\forms.py:23
+#: .\pecunia\forms.py:19
 msgid "document.author"
 msgstr "Auteur"
 
-#: .\pecunia\forms.py:24
+#: .\pecunia\forms.py:20
 msgid "document.author_function"
 msgstr "Fonction de l’auteur"
 
-#: .\pecunia\forms.py:25
+#: .\pecunia\forms.py:21
 msgid "document.date"
 msgstr "Date"
 
-#: .\pecunia\forms.py:26
-msgid "document.language"
-msgstr "Langue"
-
-#: .\pecunia\forms.py:30
-msgid "document.translation_language"
-msgstr "Langue de traduction"
-
-#: .\pecunia\forms.py:32
-msgid "document.translation"
-msgstr "Traduction"
-
-#: .\pecunia\forms.py:33
+#: .\pecunia\forms.py:24
 msgid "document.place"
 msgstr "Lieu"
 
-#: .\pecunia\forms.py:58
+#: .\pecunia\forms.py:49
 msgid "person.name"
 msgstr "Nom"
 
-#: .\pecunia\forms.py:59
+#: .\pecunia\forms.py:50
 msgid "person.function"
 msgstr "Fonction"
 
-#: .\pecunia\forms.py:68 .\pecunia\forms.py:93 .\pecunia\forms.py:117
+#: .\pecunia\forms.py:59 .\pecunia\forms.py:84 .\pecunia\forms.py:108
 msgid "global.language"
 msgstr "Langue"
 
-#: .\pecunia\forms.py:70 .\pecunia\forms.py:119
+#: .\pecunia\forms.py:61 .\pecunia\forms.py:110
 #: .\pecunia\templates\pecunia\item_detail.html:11
 #: .\pecunia\templates\pecunia\item_list.html:15
 #: .\pecunia\templates\pecunia\property_detail.html:17
@@ -82,7 +66,7 @@ msgstr "Langue"
 msgid "form.entity.label"
 msgstr "Libellé"
 
-#: .\pecunia\forms.py:71 .\pecunia\forms.py:120
+#: .\pecunia\forms.py:62 .\pecunia\forms.py:111
 #: .\pecunia\templates\pecunia\item_detail.html:12
 #: .\pecunia\templates\pecunia\item_list.html:16
 #: .\pecunia\templates\pecunia\property_detail.html:18
@@ -90,55 +74,55 @@ msgstr "Libellé"
 msgid "form.entity.description"
 msgstr "Description"
 
-#: .\pecunia\forms.py:82
+#: .\pecunia\forms.py:73
 msgid "statement.type"
 msgstr "Type"
 
-#: .\pecunia\forms.py:99
+#: .\pecunia\forms.py:90
 msgid "global.entity"
 msgstr "Entité"
 
-#: .\pecunia\forms.py:108
+#: .\pecunia\forms.py:99
 msgid "global.property"
 msgstr "Propriété"
 
-#: .\pecunia\forms.py:122
+#: .\pecunia\forms.py:113
 msgid "form.property.type"
 msgstr "Type"
 
-#: .\pecunia\templates\base.html:23
+#: .\pecunia\templates\base.html:29
 msgid "nav.home"
 msgstr "Accueil"
 
-#: .\pecunia\templates\base.html:24
+#: .\pecunia\templates\base.html:30
 msgid "nav.document"
 msgstr "Documents"
 
-#: .\pecunia\templates\base.html:25
+#: .\pecunia\templates\base.html:31
 msgid "nav.person"
-msgstr "Person"
+msgstr "Personnes"
 
-#: .\pecunia\templates\base.html:26
+#: .\pecunia\templates\base.html:32
 msgid "nav.place"
 msgstr "Lieux"
 
-#: .\pecunia\templates\base.html:27
+#: .\pecunia\templates\base.html:33
 msgid "nav.item"
 msgstr "Éléments"
 
-#: .\pecunia\templates\base.html:28
+#: .\pecunia\templates\base.html:34
 msgid "nav.property"
 msgstr "Propriétés"
 
-#: .\pecunia\templates\base.html:37
+#: .\pecunia\templates\base.html:43
 msgid "nav.language.submit"
 msgstr "Changer"
 
-#: .\pecunia\templates\base.html:42
+#: .\pecunia\templates\base.html:48
 msgid "nav.logout"
 msgstr "Se déconnecter"
 
-#: .\pecunia\templates\base.html:45
+#: .\pecunia\templates\base.html:51
 msgid "nav.login"
 msgstr "Se connecter"
 
@@ -300,6 +284,18 @@ msgstr ""
 #: .\pecunia\templatetags\pecunia_tags.py:41
 msgid "-"
 msgstr ""
+
+#~ msgid "document.text"
+#~ msgstr "Texte"
+
+#~ msgid "document.language"
+#~ msgstr "Langue"
+
+#~ msgid "document.translation_language"
+#~ msgstr "Langue de traduction"
+
+#~ msgid "document.translation"
+#~ msgstr "Traduction"
 
 #~ msgid "global.next"
 #~ msgstr "Suivant"
