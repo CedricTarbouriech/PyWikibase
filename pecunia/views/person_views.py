@@ -24,7 +24,7 @@ class PersonCreation(LoginRequiredMixin, TemplateView):
         item = Item()
         item.save()
         item.add_value(PropertyMapping.get('is_a'), ItemMapping.get('person'))
-        item.add_or_set_label('en', form.cleaned_data['title'])
+        item.set_label('en', form.cleaned_data['title'])
         self.kwargs['display_id'] = item.display_id
         return super().form_valid(form)
 

@@ -65,7 +65,7 @@ class StatementAddApiView(LoginRequiredMixin, View):
             elif type_name == 'GlobeCoordinatesValue':
                 data = post_data['value']
                 value = m.GlobeCoordinatesValue(latitude=data['latitude'], longitude=data['longitude'],
-                                                precision='0.0000001', unit=ItemMapping.get('earth'))
+                                                precision='0.0000001', globe=ItemMapping.get('earth'))
                 value.save()
             else:
                 raise Exception(f"Unknown datatype: {type_name}")
@@ -142,7 +142,7 @@ def json_to_python(type_name, value):
         value = m.GlobeCoordinatesValue(latitude=value['latitude'],
                                         longitude=value['longitude'],
                                         precision='0.0000001',
-                                        unit=ItemMapping.get('earth'))
+                                        globe=ItemMapping.get('earth'))
         value.save()
         return value
 

@@ -97,7 +97,7 @@ class ItemUpdateLabelDescription(LoginRequiredMixin, FormView):
             label = form.cleaned_data['label']
             description = form.cleaned_data['description']
             if label:
-                item.add_or_set_label(language_code, label)
+                item.set_label(language_code, label)
             if description:
                 item.add_description(language_code, description)
             self.kwargs['display_id'] = item.display_id
@@ -122,7 +122,7 @@ class ItemCreation(LoginRequiredMixin, FormView):
             label = form.cleaned_data['label']
             description = form.cleaned_data['description']
             if label:
-                item.add_or_set_label(language_code, label)
+                item.set_label(language_code, label)
             if description:
                 item.add_description(language_code, description)
 
@@ -190,7 +190,7 @@ class PropertyCreation(LoginRequiredMixin, FormView):
             label = form.cleaned_data['label']
             description = form.cleaned_data['description']
             if label:
-                prop.add_or_set_label(language_code, label)
+                prop.set_label(language_code, label)
             if description:
                 prop.add_description(language_code, description)
 
@@ -231,7 +231,7 @@ class PropertyUpdateLabelDescription(LoginRequiredMixin, FormView):
             label = form.cleaned_data['label']
             description = form.cleaned_data['description']
             if label:
-                prop.add_or_set_label(language_code, label)
+                prop.set_label(language_code, label)
             if description:
                 prop.add_description(language_code, description)
             self.kwargs['display_id'] = prop.display_id

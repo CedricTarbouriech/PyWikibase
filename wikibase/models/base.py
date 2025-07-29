@@ -49,7 +49,10 @@ class DescribedEntity(Entity):
     def get_labels(self):
         return self.labels.all()
 
-    def add_or_set_label(self, language: str, text: str) -> None:
+    def get_label(self, language: str):
+        return self.labels.get(language=language)
+
+    def set_label(self, language: str, text: str) -> None:
         """
         Adds a label to a described entity. Replace the label if already existing.
         :param language:
