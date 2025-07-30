@@ -1,6 +1,6 @@
 'use strict';
 
-import {getAsJson} from '../api.js';
+import {getAsJson} from './api.js';
 
 function getLabel(value, lang_code) {
   if (!value.labels) return '(no label)';

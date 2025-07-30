@@ -1,6 +1,6 @@
 'use strict';
 
-import {Stack} from '../stack.js';
+import {Stack} from './stack.js';
 
 function addTag(beginTag, endTag) {
   let textarea = ($('.annotator-text-field'))[0];

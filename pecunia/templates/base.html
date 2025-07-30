@@ -10,13 +10,14 @@
     <link rel="icon" href="{% static 'pecunia/images/favicon.ico' %}" type="image/x-icon">
 
     <link rel="stylesheet" href="https://cdn.simplecss.org/simple.min.css">
-    <link rel="stylesheet" href="{% static "pecunia/css/style.css" %}">
+    <link rel="stylesheet" href="{% static "wikibase/css/wikibase.css" %}">
+    <link rel="stylesheet" href="{% static "pecunia/css/annotator.css" %}">
+    
     <script src="https://code.jquery.com/jquery-3.7.1.slim.min.js"
             integrity="sha256-kmHvs0B+OpCW5GVHUNjv9rOmY0IvSIRcf7zGUDTDQM8=" crossorigin="anonymous"></script>
-    <script type="module"src="{% static "pecunia/js/stack.js" %}"></script>
-    <script type="module"  src="{% static "pecunia/js/annotator/editor.js" %}"></script>
-    <script type="module" src="{% static "pecunia/js/wikibase/util.js" %}"></script>
-    <script type="module"  src="{% static "pecunia/js/wikibase/wikibase.js" %}"></script>
+    <script type="module" src="{% static "wikibase/js/wikibase.js" %}"></script>
+    <script type="module" src="{% static "pecunia/js/annotator.js" %}"></script>
+    
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" crossorigin=""/>
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" crossorigin=""></script>
 

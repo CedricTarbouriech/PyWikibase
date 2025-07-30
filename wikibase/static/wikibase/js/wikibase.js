@@ -1,6 +1,6 @@
 'use strict';
 
-import {createStatement, fetchPropertyDataType, getAsJson, postAsJson} from '../api.js';
+import {createStatement, fetchPropertyDataType, getAsJson, postAsJson} from './api.js';
 import {
   createPropertySelector,
   createRankSelector,
