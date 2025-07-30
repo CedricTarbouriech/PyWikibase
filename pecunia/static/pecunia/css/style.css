@@ -60,3 +60,44 @@ article {
     height: 300px;
     border: 2px solid #333;
 }
+
+.statement-group {
+    border: 1px solid grey;
+    display: grid;
+    grid-template-columns: 20% 1fr;
+    grid-template-rows: auto auto;
+    margin:10px;
+}
+
+.property-cell {
+    grid-row: 1 / all;
+    grid-column: 1;
+    padding: 8px;
+    border: 1px solid grey;
+}
+
+.snak-cell {
+    border: 1px solid grey;
+    grid-column: 2;
+    display: grid;
+    grid-template-columns: 70% 1fr;
+    grid-template-rows: auto auto;
+}
+
+.value-cell {
+    grid-column: 1;
+    border: 1px solid grey;
+    padding: 8px;
+}
+
+.actions-cell {
+    border: 1px solid grey;
+    grid-column: 2;
+    padding: 8px;
+}
+
+.new-value-cell {
+    border: 1px solid grey;
+    grid-column: 2;
+    padding: 8px;
+}
