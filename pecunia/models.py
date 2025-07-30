@@ -27,7 +27,7 @@ class Document(Item):
         for key, value in self._pending:
             if isinstance(value, DataValue):
                 value.save()
-            self.set_value(key, value)
+            self.set_value(PropertyMapping.get(key), value)
         self._pending = list()
 
         if is_new:
@@ -43,6 +43,9 @@ class Document(Item):
     def set_title(self, title) -> None:
         self._pending.append(('title', title))
 
+    def get_title(self) -> MonolingualTextValue:
+        return self.statements.get(mainsnak__property=PropertyMapping.get('title')).mainsnak.value
+
     def set_author(self, author) -> None:
         self._pending.append(('author', author))
 
@@ -57,3 +60,6 @@ class Document(Item):
 
     def set_provenance(self, provenance: Item) -> None:
         self._pending.append(('provenance', provenance))
+
+    def set_source_type(self, source_type: Item) -> None:
+        self._pending.append(('source_type', source_type))
