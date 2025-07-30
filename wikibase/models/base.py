@@ -22,6 +22,7 @@ class Value(models.Model):
 class Entity(Value):
     def get_value(self, prop: Property) -> Value | None:
         statements = self.statements.filter(mainsnak__property=prop)
+        # FIXME changer le zéro
         return statements[0].mainsnak.value if statements else None
 
     def add_value(self, prop: Property, value: Value, rank: int = 0) -> Statement:
@@ -41,8 +42,10 @@ class Entity(Value):
 
     def set_value(self, prop: Property, value: Value) -> None:
         statement = self.statements.filter(mainsnak__property=prop)
+        # TODO quel comportement s’il y a plusieurs statements ?
         if statement:
-            statement[0].mainsnak = value
+            statement[0].mainsnak.value = value
+            statement[0].mainsnak.save()
 
 
 class DescribedEntity(Entity):
