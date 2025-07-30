@@ -3,8 +3,8 @@ from django.urls import reverse
 from django.views.generic import TemplateView
 
 from pecunia.forms import PersonForm
-from pecunia.views.abstract import InstanceDashboardView
 from wikibase.models import ItemMapping, PropertyMapping, Item
+from wikibase.views import InstanceDashboardView
 
 
 class PersonDashboard(InstanceDashboardView):

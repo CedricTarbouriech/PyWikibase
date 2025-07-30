@@ -3,17 +3,15 @@ import json
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.core.exceptions import ObjectDoesNotExist
 from django.core.paginator import Paginator
-from django.http import Http404
-from django.http import JsonResponse
+from django.http import Http404, JsonResponse
 from django.shortcuts import redirect
 from django.template.loader import render_to_string
 from django.urls import reverse, reverse_lazy
-from django.views.generic import TemplateView, FormView, DetailView
-from django.views.generic import View
+from django.views.generic import DetailView, FormView, TemplateView, View
 
 from wikibase import models as m
 from wikibase.forms import ItemLabelDescriptionForm, PropertyLabelDescriptionForm
-from wikibase.models import PropertyType, ItemMapping
+from wikibase.models import ItemMapping, PropertyMapping, PropertyType
 
 
 class PropertyApiView(View):
@@ -152,6 +150,32 @@ def json_to_python(type_name, value):
                                         globe=ItemMapping.get('earth'))
         value.save()
         return value
+
+
+class InstanceDashboardView(TemplateView):
+    item_mapping_key = None
+
+    def dispatch(self, request, *args, **kwargs):
+        if not ItemMapping.has(self.item_mapping_key):
+            raise Http404(f"Item mapping '{self.item_mapping_key}' does not exist.")
+        return super().dispatch(request, *args, **kwargs)
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+
+        items = m.Item.objects.all()
+        result = []
+        is_a_prop = PropertyMapping.get('is_a')
+        item_mapping = ItemMapping.get(self.item_mapping_key)
+        for item in items:
+            if not item.statements.exists():
+                continue
+            if item.statements.filter(mainsnak__property=is_a_prop,
+                                      mainsnak__value=item_mapping).exists():
+                result.append(item)
+
+        context['items'] = result
+        return context
 
 
 class StatementUpdateApiView(LoginRequiredMixin, View):
@@ -354,7 +378,7 @@ class PropertyDisplay(DetailView):
 
 
 class PropertyCreation(LoginRequiredMixin, FormView):
-    template_name = 'pecunia/property_creation.html'
+    template_name = 'wikibase/property_creation.html'
     form_class = PropertyLabelDescriptionForm
 
     def form_valid(self, form):
@@ -422,7 +446,7 @@ class PropertyUpdateLabelDescription(LoginRequiredMixin, FormView):
 
 
 class PropertyDelete(LoginRequiredMixin, TemplateView):
-    template_name = 'pecunia/confirm_delete.html'
+    template_name = 'wikibase/confirm_delete.html'
     success_url = reverse_lazy('property_list')
 
     def post(self, request, *args, **kwargs):

@@ -7,9 +7,9 @@ from django.views.generic import TemplateView, FormView
 
 from pecunia.forms import DocumentForm
 from pecunia.models import Document
-from pecunia.views.abstract import InstanceDashboardView
 from wikibase import models as m
 from wikibase.models import PropertyMapping
+from wikibase.views import InstanceDashboardView
 
 
 class DocumentDashboard(InstanceDashboardView):
@@ -88,7 +88,7 @@ class DocumentUpdate(LoginRequiredMixin, FormView):
 
 
 class DocumentDelete(LoginRequiredMixin, TemplateView):
-    template_name = 'pecunia/confirm_delete.html'
+    template_name = 'wikibase/confirm_delete.html'
     success_url = reverse_lazy('document_list')
 
     def post(self, request, *args, **kwargs):

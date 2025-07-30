@@ -1,7 +1,7 @@
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.views.generic import TemplateView
 
-from pecunia.views.abstract import InstanceDashboardView
+from wikibase.views import InstanceDashboardView
 
 
 class PlaceDashboard(InstanceDashboardView):
