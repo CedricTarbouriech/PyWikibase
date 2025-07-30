@@ -20,7 +20,6 @@ from pecunia import views
 
 urlpatterns = [
     path("", views.Home.as_view(), name="index"),
-    path("accounts/", include("django.contrib.auth.urls")),
     path("document/", views.DocumentDashboard.as_view(), name="document_list"),
     path("document/new/", views.DocumentCreation.as_view(), name="document_create"),
     path("document/<int:display_id>/", views.DocumentDisplay.as_view(), name="document_display"),
