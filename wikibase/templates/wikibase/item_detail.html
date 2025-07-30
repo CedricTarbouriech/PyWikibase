@@ -41,7 +41,7 @@
         </table>
         <div class="statements">
             {% for prop, statement in statements %}
-                {% include "widgets/property_table.html" %}
+                {% include "wikibase/widgets/property_table.html" %}
             {% endfor %}
 
             {% if user.is_authenticated %}

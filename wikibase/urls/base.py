@@ -29,4 +29,17 @@ urlpatterns = [
     path("api/statement/update", views.StatementUpdateApiView.as_view(), name="api_statement_snak_update"),
     path("api/statement/<int:statement_id>", views.StatementApiView.as_view(), name="api_statements"),
     path("api/statement/delete", views.StatementDeleteApiView.as_view(), name="api_statement_delete"),
+
+    path("item/", views.ItemDashboard.as_view(), name="item_list"),
+    path("item/new/", views.ItemCreation.as_view(), name="item_create"),
+    path("item/<int:display_id>/", views.ItemDisplay.as_view(), name="item_display"),
+    path("item/updatelabeldescription/<int:display_id>/<str:lang>/",
+         views.ItemUpdateLabelDescription.as_view(), name="item_updatelabeldescription"),
+    path("item/delete/<int:display_id>/", views.ItemDelete.as_view(), name="item_delete"),
+    path("property/", views.PropertyDashboard.as_view(), name="property_list"),
+    path("property/new/", views.PropertyCreation.as_view(), name="property_create"),
+    path("property/<int:display_id>/", views.PropertyDisplay.as_view(), name="property_display"),
+    path("property/update/labeldescription/<int:display_id>/<str:lang>/",
+         views.PropertyUpdateLabelDescription.as_view(), name="property_update_labeldescription"),
+    path("property/delete/<int:display_id>/", views.PropertyDelete.as_view(), name="property_delete"),
 ]
