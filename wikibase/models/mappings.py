@@ -5,7 +5,7 @@ from django.db import models
 from wikibase.models import Property, Item
 
 
-class UnknownMapping(Exception):
+class UnknownMappingException(Exception):
     pass
 
 
@@ -35,7 +35,7 @@ class PropertyMapping(Mapping):
         try:
             return cls.objects.get(key=key).property
         except cls.DoesNotExist:
-            raise UnknownMapping(f"Property mapping '{key}' does not exist.")
+            raise UnknownMappingException(f"Property mapping '{key}' does not exist.")
 
 
 class ItemMapping(Mapping):
@@ -49,4 +49,4 @@ class ItemMapping(Mapping):
         try:
             return cls.objects.get(key=key).item
         except cls.DoesNotExist:
-            raise UnknownMapping(f"Item mapping '{key}' does not exist.")
+            raise UnknownMappingException(f"Item mapping '{key}' does not exist.")
