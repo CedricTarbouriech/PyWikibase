@@ -66,7 +66,7 @@ article {
     display: grid;
     grid-template-columns: 20% 1fr;
     grid-template-rows: auto auto;
-    margin:10px;
+    margin: 10px;
 }
 
 .property-cell {
@@ -100,4 +100,19 @@ article {
     border: 1px solid grey;
     grid-column: 2;
     padding: 8px;
+}
+
+.annotator-columns {
+    display: grid;
+    grid-template-columns: 70% 1fr;
+    grid-template-rows: auto auto;
+}
+
+.annotator-text-field {
+    min-width: 100%;
+    width: 100%
+}
+
+.annotator-preview-column {
+
 }

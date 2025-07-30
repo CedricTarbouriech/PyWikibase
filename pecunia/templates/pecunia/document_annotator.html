@@ -1,0 +1,20 @@
+{% extends "base.html" %}
+{% load i18n %}
+{% block content %}
+    <form method="post">{% csrf_token %}
+        <div class="annotator-columns">
+            <div class="annotator-text-column">
+                {{ form.text.label_tag }}
+                <span class="warning-span">Pas d’erreur.</span>
+                {{ form.text.as_widget }}
+            </div>
+            <div class="annotator-preview-column">
+                <div>Preview:</div>
+                <div>Not implemented yet.</div>
+            </div>
+        </div>
+        <input type="submit" value="{% trans "global.save" %}">
+        <a class="button" href="{{ request.META.HTTP_REFERER|escape }}">{% trans "global.cancel" %}</a>
+    </form>
+
+{% endblock %}

@@ -1,5 +1,9 @@
+'use strict';
+
+import {Stack} from '../stack.js';
+
 function addTag(beginTag, endTag) {
-  let textarea = $('#textfield')[0];
+  let textarea = ($('.annotator-text-field'))[0];
   let start = textarea.selectionStart;
   let end = textarea.selectionEnd;
 
@@ -30,7 +34,7 @@ function addResourceTag() {
 }
 
 function parseAnnotationTextArea() {
-  const $textfield = $('#textfield');
+  const $textfield = $('.annotator-text-field');
   if (!$textfield.length) return;
   const textValue = $textfield.val().toString();
   let $matchDiv = $('div#matchResult');
@@ -72,8 +76,91 @@ function parseAnnotationTextArea() {
   }
 }
 
+
+/**
+ *
+ * @param {string} text
+ * @returns {boolean}
+ */
+function checkCharacterOverlap(text) {
+  let stack = new Stack();
+  for (const c of text) {
+    if (c === "<") stack.push("<");
+    else if (c === ">") {
+      if (stack.isEmpty()) {
+        return true;
+      } else {
+        if (stack.top() === "<") {
+          stack.pop();
+        } else {
+          return true;
+        }
+      }
+    }
+  }
+  return false;
+}
+
+function checkCharacterOverlap2(text) {
+  let stack = new Stack();
+  for (const c of text) {
+    if (c === "<") stack.push("<");
+    else if (c === ">") {
+      if (stack.isEmpty()) {
+        return true;
+      } else {
+        if (stack.top() === "<") {
+          stack.pop();
+        } else {
+          return true;
+        }
+      }
+    }
+  }
+  return !stack.isEmpty();
+}
+
+function checkTagOverlap(text) {
+  return false;
+}
+
+let lastSelection = "";
+
 // TODO: Faire en sorte que ça ne soit lancé que pour éditer les textes
 $(() => {
-  $('#textfield').on('input', parseAnnotationTextArea);
-  parseAnnotationTextArea();
+  const $annotatorTextField = $('.annotator-text-field');
+  $annotatorTextField.on('input', parseAnnotationTextArea);
+  $annotatorTextField.on('mousedown', function () {
+    $annotatorTextField.on('mousemove.selectionCheck', function () {
+      let selection = window.getSelection().toString();
+      if (selection !== lastSelection) {
+        lastSelection = selection;
+        if (selection.length > 0) {
+          console.log('Nouvelle sélection:', selection);
+          const $warningSpan = $('.warning-span');
+          if (checkCharacterOverlap(selection) || checkTagOverlap(selection)) {
+            $warningSpan.text("Erreur !");
+          } else {
+            $warningSpan.text("Pas d’erreur.");
+
+          }
+        }
+      }
+    });
+  });
+
+  $annotatorTextField.on('mouseup', function () {
+    $annotatorTextField.off('mousemove.selectionCheck');
+  });
+  $annotatorTextField.on('select', function () {
+    let selection = window.getSelection().toString();
+    const $warningSpan = $('.warning-span');
+    if (checkCharacterOverlap2(selection) || checkTagOverlap(selection)) {
+      $warningSpan.text("Erreur !");
+    } else {
+      $warningSpan.text("Pas d’erreur.");
+    }
+    // TODO : retirer le warning si le texte est déselectionner.
+  });
+  $annotatorTextField.trigger('input');
 });

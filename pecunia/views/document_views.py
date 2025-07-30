@@ -97,7 +97,7 @@ class DocumentUpdateMetadata(LoginRequiredMixin, FormView):
 
 
 class DocumentUpdateText(LoginRequiredMixin, FormView):
-    template_name = 'pecunia/document_form.html'
+    template_name = 'pecunia/document_annotator.html'
     form_class = DocumentTextForm
 
     def form_valid(self, form):

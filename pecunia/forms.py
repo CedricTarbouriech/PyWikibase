@@ -11,9 +11,7 @@ def get_instances_of(item):
                                  statements__mainsnak__value=item)  # TODO: get subclasses
 
 class DocumentTextForm(forms.Form):
-    text_language = forms.ChoiceField(label=_('document.text_language'),
-                                       choices=(('en', 'English'), ('fr', 'Français')))
-    text = forms.CharField(widget=forms.Textarea(attrs={'id': 'textfield'}), label=_('document.text'))
+    text = forms.CharField(widget=forms.Textarea(attrs={'class': 'annotator-text-field', }), label=_('document.text'))
 
 class DocumentMetadataForm(forms.Form):
     title = forms.CharField(label=_('document.title'))
