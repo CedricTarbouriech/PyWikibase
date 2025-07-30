@@ -165,7 +165,7 @@ class Migration(migrations.Migration):
                 ('datavalue_ptr', models.OneToOneField(auto_created=True, on_delete=django.db.models.deletion.CASCADE, parent_link=True, primary_key=True, serialize=False, to='wikibase.datavalue')),
                 ('time', models.CharField(max_length=40)),
                 ('timezone', models.IntegerField()),
-                ('precision', models.IntegerField(blank=True, choices=[(0, 'Billion years'), (1, '100 million years'), (2, '10 million years'), (3, 'Million years'), (4, '100 thousand years'), (5, '10 thousand years'), (6, 'Thousand years'), (7, 'Century'), (8, 'Decade'), (9, 'Year'), (10, 'Month'), (11, 'Day')], null=True)),
+                ('precision', models.IntegerField(blank=True, choices=[(0, 'Billion years'), (1, '100 million years'), (2, '10 million years'), (3, 'Million years'), (4, '100 thousand years'), (5, '10 thousand years'), (6, 'Thousand years'), (7, 'Century'), (8, 'Decade'), (9, 'Year'), (10, 'Month'), (11, 'Day'), (12, 'Hour'), (13, 'Minute'), (14, 'Second')], null=True)),
                 ('after', models.IntegerField(blank=True, null=True)),
                 ('before', models.IntegerField(blank=True, null=True)),
                 ('calendar_model', models.ForeignKey(on_delete=django.db.models.deletion.PROTECT, to='wikibase.item')),
