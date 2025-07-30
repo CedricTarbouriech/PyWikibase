@@ -8,22 +8,89 @@ from wikibase.models import Item, Label, Description, Alias, Statement, Property
     Property
 
 
+class PrefixedByLanguageField(serializers.ListSerializer):
+    def to_representation(self, data):
+        grouped = defaultdict(list)
+        for item in super().to_representation(data):
+            grouped[item['language']] = item
+        return grouped
+
+    def to_internal_value(self, data):
+        # data est un dict groupé par langue
+        flattened = []
+        for lang, values in data.items():
+            for value in values:
+                flattened.append(value)
+        return super().to_internal_value(flattened)
+
+
+class GroupedByLanguageField(serializers.ListSerializer):
+    def to_representation(self, data):
+        grouped = defaultdict(list)
+        for item in super().to_representation(data):
+            grouped[item['language']].append(item)
+        return grouped
+
+    def to_internal_value(self, data):
+        # data est un dict groupé par langue
+        flattened = []
+        for lang, values in data.items():
+            for value in values:
+                flattened.append(value)
+        return super().to_internal_value(flattened)
+
+
+class GroupedByPropertyField(serializers.ListSerializer):
+    def to_representation(self, data):
+        grouped = defaultdict(list)
+        for claim in super().to_representation(data):
+            grouped[claim['mainsnak']['property']].append(claim)
+        return grouped
+
+    def to_internal_value(self, data):
+        # data est un dict groupé par langue
+        flattened = []
+        for lang, values in data.items():
+            for value in values:
+                flattened.append(value)
+        return super().to_internal_value(flattened)
+
+
+class GroupedByPropertyField1(serializers.ListSerializer):
+    def to_representation(self, data):
+        grouped = defaultdict(list)
+        for claim in super().to_representation(data):
+            grouped[claim['snak']['property']].append(claim['snak'])
+        return grouped
+
+    def to_internal_value(self, data):
+        # data est un dict groupé par langue
+        flattened = []
+        for lang, values in data.items():
+            for value in values:
+                flattened.append(value)
+        return super().to_internal_value(flattened)
+
+
 class LabelSerializer(serializers.ModelSerializer):
     class Meta:
         model = Label
         fields = ['language', 'text']
+        list_serializer_class = PrefixedByLanguageField
 
 
 class DescriptionSerializer(serializers.ModelSerializer):
     class Meta:
         model = Description
         fields = ['language', 'text']
+        list_serializer_class = PrefixedByLanguageField
 
 
 class AliasesSerializer(serializers.ModelSerializer):
     class Meta:
         model = Alias
         fields = ['language', 'text']
+        list_serializer_class = GroupedByLanguageField
 
 
 class ValueSerializer(serializers.ModelSerializer):
@@ -114,6 +181,7 @@ class ReferenceSnakSerializer(serializers.ModelSerializer):
     class Meta:
         model = ReferenceSnak
         fields = ['snak']
+        list_serializer_class = GroupedByPropertyField1
 
 
 class ReferenceRecordSerializer(serializers.ModelSerializer):
@@ -122,14 +190,7 @@ class ReferenceRecordSerializer(serializers.ModelSerializer):
     class Meta:
         model = ReferenceRecord
         fields = ['snaks']
-
-    def to_representation(self, instance: ReferenceRecord):
-        rep = super().to_representation(instance)
-        grouped = defaultdict(list)
-        for claim in rep['snaks']:
-            grouped[claim['snak']['property']].append(claim['snak'])
-        rep['snaks'] = grouped
-        return rep
+        list_serializer_class = GroupedByPropertyField1
 
 
 class StatementSerializer(serializers.ModelSerializer):
@@ -141,62 +202,32 @@ class StatementSerializer(serializers.ModelSerializer):
     class Meta:
         model = Statement
         fields = ['mainsnak', 'qualifiers', 'rank', 'references']
-
-    def to_representation(self, instance):
-        rep = super().to_representation(instance)
-
-        # Group claims by property
-        grouped = defaultdict(list)
-        for claim in rep['qualifiers']:
-            grouped[claim['snak']['property']].append(claim['snak'])
-        rep['qualifiers'] = grouped
-
-        return rep
+        list_serializer_class = GroupedByPropertyField
 
 
-class ItemSerializer(serializers.HyperlinkedModelSerializer):
-    labels = LabelSerializer(many=True)
-    descriptions = DescriptionSerializer(many=True)
-    aliases = AliasesSerializer(many=True)
-    claims = StatementSerializer(many=True, source='statements')
+class ItemSerializer(serializers.ModelSerializer):
+    labels = LabelSerializer(many=True, required=False, default=list())
+    descriptions = DescriptionSerializer(many=True, required=False, default=list())
+    aliases = AliasesSerializer(many=True, required=False, default=list())
+    claims = StatementSerializer(many=True, source='statements', required=False, default=list())
 
     class Meta:
         model = Item
         fields = ['display_id', 'labels', 'descriptions', 'aliases', 'claims']
 
-    def to_representation(self, instance):
-        rep = super().to_representation(instance)
+    def create(self, validated_data):
+        print(validated_data)
+        item = Item.objects.create(**validated_data)
+        # Labels
+        print(type(validated_data['labels']), validated_data['labels'])
+        for label in validated_data['labels']:
+            item.set_label(label['language'], label['text'])
+        return Item.objects.create(**validated_data)
 
-        # Group labels by language
-        grouped = defaultdict(dict)
-        for label in rep['labels']:
-            grouped[label['language']] = label
-
-        rep['labels'] = grouped
-
-        # Group descriptions by language
-        grouped = defaultdict(dict)
-        for description in rep['descriptions']:
-            grouped[description['language']] = description
-
-        rep['descriptions'] = grouped
-
-        # Group aliases by language
-        grouped = defaultdict(list)
-        for alias in rep['aliases']:
-            grouped[alias['language']].append({
-                'language': alias['language'],
-                'value': alias['value']
-            })
-        rep['aliases'] = grouped
-
-        # Group claims by property
-        grouped = defaultdict(list)
-        for claim in rep['claims']:
-            grouped[claim['mainsnak']['property']].append(claim)
-        rep['claims'] = grouped
-
-        return rep
+    def update(self, instance, validated_data):
+        print(type(instance), instance)
+        print("oui2")
+        return super().update(instance, validated_data)
 
 
 # ViewSets define the view behavior.

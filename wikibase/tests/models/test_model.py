@@ -21,7 +21,7 @@ class ItemTestCase(TestCase):
         item = m.Item.objects.create()
         self.assertIsInstance(item, m.Item)
         check_has_described_entity_fields(self, item)
-        self.assertEqual(9, item.id) # 8 datatypes ; so new item is 9
+        self.assertEqual(9, item.id)  # 8 datatypes ; so new item is 9
         self.assertEqual(1, item.display_id)
 
     def test_second_display_id(self):
@@ -38,6 +38,7 @@ class ItemTestCase(TestCase):
         self.assertEqual(1, prop.display_id)
         self.assertEqual(2, item2.display_id)
 
+
 class PropertyTestCase(TestCase):
     def setUp(self):
         self.data_type = m.Datatype.objects.get(class_name='Item')
@@ -47,7 +48,7 @@ class PropertyTestCase(TestCase):
         self.assertIsInstance(prop, m.Property)
         check_has_described_entity_fields(self, prop)
         print(m.Value.objects.all())
-        self.assertEqual(9, prop.id) # 8 datatypes ; so new item is 9
+        self.assertEqual(9, prop.id)  # 8 datatypes ; so new item is 9
         self.assertEqual(1, prop.display_id)
 
     def test_second_display_id(self):
@@ -74,6 +75,7 @@ class DataTypeTestCase(TestCase):
         self.assertEqual(m.Datatype.objects.get(class_name='TimeValue').type, m.TimeValue)
         self.assertEqual(m.Datatype.objects.get(class_name='GlobeCoordinatesValue').type, m.GlobeCoordinatesValue)
         self.assertEqual(m.Datatype.objects.get(class_name='MonolingualTextValue').type, m.MonolingualTextValue)
+
 
 class DeleteTestCase(TestCase):
     def test_delete_snak(self):
