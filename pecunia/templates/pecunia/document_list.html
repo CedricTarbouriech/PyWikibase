@@ -22,8 +22,12 @@
                        href='{% url "document_display" item.display_id %}'>{% trans "global.see" %}</a>
 
                     {% if user.is_authenticated %}
-                        <a class="button"
-                           href='{% url "document_update" item.display_id %}'>{% trans "global.edit" %}</a>
+                        <a class="button" href='{% url "document_update_metadata" item.display_id %}'>
+                            {% trans "document.edit.metadata" %}
+                        </a>
+                        <a class="button" href='{% url "document_update_text" item.display_id %}'>
+                            {% trans "document.edit.text" %}
+                        </a>
                         <a class="button"
                            href='{% url "document_delete" item.display_id %}'>{% trans "global.delete" %}</a>
                     {% endif %}

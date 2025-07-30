@@ -79,6 +79,17 @@ def prop(item: object, prop_key_mapping: str) -> str:
 
 
 @register.filter
+def prop_list(item: object, prop_key_mapping: str) -> str:
+    prop = PropertyMapping.get(prop_key_mapping)
+    if not prop:
+        return f"Missing property mapping for key: {prop_key_mapping}"
+    statements = item.statements.filter(mainsnak__property=prop)
+    if statements:
+        return ", ".join(html(statement.mainsnak.value) for statement in statements)
+    return "-"
+
+
+@register.filter
 def prop_mtv_value(item: m.Entity, prop_key_mapping: str) -> str:
     try:
         prop = PropertyMapping.get(prop_key_mapping)

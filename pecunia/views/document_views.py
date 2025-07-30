@@ -5,7 +5,7 @@ from django.shortcuts import redirect
 from django.urls import reverse, reverse_lazy
 from django.views.generic import TemplateView, FormView
 
-from pecunia.forms import DocumentForm
+from pecunia.forms import DocumentMetadataForm, DocumentTextForm
 from pecunia.models import Document
 from wikibase import models as m
 from wikibase.models import PropertyMapping
@@ -33,7 +33,7 @@ class DocumentDisplay(TemplateView):
 
 class DocumentCreation(LoginRequiredMixin, FormView):
     template_name = 'pecunia/document_form.html'
-    form_class = DocumentForm
+    form_class = DocumentMetadataForm
 
     def form_valid(self, form):
         document = Document()
@@ -59,32 +59,67 @@ class DocumentCreation(LoginRequiredMixin, FormView):
         return reverse('document_display', kwargs=self.kwargs)
 
 
-class DocumentUpdate(LoginRequiredMixin, FormView):
+class DocumentUpdateMetadata(LoginRequiredMixin, FormView):
     template_name = 'pecunia/document_form.html'
-    form_class = DocumentForm
+    form_class = DocumentMetadataForm
 
     def form_valid(self, form):
         display_id = self.kwargs['display_id']
         document = Document.get_by_id(display_id)
-        document.set_text(form.cleaned_data['text'])
+        title = document.get_title()
+        title.language = form.cleaned_data['title_language']
+        title.text = form.cleaned_data['title']
+        title.save()
+        document.set_source_type(m.Item.objects.get(display_id=form.cleaned_data['source_type']))
+        document.set_author(m.Item.objects.get(display_id=form.cleaned_data['author']))
+        document.set_author_function(m.Item.objects.get(display_id=form.cleaned_data['author_function']))
+        document.set_provenance(m.Item.objects.get(display_id=form.cleaned_data['place']))
+        print(form.cleaned_data)
+        print(self.kwargs)
         document.save()
         return super().form_valid(form)
 
     def get_success_url(self):
         return reverse('document_display', kwargs=self.kwargs)
 
-    def get_initial(self):
+    def get_form_kwargs(self):
+        kwargs = super().get_form_kwargs()
         document = m.Item.objects.get(display_id=self.kwargs['display_id'])
+        kwargs["initial"] = {
+            'title': document.get_value(PropertyMapping.get('title')).text,
+            'title_language': document.get_value(PropertyMapping.get('title')).language,
+            'source_type': document.get_value(PropertyMapping.get('source_type')).display_id,
+            'author': document.get_value(PropertyMapping.get('author')).display_id,
+            'author_function': document.get_value(PropertyMapping.get('author_function')).display_id,
+            'place': document.get_value(PropertyMapping.get('provenance')).display_id,
+        }
+        return kwargs
+
+
+class DocumentUpdateText(LoginRequiredMixin, FormView):
+    template_name = 'pecunia/document_form.html'
+    form_class = DocumentTextForm
+
+    def form_valid(self, form):
+        display_id = self.kwargs['display_id']
+        document = Document.get_by_id(display_id)
         text = document.get_value(PropertyMapping.get('text'))
-        text_data = {}
-        if text:
-            text_data['language'] = text.language
-            text_data['text'] = text.text
-        # Préremplir les données du formulaire
-        return {
-            'title': document.get_value(PropertyMapping.get('title')),
-            'date': document.get_value(PropertyMapping.get('date')),
-        }.update(text_data)
+        text.text = form.cleaned_data['text']
+        text.save()
+        document.save()
+        return super().form_valid(form)
+
+    def get_success_url(self):
+        return reverse('document_display', kwargs=self.kwargs)
+
+    def get_form_kwargs(self):
+        kwargs = super().get_form_kwargs()
+        document = m.Item.objects.get(display_id=self.kwargs['display_id'])
+        kwargs["initial"] = {
+            'text': document.get_value(PropertyMapping.get('text')).text,
+            'text_language': document.get_value(PropertyMapping.get('text')).language
+        }
+        return kwargs
 
 
 class DocumentDelete(LoginRequiredMixin, TemplateView):

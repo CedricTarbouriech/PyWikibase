@@ -1,6 +1,7 @@
 from django.views.generic import TemplateView
 
-from .document_views import DocumentDashboard, DocumentDisplay, DocumentCreation, DocumentUpdate, DocumentDelete
+from .document_views import DocumentDashboard, DocumentDisplay, DocumentCreation, DocumentUpdateMetadata, \
+    DocumentDelete, DocumentUpdateText
 from .person_views import PersonDashboard, PersonDisplay, PersonCreation, PersonUpdate, PersonDelete
 from .place_views import PlaceDashboard, PlaceDisplay, PlaceCreation, PlaceUpdate, PlaceDelete
 
