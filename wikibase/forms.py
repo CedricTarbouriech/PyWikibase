@@ -42,7 +42,7 @@ class ItemStatementUpdateForm(StatementUpdateForm):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.fields['item'].choices = [(x.display_id, tags.label_or_default(x, get_language())) for x in
-                                       m.Item.objects.all()]  # FIXME: language code
+                                       m.Item.objects.all()]
 
 
 class StatementCreateForm(forms.Form):
