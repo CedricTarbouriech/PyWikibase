@@ -25,6 +25,7 @@ export function createSubmitCancelButtons($actions, submitHandle, cancelHandle) 
   $submitBtn.on('click', submitHandle);
   $cancelBtn.on('click', cancelHandle);
 
+  $actions.empty();
   $actions.append($submitBtn, $cancelBtn);
 }
 
