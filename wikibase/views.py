@@ -198,6 +198,7 @@ class StatementDeleteApiView(LoginRequiredMixin, View):
 
 DEFAULT_PAGINATOR_LIMIT = 25
 
+
 class ModelDashboardView(TemplateView):
     model = None
 
@@ -426,8 +427,7 @@ class PropertyDelete(LoginRequiredMixin, TemplateView):
 
     def post(self, request, *args, **kwargs):
         if "confirm" in request.POST:
-            m.Property.objects.get(display_id=self.kwargs[
-                'display_id']).delete()  # TODO: prendre en compte le fait qu’elle puisse etre utilisée
+            m.Property.objects.get(display_id=self.kwargs['display_id']).delete()
         return redirect(self.success_url)
 
     def get_context_data(self, **kwargs):
