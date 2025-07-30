@@ -64,14 +64,15 @@ async function addnewSnak(event) {
   const langCode = $('body').data('lang');
 
   const $btn = $(this);
-  const $tr = $btn.closest('tr');
+  const $closestTr = $btn.closest('tr');
+
   const $table = $btn.closest('table');
   const propertyId = $table.data('property-id');
 
   const $valueInputTd = $('<td class="value-input-cell">');
-  const $actionsTd = $('<td class="actions">');
+  const $actionsTd = $('<td class="actions-cell">');
   const $newTr = $('<tr></tr>').append($valueInputTd, $actionsTd);
-  $tr.before($newTr);
+  $closestTr.before($newTr);
   const $propertyTd = $table.find('td[rowspan]');
   incrementRowSpan($propertyTd);
 
@@ -79,7 +80,7 @@ async function addnewSnak(event) {
   const $snakInput = await createSnakInput(langCode, datatype);
 
   const $rankSelector = createRankSelector();
-  const $snakTypeSelector = createSnakTypeSelector($snakInput);
+  const $snakTypeSelector = createSnakTypeSelector($snakInput, 0);
   $snakTypeSelector.trigger('change');
   $valueInputTd.empty().append($rankSelector, $snakTypeSelector, $snakInput);
 
@@ -100,11 +101,14 @@ async function addnewSnak(event) {
 
 async function editSnak(event) {
   event.preventDefault();
-  const $editBtn = $(this);
-  const $snakTr = $editBtn.closest('tr');
-  const originalHtml = $snakTr.html();
-  const statementId = $snakTr.data('statement-id');
-  const lang_code = $('body').data('lang');
+
+  const langCode = $('body').data('lang');
+
+  const $btn = $(this);
+  const $closestTr = $btn.closest('tr');
+
+  const originalHtml = $closestTr.html();
+  const statementId = $closestTr.data('statement-id');
 
   const {
     rank,
@@ -112,8 +116,8 @@ async function editSnak(event) {
   } = await getAsJson(`/api/statement/${statementId}`, "Erreur de chargement des données du statement.");
   const {propertyType, value, snak_type} = mainSnak;
 
-  const $snakInput = await createSnakInput(lang_code, propertyType, value);
-  const $valueInputTd = $snakTr.find('td.value-cell');
+  const $snakInput = await createSnakInput(langCode, propertyType, value);
+  const $valueInputTd = $closestTr.find('td.value-cell');
   $valueInputTd.removeClass('value-cell');
   $valueInputTd.addClass('value-input-cell');
 
@@ -121,6 +125,8 @@ async function editSnak(event) {
   const $snakTypeSelector = createSnakTypeSelector($snakInput, parseInt(snak_type));
   $snakTypeSelector.trigger('change');
   $valueInputTd.empty().append($rankSelector, $snakTypeSelector, $snakInput);
+
+  const $actions = $closestTr.find('.actions-cell');
 
   const getSubmitHandler = async event => {
     event.preventDefault();
@@ -132,18 +138,16 @@ async function editSnak(event) {
       value: getValueFromInputTd(propertyType, $valueInputTd)
     });
 
-    updateTableWithNewStatement(data.updatedHtml, $snakTr);
+    updateTableWithNewStatement(data.updatedHtml, $closestTr);
   };
 
   const getCancelHandler = event => {
     event.preventDefault();
-    $snakTr.html(originalHtml);
-    $snakTr.find('.btn-edit-value').on('click', editSnak);
-    $snakTr.find('.btn-delete-value').on('click', deleteValue);
+    $closestTr.html(originalHtml);
+    $closestTr.find('.btn-edit-value').on('click', editSnak);
+    $closestTr.find('.btn-delete-value').on('click', deleteValue);
   };
 
-  const $actions = $snakTr.find('.actions-cell');
-  $actions.empty();
   createSubmitCancelButtons($actions, getSubmitHandler, getCancelHandler);
 }
 
