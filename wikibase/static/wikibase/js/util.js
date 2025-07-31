@@ -7,11 +7,6 @@ function getLabel(value, lang_code) {
   return value.labels[lang_code] || (value.labels['en'] ? `(en) ${value.labels['en']}` : '(no label)');
 }
 
-export function incrementRowSpan($element) {
-  const incrementedRowSpan = parseInt($element.attr('rowspan')) + 1;
-  $element.attr('rowspan', incrementedRowSpan);
-}
-
 /**
  * Create two buttons: submit and cancel, attach to them click event handles and append them to the $actions element.
  * @param $actions The element to which the two buttons will be appended.
@@ -29,15 +24,10 @@ export function createSubmitCancelButtons($actions, submitHandle, cancelHandle) 
   $actions.append($submitBtn, $cancelBtn);
 }
 
-export function updateTableWithNewStatement(updatedHtml, $tr) {
+export function updateDivWithNewStatement(updatedHtml, $snakDiv) {
   const $updateHtml = $(updatedHtml);
-  const $valueInputTd = $tr.find('.value-input-cell');
-  const $actions = $tr.find('.actions-cell');
-  const $firstTr = $updateHtml.find('tr:first');
-  const $tds = $firstTr.find('td');
-  $tr.data('statement-id', $firstTr.data('statement-id'));
-  $valueInputTd.replaceWith($tds.get()[1]);
-  $actions.replaceWith($tds.get()[2]);
+  const $newSnakDiv = $updateHtml.find('.snak-cell');
+  $snakDiv.replaceWith($newSnakDiv);
 }
 
 /**
@@ -145,10 +135,15 @@ const datatypeHandlers = {
   TimeValue: {}
 };
 
-export async function createSnakInput(langCode, datatype, defaultValue = null) {
+export async function createSnakInput(langCode, datatype, defaultValue = null, rank = 0, snakType = 0) {
   const handler = datatypeHandlers[datatype];
   if (!handler) throw new Error(`No input creator for datatype: ${datatype}.`)
-  return handler.createInput(langCode, defaultValue);
+  const $snakInput = await handler.createInput(langCode, defaultValue);
+  const $rankSelector = createRankSelector(rank);
+  const $snakTypeSelector = createSnakTypeSelector($snakInput, snakType);
+  $snakTypeSelector.trigger('change');
+
+  return {$rankSelector, $snakTypeSelector, $snakInput};
 }
 
 export function getValueFromInputTd(datatype, $valueInputTd) {
@@ -165,7 +160,7 @@ export function getValueFromInputTd(datatype, $valueInputTd) {
  * @returns {*|jQuery|HTMLElement|JQuery<HTMLElement>} The snak type selector element.
  */
 export function createSnakTypeSelector($snakInput, snakType = 0) {
-  const $snakTypeSelector = $('<select>');
+  const $snakTypeSelector = $('<select class="snak-type-selector">');
   for (const [snakTypeValue, snakTypeLabel] of [[0, 'Value'], [1, 'Unknown value'], [2, 'No value']]) {
     const $option = $('<option>').val(snakTypeValue).text(snakTypeLabel);
     if (snakType === snakTypeValue)
@@ -190,7 +185,7 @@ export function createSnakTypeSelector($snakInput, snakType = 0) {
  * @returns {*|jQuery|HTMLElement|JQuery<HTMLElement>} The rank selector.
  */
 export function createRankSelector(rank = 0) {
-  const $rankSelector = $('<select>');
+  const $rankSelector = $('<select class="rank-selector">');
   for (const [rankValue, rankLabel] of [[1, 'Preferred'], [0, 'Normal'], [-1, 'Obsolete']]) {
     const $option = $('<option>').val(rankValue).text(rankLabel);
     if (rank === rankValue)

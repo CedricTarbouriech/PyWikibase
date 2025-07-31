@@ -137,7 +137,7 @@ class PropertySnak(models.Model):
         value = self.value  # stocker avant la suppression de self
         super().delete(*args, **kwargs)
 
-        if not keep_value:
+        if value and not keep_value:
             value.delete()
 
     def save(self, *args, **kwargs):

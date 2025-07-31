@@ -1,40 +1,40 @@
 'use strict';
 
-import {createStatement, fetchPropertyDataType, getAsJson, postAsJson} from './api.js';
+import {createStatement, updateStatement, fetchPropertyDataType, getAsJson, postAsJson} from './api.js';
 import {
   createPropertySelector,
-  createRankSelector,
   createSnakInput,
-  createSnakTypeSelector,
   createSubmitCancelButtons,
   getValueFromInputTd,
-  incrementRowSpan,
-  updateTableWithNewStatement
+  updateDivWithNewStatement
 } from './util.js';
 
-function tmp(editMode, chooseValue, sendPost, updateTable) {
-  editMode();
-  chooseValue();
-  sendPost();
-  updateTable();
-}
 
+/**
+ *
+ * @param event
+ * @returns {Promise<void>}
+ */
 async function addNewStatement(event) {
   event.preventDefault();
-  const lang_code = $('body').data('lang');
+
+  const langCode = $('body').data('lang');
 
   // Choose property
-  const $propertySelector = await createPropertySelector(lang_code);
-  const $propertyTd = $('<td class="propertySelector">').append($propertySelector);
-  const $valueInputTd = $('<td class="value-input-cell">');
-  const $actionsTd = $('<td class="actions">');
-  const $tr = $('<tr>').append($propertyTd, $valueInputTd, $actionsTd);
-  const $table = $('<table>').append($tr);
+  const $propertySelector = await createPropertySelector(langCode);
+
+  const $propertyDiv = $('<div class="property-cell">').append($propertySelector);
+  const $valueDiv = $('<div class="value-cell">');
+  const $actionsDiv = $('<div class="actions-cell">');
+  const $snakDiv = $('<div class="snak-cell">').append($valueDiv, $actionsDiv);
+  const $statementsDiv = $('<div class="statement-group">').append($propertyDiv, $snakDiv);
+
+  $(event.currentTarget).before($statementsDiv);
 
   $propertySelector.on('change', async () => {
     const datatype = $propertySelector.find('option:selected').data('type');
-    const $propertyValueInput = await createSnakInput(lang_code, datatype);
-    $valueInputTd.html($propertyValueInput);
+    const {$rankSelector, $snakTypeSelector, $snakInput} = await createSnakInput(langCode, datatype);
+    $valueDiv.empty().append($rankSelector, $snakTypeSelector, $snakInput);
   });
 
   const getSubmitHandler = async event => {
@@ -43,19 +43,17 @@ async function addNewStatement(event) {
     const $selectedOption = $propertySelector.find('option:selected');
     const datatype = $selectedOption.data('type');
     const propertyId = $selectedOption.val();
-    const data = await createStatement('0', propertyId, $('h1').data('item_id'), getValueFromInputTd(datatype, $valueInputTd));
-    $table.replaceWith(data.updatedHtml);
-    $table.find('.btn-add-value').on('click', addnewSnak);
+    const data = await createStatement($valueDiv.find('.snak-type-selector').val(), $valueDiv.find('.rank-selector').val(), propertyId, $('h1').data('item_id'), getValueFromInputTd(datatype, $valueDiv));
+    $statementsDiv.replaceWith(data.updatedHtml);
+    $statementsDiv.find('.btn-add-value').on('click', addnewSnak);
   };
 
   const getCancelHandler = event => {
     event.preventDefault();
-    $table.remove();
+    $statementsDiv.remove();
   };
 
-  createSubmitCancelButtons($actionsTd, getSubmitHandler, getCancelHandler);
-
-  $(event.currentTarget).before($table);
+  createSubmitCancelButtons($actionsDiv, getSubmitHandler, getCancelHandler);
 }
 
 async function addnewSnak(event) {
@@ -64,39 +62,32 @@ async function addnewSnak(event) {
   const langCode = $('body').data('lang');
 
   const $btn = $(this);
-  const $closestTr = $btn.closest('tr');
+  const $newValueDiv = $btn.closest('.new-value-cell');
 
-  const $table = $btn.closest('table');
-  const propertyId = $table.data('property-id');
+  const $statementsDiv = $btn.closest('.statement-group');
+  const propertyId = $statementsDiv.data('property-id');
 
-  const $valueInputTd = $('<td class="value-input-cell">');
-  const $actionsTd = $('<td class="actions-cell">');
-  const $newTr = $('<tr></tr>').append($valueInputTd, $actionsTd);
-  $closestTr.before($newTr);
-  const $propertyTd = $table.find('td[rowspan]');
-  incrementRowSpan($propertyTd);
+  const $valueDiv = $('<div class="value-cell">');
+  const $actionsDiv = $('<div class="actions-cell">');
+  const $snakDiv = $('<div class="snak-cell">').append($valueDiv, $actionsDiv);
+  $newValueDiv.before($snakDiv);
 
-  const datatype = await fetchPropertyDataType(propertyId);
-  const $snakInput = await createSnakInput(langCode, datatype);
-
-  const $rankSelector = createRankSelector();
-  const $snakTypeSelector = createSnakTypeSelector($snakInput, 0);
-  $snakTypeSelector.trigger('change');
-  $valueInputTd.empty().append($rankSelector, $snakTypeSelector, $snakInput);
+  const propertyType = await fetchPropertyDataType(propertyId);
+  const {$rankSelector, $snakTypeSelector, $snakInput} = await createSnakInput(langCode, propertyType);
+  $valueDiv.empty().append($rankSelector, $snakTypeSelector, $snakInput);
 
   const getSubmitHandler = async event => {
     event.preventDefault();
-    const data = await createStatement($snakTypeSelector.val(), propertyId, $('h1').data('item_id'), getValueFromInputTd(datatype, $valueInputTd));
-    updateTableWithNewStatement(data.updatedHtml, $newTr);
+    const data = await createStatement($snakTypeSelector.val(), $rankSelector.val(), propertyId, $('h1').data('item_id'), getValueFromInputTd(propertyType, $valueDiv));
+    updateDivWithNewStatement(data.updatedHtml, $snakDiv);
   };
 
   const getCancelHandler = event => {
     event.preventDefault();
-    $newTr.remove();
-    $propertyTd.attr('rowspan', parseInt($propertyTd.attr('rowspan')) - 1);
+    $snakDiv.remove();
   };
 
-  createSubmitCancelButtons($actionsTd, getSubmitHandler, getCancelHandler);
+  createSubmitCancelButtons($actionsDiv, getSubmitHandler, getCancelHandler);
 }
 
 async function editSnak(event) {
@@ -105,80 +96,58 @@ async function editSnak(event) {
   const langCode = $('body').data('lang');
 
   const $btn = $(this);
-  const $closestTr = $btn.closest('tr');
+  const $snakDiv = $btn.closest('.snak-cell');
 
-  const originalHtml = $closestTr.html();
-  const statementId = $closestTr.data('statement-id');
+  const originalHtml = $snakDiv.html();
+  const statementId = $snakDiv.data('statement-id');
 
   const {
     rank,
     mainSnak
   } = await getAsJson(`/api/statement/${statementId}`, "Erreur de chargement des données du statement.");
   const {propertyType, value, snak_type} = mainSnak;
+  const $valueDiv = $snakDiv.find('.value-cell');
 
-  const $snakInput = await createSnakInput(langCode, propertyType, value);
-  const $valueInputTd = $closestTr.find('td.value-cell');
-  $valueInputTd.removeClass('value-cell');
-  $valueInputTd.addClass('value-input-cell');
+  const {$rankSelector, $snakTypeSelector, $snakInput} = await createSnakInput(langCode, propertyType, value, rank, snak_type);
+  $valueDiv.empty().append($rankSelector, $snakTypeSelector, $snakInput);
 
-  const $rankSelector = createRankSelector(rank);
-  const $snakTypeSelector = createSnakTypeSelector($snakInput, parseInt(snak_type));
-  $snakTypeSelector.trigger('change');
-  $valueInputTd.empty().append($rankSelector, $snakTypeSelector, $snakInput);
-
-  const $actions = $closestTr.find('.actions-cell');
+  const $actionsDiv = $snakDiv.find('.actions-cell');
 
   const getSubmitHandler = async event => {
     event.preventDefault();
 
-    const data = await postAsJson('/api/statement/update', "Erreur dans la mise à jour du statement.", {
-      statement_id: statementId,
-      rank: $rankSelector.val(),
-      snak_type: $snakTypeSelector.val(),
-      value: getValueFromInputTd(propertyType, $valueInputTd)
-    });
-
-    updateTableWithNewStatement(data.updatedHtml, $closestTr);
+    const data = await updateStatement(statementId, $rankSelector.val(), $snakTypeSelector.val(), getValueFromInputTd(propertyType, $valueDiv));
+    updateDivWithNewStatement(data.updatedHtml, $snakDiv);
   };
 
   const getCancelHandler = event => {
     event.preventDefault();
-    $closestTr.html(originalHtml);
-    $closestTr.find('.btn-edit-value').on('click', editSnak);
-    $closestTr.find('.btn-delete-value').on('click', deleteValue);
+    $snakDiv.html(originalHtml);
+    $snakDiv.find('.btn-edit-value').on('click', editSnak);
+    $snakDiv.find('.btn-delete-value').on('click', deleteValue);
   };
 
-  createSubmitCancelButtons($actions, getSubmitHandler, getCancelHandler);
+  createSubmitCancelButtons($actionsDiv, getSubmitHandler, getCancelHandler);
 }
 
 async function deleteValue(event) {
   event.preventDefault();
+
   const $btn = $(this);
-  const $tr = $btn.closest('tr');
-  const $table = $tr.closest('table');
-  const statementId = $tr.data('statement-id');
+
+  const $snakDiv = $btn.closest('.snak-cell');
+  const $statementDiv = $snakDiv.closest('.statement-group');
+  const statementId = $snakDiv.data('statement-id');
+
   const confirmed = window.confirm("Are you sure?");
   if (!confirmed) return;
 
   const data = await postAsJson('/api/statement/delete', `Erreur lors de la suppression du statement ${statementId}`, {statement_id: statementId});
   const statementNumber = data.number;
   if (statementNumber === 0) {
-    $table.remove();
+    $statementDiv.remove();
   } else {
-    const $allTrs = $table.find('tr');
-    const isFirstTr = $allTrs.first().is($tr);
-
-    if (isFirstTr) {
-      const $nextTr = $tr.next('tr');
-      const $rowspanTd = $tr.find('td[rowspan]');
-      $rowspanTd.prependTo($nextTr);
-    }
-
-    const $updatedRowspanTd = $table.find('td[rowspan]');
-    const currentRowspan = parseInt($updatedRowspanTd.attr('rowspan'));
-    $updatedRowspanTd.attr('rowspan', currentRowspan - 1);
-
-    $tr.remove();
+    $snakDiv.remove();
   }
 }
 

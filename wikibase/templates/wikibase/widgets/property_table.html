@@ -27,11 +27,9 @@
 
     {% if user.is_authenticated %}
         <div class="new-value-cell">
-            <div>
-                <a class="button btn-add-value" data-property="{{ prop.display_id }}" href='#'>
-                    {% trans "global.statement_value.new" %}
-                </a>
-            </div>
+            <a class="button btn-add-value" data-property="{{ prop.display_id }}" href='#'>
+                {% trans "global.statement_value.new" %}
+            </a>
         </div>
     {% endif %}
 </div>

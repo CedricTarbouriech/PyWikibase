@@ -43,16 +43,35 @@ export async function fetchPropertyDataType(propertyId) {
 /**
  *
  * @param {int} snakType
+ * @param rank
  * @param propertyId
  * @param entityId
  * @param value
- * @returns {Promise<*>}
+ * @returns {Promise<{updatedHtml: string}>}
  */
-export async function createStatement(snakType, propertyId, entityId, value) {
+export async function createStatement(snakType, rank, propertyId, entityId, value) {
   return await postAsJson('/api/statement/add', 'Erreur lors de l’ajout d’un statement.', {
     snak_type: snakType,
     prop_id: propertyId,
     entity_id: entityId,
+    rank: rank,
+    value: value
+  });
+}
+
+/**
+ *
+ * @param {int} statementId
+ * @param rank
+ * @param snakType
+ * @param value
+ * @returns {Promise<{updatedHtml: string}>}
+ */
+export async function updateStatement(statementId, rank, snakType, value) {
+  return await postAsJson('/api/statement/update', 'Erreur dans la mise à jour du statement.', {
+    statement_id: statementId,
+    rank: rank,
+    snak_type: snakType,
     value: value
   });
 }

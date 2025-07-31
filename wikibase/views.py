@@ -77,7 +77,7 @@ class StatementAddApiView(LoginRequiredMixin, View):
         snak = m.PropertySnak(property=prop, value=value, type=type_field_value)
 
         snak.save()
-        statement = m.Statement(subject=subject, mainsnak=snak, rank=0)
+        statement = m.Statement(subject=subject, mainsnak=snak, rank=post_data.get('rank'))
         statement.save()
 
         data = {
@@ -85,7 +85,7 @@ class StatementAddApiView(LoginRequiredMixin, View):
             'prop': prop,
             'item': subject
         }
-        updated_html = render_to_string('wikibase/widgets/property_table.html', data)
+        updated_html = render_to_string('wikibase/widgets/property_table.html', data, request=request)
         return JsonResponse({'updatedHtml': updated_html})
 
 
@@ -203,7 +203,7 @@ class StatementUpdateApiView(LoginRequiredMixin, View):
             'prop': prop,
             'item': statement.subject
         }
-        updated_html = render_to_string('wikibase/widgets/property_table.html', data, request)
+        updated_html = render_to_string('wikibase/widgets/property_table.html', data, request=request)
         return JsonResponse({'updatedHtml': updated_html})
 
 
@@ -337,7 +337,7 @@ class ItemCreation(LoginRequiredMixin, FormView):
 
 
 class ItemDelete(LoginRequiredMixin, TemplateView):
-    template_name = 'pecunia/confirm_delete.html'
+    template_name = 'wikibase/confirm_delete.html'
     success_url = reverse_lazy('item_list')
 
     def post(self, request, *args, **kwargs):
