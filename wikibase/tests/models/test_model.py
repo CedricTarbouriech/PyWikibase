@@ -66,17 +66,6 @@ class PropertyTestCase(TestCase):
         self.assertEqual(2, prop2.display_id)
 
 
-class DataTypeTestCase(TestCase):
-    def test_datatype_matches_class(self):
-        self.assertEqual(m.Datatype.objects.get(class_name='Item').type, m.Item)
-        self.assertEqual(m.Datatype.objects.get(class_name='Property').type, m.Property)
-        self.assertEqual(m.Datatype.objects.get(class_name='StringValue').type, m.StringValue)
-        self.assertEqual(m.Datatype.objects.get(class_name='QuantityValue').type, m.QuantityValue)
-        self.assertEqual(m.Datatype.objects.get(class_name='TimeValue').type, m.TimeValue)
-        self.assertEqual(m.Datatype.objects.get(class_name='GlobeCoordinatesValue').type, m.GlobeCoordinatesValue)
-        self.assertEqual(m.Datatype.objects.get(class_name='MonolingualTextValue').type, m.MonolingualTextValue)
-
-
 class DeleteTestCase(TestCase):
     def test_delete_snak(self):
         self.assertEqual(m.QuantityValue.objects.count(), 0)

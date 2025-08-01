@@ -10,20 +10,39 @@ def positive(v: float | int) -> None:
         raise exceptions.ValidationError(f'expected v >= 0, got {v}', 'positive')
 
 
+class UnknownDatatypeException(Exception):
+    pass
+
+
 class Datatype(Entity):
     class_name = models.CharField(max_length=50)
 
     def validate_constraints(self, exclude=None):
-        if exclude and 'class_name' not in exclude:
-            if not issubclass(self.type, Value):
-                raise exceptions.ValidationError(
-                    'invalid value for class_name',
-                    'Datatype.class_name type error'
-                )
+        if exclude and 'class_name' not in exclude and not issubclass(self.type, Value):
+            raise exceptions.ValidationError(
+                'invalid value for class_name',
+                'Datatype.class_name type error'
+            )
 
     @property
     def type(self) -> type[Value]:
-        return globals()[self.class_name]  # FIXME: If Property is not imported, it doesn’t wo
+        if self.class_name == 'Item':
+            return Item
+        if self.class_name == 'Property':
+            return Property
+        if self.class_name == 'StringValue':
+            return StringValue
+        if self.class_name == 'UrlValue':
+            return UrlValue
+        if self.class_name == 'QuantityValue':
+            return QuantityValue
+        if self.class_name == 'TimeValue':
+            return TimeValue
+        if self.class_name == 'GlobeCoordinatesValue':
+            return GlobeCoordinatesValue
+        if self.class_name == 'MonolingualTextValue':
+            return MonolingualTextValue
+        raise UnknownDatatypeException(self.class_name)
 
     def __str__(self):
         return f'Datatype[{self.class_name}]'
@@ -50,7 +69,6 @@ class UrlValue(DataValue):
         return self.value
 
 
-# Removed lower and upper bound, and created subclass with unit.
 class QuantityValue(DataValue):
     number = models.FloatField()
     lower = models.FloatField(blank=True, null=True)
