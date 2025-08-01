@@ -61,7 +61,7 @@ class Migration(migrations.Migration):
             fields=[
                 ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
                 ('rank', models.IntegerField(choices=[(-1, 'deprecated'), (0, 'normal'), (1, 'preferred')])),
-                ('mainsnak', models.OneToOneField(on_delete=django.db.models.deletion.PROTECT, related_name='used_in_statements', to='wikibase.propertysnak')),
+                ('mainsnak', models.OneToOneField(on_delete=django.db.models.deletion.PROTECT, related_name='used_in_statement', to='wikibase.propertysnak')),
                 ('subject', wikibase.models.base.InheritanceForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='statements', to='wikibase.entity')),
             ],
         ),
