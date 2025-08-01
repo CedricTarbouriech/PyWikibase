@@ -164,7 +164,7 @@ class StatementRank(models.IntegerChoices):
 
 class Statement(models.Model):
     subject = InheritanceForeignKey(Entity, on_delete=models.CASCADE, related_name='statements')
-    mainsnak = OneToOneField(PropertySnak, on_delete=models.PROTECT, related_name='used_in_statements')
+    mainsnak = OneToOneField(PropertySnak, on_delete=models.PROTECT, related_name='used_in_statement')
     rank = models.IntegerField(choices=StatementRank)
 
     def delete(self, *args, **kwargs):
