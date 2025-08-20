@@ -3,18 +3,27 @@
 import {Stack} from './stack.js';
 
 function addTag(beginTag, endTag) {
-  let textarea = ($('.annotator-text-field'))[0];
+  const $annotatorTextField = $('.annotator-text-field');
+  let textarea = $annotatorTextField[0];
   let start = textarea.selectionStart;
   let end = textarea.selectionEnd;
 
-  let selected = textarea.value.substring(start, end);
-  let tagged = `${beginTag}${selected}${endTag}`;
+  let selection = textarea.value.substring(start, end);
+  let tagged = `${beginTag}${selection}${endTag}`;
 
-  textarea.setRangeText(tagged, start, end, 'end');
+  const {
+    charOverlap,
+    msgOverlap
+  } = checkCharacterOverlap($annotatorTextField.text(), selection, start);
+  if (charOverlap || checkTagOverlap($annotatorTextField.text(), selection)) {
+    alert(`Erreur dans la sélection : ${msgOverlap}. Impossible d’ajouter les balises.`);
+  } else {
+    textarea.setRangeText(tagged, start, end, 'end');
 
-  textarea.setSelectionRange(start + 3, start + selected.length + 3);
-  textarea.focus();
-  parseAnnotationTextArea();
+    textarea.setSelectionRange(start + 3, start + selection.length + 3);
+    textarea.focus();
+    $annotatorTextField.trigger('input');
+  }
 }
 
 function addWTag() {
@@ -55,17 +64,39 @@ function parseAnnotationTextArea() {
   const doc = parser.parseFromString(`<xml>${textValue}</xml>`, 'application/xml');
   const wElements = doc.querySelectorAll('w');
 
-  if (wElements) {
+  if (wElements && wElements.length > 0) {
     let $list = $('<ul>');
-    wElements.forEach(w => {
-      let text = `${w.textContent}`;
-      if (w.hasAttribute('id')) {
-        const id = w.getAttribute('id');
-        text += ` lié à <a href="/item/${id}">Q${id}</a>`;
-      }
-      const $li = $('<li class="typed">').html(text);
+
+    wElements.forEach((w, index) => {
+      const $li = $('<li class="typed">').text(w.textContent || '');
+
       if (w.hasAttribute('type')) {
         $li.addClass(`type-${w.getAttribute('type')}`);
+      }
+
+      if (w.hasAttribute('qid')) {
+        const qid = w.getAttribute('qid');
+        $li.append(' lié à ', $('<a>').attr('href', "/item/${qid}").text(`Q${qid}`));
+      } else {
+        const $newItemBtn = $('<a>')
+          .attr('href', '#')
+          .data('w-index', "index")
+          .text('créer un élément');
+        const $searchItemBtn = $('<a>')
+          .attr('href', '#')
+          .data('w-index', index)
+          .text('chercher un élément');
+        $li.append(' (', $newItemBtn, ', ', $searchItemBtn, ')');
+
+        $newItemBtn.on('click', event => {
+          event.preventDefault();
+          // TODO Implémenter
+        });
+
+        $searchItemBtn.on('click', event => {
+          event.preventDefault();
+          // TODO Implémenter
+        });
       }
       $list.append($li);
     });
@@ -76,51 +107,48 @@ function parseAnnotationTextArea() {
   }
 }
 
-
 /**
  *
  * @param {string} text
- * @returns {boolean}
+ * @param {string} selection
+ * @param {number} selectionStart
+ * @returns {{charOverlap: boolean, msgOverlap: string}}
  */
-function checkCharacterOverlap(text) {
+function checkCharacterOverlap(text, selection, selectionStart) {
   let stack = new Stack();
-  for (const c of text) {
+  for (const c of selection) {
     if (c === "<") stack.push("<");
     else if (c === ">") {
       if (stack.isEmpty()) {
-        return true;
+        return {charOverlap: true, msgOverlap: 'Fin de balise sélectionnée'};
+      } else if (stack.top() === "<") {
+        stack.pop();
       } else {
-        if (stack.top() === "<") {
-          stack.pop();
-        } else {
-          return true;
-        }
+        return {charOverlap: true, msgOverlap: ''}; // Cette situation ne peut pas arriver.
       }
     }
   }
-  return false;
+  console.log(stack);
+  if (!stack.isEmpty())
+    return {'charOverlap': true, 'msgOverlap': 'Début de balise sélectionné'};
+
+  for (let i = selectionStart - 1; i >= 0; i--) {
+    console.log(i, text.at(i));
+    if (text.at(i) === ">") break;
+    if (text.at(i) === "<")
+      return {charOverlap: true, msgOverlap: 'Intérieur d’une balise sélectionné'};
+  }
+
+  return {charOverlap: false, msgOverlap: ''};
 }
 
-function checkCharacterOverlap2(text) {
+function checkTagOverlap(text, selection) {
   let stack = new Stack();
-  for (const c of text) {
-    if (c === "<") stack.push("<");
-    else if (c === ">") {
-      if (stack.isEmpty()) {
-        return true;
-      } else {
-        if (stack.top() === "<") {
-          stack.pop();
-        } else {
-          return true;
-        }
-      }
+  for (const c of selection) {
+    if (c === "<") {
+      // TODO Implementer
     }
   }
-  return !stack.isEmpty();
-}
-
-function checkTagOverlap(text) {
   return false;
 }
 
@@ -130,37 +158,26 @@ let lastSelection = "";
 $(() => {
   const $annotatorTextField = $('.annotator-text-field');
   $annotatorTextField.on('input', parseAnnotationTextArea);
-  $annotatorTextField.on('mousedown', function () {
-    $annotatorTextField.on('mousemove.selectionCheck', function () {
-      let selection = window.getSelection().toString();
-      if (selection !== lastSelection) {
-        lastSelection = selection;
-        if (selection.length > 0) {
-          console.log('Nouvelle sélection:', selection);
-          const $warningSpan = $('.warning-span');
-          if (checkCharacterOverlap(selection) || checkTagOverlap(selection)) {
-            $warningSpan.text("Erreur !");
-          } else {
-            $warningSpan.text("Pas d’erreur.");
-
-          }
-        }
-      }
-    });
-  });
-
-  $annotatorTextField.on('mouseup', function () {
-    $annotatorTextField.off('mousemove.selectionCheck');
-  });
-  $annotatorTextField.on('select', function () {
+  $annotatorTextField.on('selectionchange', function () {
     let selection = window.getSelection().toString();
-    const $warningSpan = $('.warning-span');
-    if (checkCharacterOverlap2(selection) || checkTagOverlap(selection)) {
-      $warningSpan.text("Erreur !");
-    } else {
-      $warningSpan.text("Pas d’erreur.");
+    if (selection !== lastSelection) {
+      const $warningSpan = $('.warning-span');
+      lastSelection = selection;
+      if (selection.length > 0) {
+        const {
+          charOverlap,
+          msgOverlap
+        } = checkCharacterOverlap($annotatorTextField.text(), selection, $annotatorTextField[0].selectionStart);
+        if (charOverlap || checkTagOverlap($annotatorTextField.text(), selection)) {
+          $warningSpan.text(`Erreur ! (${msgOverlap})`);
+        } else {
+          $warningSpan.text("Pas d’erreur.");
+        }
+      } else {
+        $warningSpan.text("Pas d’erreur.");
+      }
     }
-    // TODO : retirer le warning si le texte est déselectionner.
   });
+
   $annotatorTextField.trigger('input');
 });
