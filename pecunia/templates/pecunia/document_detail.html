@@ -4,7 +4,7 @@
 {% load i18n %}
 {% get_current_language as LANGUAGE_CODE %}
 {% block content %}
-    <h1>🗎&nbsp;{{ document|prop:'title' }}</h1>
+    <h1>🗎&nbsp;{{ document|prop:'title'|html }}</h1>
     <div style="margin: -1em 1em 2em;">
         {% if user.is_authenticated %}
             <a href='{% url "document_update_metadata" document.display_id %}'>{% trans "document.edit.metadata" %}</a>
