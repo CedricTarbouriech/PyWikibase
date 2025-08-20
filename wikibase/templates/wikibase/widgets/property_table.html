@@ -7,14 +7,45 @@
     </div>
     {% for stat in statement %}
         <div class="snak-cell" data-statement-id="{{ stat.id }}">
-            <div class="value-cell">{{ stat.rank }}
+            <div class="value-cell">
+                <span>{{ stat.rank }}</span>
                 {% if stat.mainsnak.type == 0 %}
-                    {{ stat.mainsnak.value|html }}
+                    {{ stat.mainsnak|html }}
                 {% elif stat.mainsnak.type == 1 %}
                     <i>Unknown value</i>
                 {% elif stat.mainsnak.type == 2 %}
                     <i>No value</i>
                 {% endif %}
+                {% if stat.qualifiers.count != 0 %}
+                <div class="qualifiers-cell">
+                    {% for qual in stat.qualifiers.all %}
+                        <a href='{% url "property_display" qual.snak.property.display_id %}'>{{ qual.snak.property|label_or_default:LANGUAGE_CODE }}</a>
+                        {{ qual.snak.type }}
+                        {% if qual.snak.type == 0 %}
+                            {{ qual.snak|html }}
+                        {% elif qual.snak.type == 1 %}
+                            <i>Unknown value</i>
+                        {% elif qual.snak.type == 2 %}
+                            <i>No value</i>
+                        {% endif %}
+                    {% endfor %}
+                </div>
+            {% endif %}
+                {% if stat.reference_records.count != 0 %}
+                <div class="reference-record-cell">
+                    {% for ref in stat.reference_records.all %}
+                        <ul class="reference-cell">
+                            {% for ref_stat in ref.snaks.all %}
+                                <li>
+                                <a href='{% url "property_display" ref_stat.snak.property.display_id %}'>{{ ref_stat.snak.property|label_or_default:LANGUAGE_CODE }}</a>
+                                {{ ref_stat.snak.type }}
+
+                                {{ ref_stat.snak|html }}</li>
+                            {% endfor %}
+                        </ul>
+                    {% endfor %}
+                </div>
+            {% endif %}
             </div>
             {% if user.is_authenticated %}
                 <div class="actions-cell">

@@ -2,7 +2,7 @@
 .statement-group {
     border: 1px solid grey;
     display: grid;
-    grid-template-columns: 20% 1fr;
+    grid-template-columns: 30% 1fr;
     grid-template-rows: auto auto;
     margin: 10px;
 }
@@ -17,7 +17,7 @@
     border: 1px solid grey;
     grid-column: 2;
     display: grid;
-    grid-template-columns: 70% 1fr;
+    grid-template-columns: 60% 1fr;
     grid-template-rows: auto auto;
 }
 
@@ -38,6 +38,24 @@
     grid-column: 2;
     padding: 8px;
 }
+
+.qualifiers-cell {
+    border: 1px solid;
+    font-size: 90%;
+    margin: 10px;
+    padding: 5px
+}
+
+.reference-record-cell {
+    border: 1px solid;
+    margin: 10px;
+}
+
+.reference-cell {
+    border: 1px solid;
+    margin: 10px;
+}
+
 .map {
     width: 400px;
     height: 300px;
