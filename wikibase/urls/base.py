@@ -17,7 +17,6 @@ Including another URLconf
 from django.urls import path, include
 
 from wikibase import views
-
 from .rest import router
 
 urlpatterns = [
@@ -25,6 +24,7 @@ urlpatterns = [
     path("api/properties", views.PropertyApiView.as_view(), name="api_properties"),
     path("api/property/<int:prop_id>", views.PropertyApiView.as_view(), name="api_properties"),
     path("api/items", views.ItemApiView.as_view(), name="api_items"),
+    path("api/items/new", views.NewItemApiView.as_view(), name="api_new_item"),
     path("api/statement/add", views.StatementAddApiView.as_view(), name="api_statement_snak_new"),
     path("api/statement/update", views.StatementUpdateApiView.as_view(), name="api_statement_snak_update"),
     path("api/statement/<int:statement_id>", views.StatementApiView.as_view(), name="api_statements"),
