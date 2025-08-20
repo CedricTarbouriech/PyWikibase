@@ -41,6 +41,12 @@ class ItemApiView(View):
         return JsonResponse(items)
 
 
+class NewItemApiView(LoginRequiredMixin, View):
+    def post(self, request, *args, **kwargs):
+        item = m.Item.objects.create()
+        return JsonResponse({'display_id': item.display_id})
+
+
 class StatementAddApiView(LoginRequiredMixin, View):
     def post(self, request, *args, **kwargs):
         post_data = json.loads(request.body.decode('utf-8'))
