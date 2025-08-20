@@ -87,6 +87,10 @@ class DescribedEntity(Entity):
     def __str__(self):
         return f': <{self.get_labels()[0]}>' if self.get_labels() else ''
 
+    @property
+    def pretty_display_id(self):
+        raise NotImplementedError("DescribedEntity.pretty_display_id not implemented")
+
 
 class Item(DescribedEntity):
     display_id = models.IntegerField(default=1, unique=True)
@@ -102,6 +106,10 @@ class Item(DescribedEntity):
 
     def __str__(self):
         return f"Q{self.display_id}{super().__str__()}"
+
+    @property
+    def pretty_display_id(self):
+        return f"Q{self.display_id}"
 
 
 class Property(DescribedEntity):
@@ -119,6 +127,10 @@ class Property(DescribedEntity):
 
     def __str__(self):
         return f"P{self.display_id}" + super().__str__()
+
+    @property
+    def pretty_display_id(self):
+        return f"P{self.display_id}"
 
 
 class PropertyType(models.IntegerChoices):
