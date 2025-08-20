@@ -96,7 +96,7 @@ LANGUAGES = [
 ]
 
 PROJECT_PATH = os.path.dirname(os.path.abspath(__file__))
-
+STATIC_ROOT = os.path.join(PROJECT_PATH, 'static')
 LOCALE_PATHS = (
     os.path.join(PROJECT_PATH, '../../locale'),
 )
