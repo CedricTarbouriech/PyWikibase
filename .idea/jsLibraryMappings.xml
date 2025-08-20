@@ -3,5 +3,6 @@
   <component name="JavaScriptLibraryMappings">
     <file url="file://$PROJECT_DIR$" libraries="{jquery-3.7.1.slim, leaflet, simple}" />
     <file url="PROJECT" libraries="{@types/jquery, leaflet}" />
+    <includedPredefinedLibrary name="Node.js Core" />
   </component>
 </project>
