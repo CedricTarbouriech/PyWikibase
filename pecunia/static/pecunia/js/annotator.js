@@ -44,10 +44,10 @@ function parseAnnotationTextArea() {
   }
   if ($('#wbtn').length === 0) {
     const $btns = $('<div id="wbtn">');
-    $btns.append($('<a class="button" onclick="addWTag()">&lt;w&gt;</a>'));
-    $btns.append($('<a class="button" onclick="addPersonTag()">Person</a>'));
-    $btns.append($('<a class="button" onclick="addPlaceTag()">Place</a>'));
-    $btns.append($('<a class="button" onclick="addResourceTag()">Resource</a>'));
+    $btns.append($('<a class="button">&lt;w&gt;</a>').on('click', addWTag));
+    $btns.append($('<a class="button">Person</a>').on('click', addPersonTag));
+    $btns.append($('<a class="button">Place</a>').on('click', addPlaceTag));
+    $btns.append($('<a class="button">Resource</a>').on('click', addResourceTag));
     $matchDiv.before($btns);
   }
 
