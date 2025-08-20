@@ -9,28 +9,37 @@ from django.utils.translation import gettext_lazy, get_language
 from lxml import etree
 
 import wikibase.models as m
-from wikibase.models import PropertyMapping
+from wikibase.models import PropertyMapping, PropertySnak
 
 register = template.Library()
+
+DEFAULT_LANGUAGE = 'en'
 
 
 @register.filter
 def label(described_entity: m.DescribedEntity, lang_code: str) -> str:
+    """
+    Returns the label in the given of the given described_entity.
+    If the label does not exist, returns the pretty display_id.
+    :param described_entity: the DescribedEntity instance from which the label is obtained
+    :param lang_code: the language code of the label
+    :return: the label in the given language code
+    """
     try:
         return described_entity.labels.get(language=lang_code).text
     except ObjectDoesNotExist:
-        return gettext_lazy('no label')
+        return described_entity.pretty_display_id
 
 
 @register.filter
-def label_or_default(value: m.DescribedEntity, lang_code: str) -> str:
+def label_or_default(described_entity: m.DescribedEntity, lang_code: str) -> str:
     try:
-        return value.labels.get(language=lang_code).text
+        return described_entity.labels.get(language=lang_code).text
     except ObjectDoesNotExist:
         try:
-            return value.labels.get(language='en')
+            return described_entity.labels.get(language=DEFAULT_LANGUAGE)
         except ObjectDoesNotExist:
-            return "-"
+            return described_entity.pretty_display_id
 
 
 @register.filter
@@ -68,13 +77,13 @@ def capitalize(s: str) -> str:
 
 
 @register.filter
-def prop(item: object, prop_key_mapping: str) -> str:
+def prop(item: object, prop_key_mapping: str) -> PropertySnak | str:
     prop = PropertyMapping.get(prop_key_mapping)
     if not prop:
         return f"Missing property mapping for key: {prop_key_mapping}"
     statements = item.statements.filter(mainsnak__property=prop)
     if statements:
-        return statements[0].mainsnak.value
+        return statements[0].mainsnak
     return "-"
 
 
@@ -85,7 +94,7 @@ def prop_list(item: object, prop_key_mapping: str) -> str:
         return f"Missing property mapping for key: {prop_key_mapping}"
     statements = item.statements.filter(mainsnak__property=prop)
     if statements:
-        return ", ".join(html(statement.mainsnak.value) for statement in statements)
+        return ", ".join(html(statement.mainsnak) for statement in statements)
     return "-"
 
 
@@ -123,9 +132,9 @@ def handle_tag(el: etree._Element) -> str:
     text = el.text or ''
     text = text.strip().replace('\n', ' ')
     if el.tag == 'w':
-        w_text = text or inner
+        w_text = text + inner
         w_type = el.get("type", "")
-        w_id = el.get("id", "")
+        w_id = el.get("qid", "")
         if w_id:
             output += f'<a class="tagged-element {"typed type-" + w_type if w_type else ""}" href="/item/{w_id}">{w_text}</a>'
         else:
@@ -163,7 +172,7 @@ def handle_tag(el: etree._Element) -> str:
     elif el.tag == 'supplied':
         reason = el.attrib['reason']
         if reason == 'lost':
-            output += f"[{text}]"
+            output += f"[{text + inner}]"
         elif reason == 'omitted':
             output += f"&#60;{text}&#62;"
     elif el.tag == 'surplus':
@@ -227,17 +236,23 @@ def has_prop(value: m.Entity, prop_key: str) -> bool:
 
 
 @register.filter
-def html(value: m.Value) -> str:
-    if isinstance(value, m.Item):
+def html(snak: m.PropertySnak | str) -> str:
+    if isinstance(snak, str):
+        return mark_safe(snak)
+    if isinstance(snak.value, m.Item):
         return mark_safe(
-            f"<a href='{reverse('item_display', args=[value.display_id])}'>{label_or_default(value, get_language())}</a>")
-    elif isinstance(value, m.UrlValue):
-        return mark_safe(f"<a href='{value.value}'>{value.value}</a>")
-    elif isinstance(value, m.GlobeCoordinatesValue):
+            f"<a href='{reverse('item_display', args=[snak.value.display_id])}'>{label_or_default(snak.value, get_language())}</a>")
+    elif isinstance(snak.value, m.UrlValue):
+        label = snak.value.value
+        if snak.used_in_statement.qualifiers.filter(snak__property=PropertyMapping.get('url_label')).count() > 0:
+            qual = snak.used_in_statement.qualifiers.filter(snak__property=PropertyMapping.get('url_label'))[0]
+            label = qual.snak.value.value
+        return mark_safe(f"<a href='{snak.value.value}'>{label}</a>")
+    elif isinstance(snak.value, m.GlobeCoordinatesValue):
         return mark_safe(
-            f"<span>{value.latitude}, {value.longitude}"
-            f"<div id='map-{value.id}' class='map' "
-            f"data-lat='{value.latitude}' data-lon='{value.longitude}'></div></span>"
+            f"<span>{snak.value.latitude}, {snak.value.longitude}"
+            f"<div id='map-{snak.value.id}' class='map' "
+            f"data-lat='{snak.value.latitude}' data-lon='{snak.value.longitude}'></div></span>"
         )
     else:
-        return mark_safe(value)
+        return mark_safe(snak.value)

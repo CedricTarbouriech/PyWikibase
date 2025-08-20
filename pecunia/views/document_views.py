@@ -36,23 +36,18 @@ class DocumentCreation(LoginRequiredMixin, FormView):
     form_class = DocumentMetadataForm
 
     def form_valid(self, form):
-        document = Document()
-        lang_code = 'en'
-        title = m.MonolingualTextValue(language=lang_code,
-                                       text=form.cleaned_data['title'])
-        document.set_title(title)
+        document = Document.objects.create()
+        document.set_label(form.cleaned_data['title_language'], form.cleaned_data['title'])
+        document.set_title(m.MonolingualTextValue(language=form.cleaned_data['title_language'], text=form.cleaned_data['title']))
+        document.set_source_type(m.Item.objects.get(display_id=form.cleaned_data['source_type']))
         document.set_author(m.Item.objects.get(display_id=form.cleaned_data['author']))
         document.set_author_function(m.Item.objects.get(display_id=form.cleaned_data['author_function']))
-        # date = m.TimeValue.create_from(value=form.cleaned_data['date'])
-        # document.set_date(date)
-        text = m.MonolingualTextValue(language=form.cleaned_data['language'], text=form.cleaned_data['text'])
-        document.set_text(text)
-        translation = m.MonolingualTextValue(language=form.cleaned_data['translation_language'],
-                                             text=form.cleaned_data['translation'])
-        document.set_translation(translation)
         document.set_provenance(m.Item.objects.get(display_id=form.cleaned_data['place']))
+        print(form.cleaned_data)
+        print(self.kwargs)
         document.save()
         self.kwargs['display_id'] = document.display_id
+        print(document.get_value(PropertyMapping.get('text')))
         return super().form_valid(form)
 
     def get_success_url(self):
@@ -74,8 +69,6 @@ class DocumentUpdateMetadata(LoginRequiredMixin, FormView):
         document.set_author(m.Item.objects.get(display_id=form.cleaned_data['author']))
         document.set_author_function(m.Item.objects.get(display_id=form.cleaned_data['author_function']))
         document.set_provenance(m.Item.objects.get(display_id=form.cleaned_data['place']))
-        print(form.cleaned_data)
-        print(self.kwargs)
         document.save()
         return super().form_valid(form)
 
@@ -104,8 +97,12 @@ class DocumentUpdateText(LoginRequiredMixin, FormView):
         display_id = self.kwargs['display_id']
         document = Document.get_by_id(display_id)
         text = document.get_value(PropertyMapping.get('text'))
-        text.text = form.cleaned_data['text']
-        text.save()
+        if text:
+            text.text = form.cleaned_data['text']
+            text.save()
+        else:
+            text = m.MonolingualTextValue(language='la', text=form.cleaned_data['text'])
+            document.set_text(text)
         document.save()
         return super().form_valid(form)
 
@@ -115,10 +112,11 @@ class DocumentUpdateText(LoginRequiredMixin, FormView):
     def get_form_kwargs(self):
         kwargs = super().get_form_kwargs()
         document = m.Item.objects.get(display_id=self.kwargs['display_id'])
-        kwargs["initial"] = {
-            'text': document.get_value(PropertyMapping.get('text')).text,
-            'text_language': document.get_value(PropertyMapping.get('text')).language
-        }
+        if document.get_value(PropertyMapping.get('text')):
+            kwargs["initial"] = {
+                'text': document.get_value(PropertyMapping.get('text')).text,
+                'text_language': document.get_value(PropertyMapping.get('text')).language
+            }
         return kwargs
 
 
