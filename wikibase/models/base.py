@@ -47,6 +47,13 @@ class Entity(Value):
             statement[0].mainsnak.value = value
             statement[0].mainsnak.save()
 
+    def add_or_set_value(self, prop: Property, value: Value):
+        statements = self.statements.filter(mainsnak__property=prop)
+        if statements:
+            self.set_value(prop, value)
+        else:
+            self.add_value(prop, value)
+
 
 class DescribedEntity(Entity):
     def get_labels(self):

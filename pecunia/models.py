@@ -27,7 +27,7 @@ class Document(Item):
         for key, value in self._pending:
             if isinstance(value, DataValue):
                 value.save()
-            self.set_value(PropertyMapping.get(key), value)
+            self.add_or_set_value(PropertyMapping.get(key), value)
         self._pending = list()
 
         if is_new:
