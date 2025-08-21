@@ -1,9 +1,11 @@
 {% extends "base.html" %}
+{% load static %}
 {% load pecunia_tags %}
 {% load i18n %}
 {% get_current_language as LANGUAGE_CODE %}
 {% block content %}
-    <h1 data-item_id="{{ item.display_id }}">Item Q{{ item.display_id }}</h1>
+    <script type="module" src="{% static "wikibase/js/wikibase.js" %}"></script>
+    <h1 data-item-id="{{ item.display_id }}">Item Q{{ item.display_id }}</h1>
     <div style="margin: -1em 1em 2em; ">
         <table>
             <tr>

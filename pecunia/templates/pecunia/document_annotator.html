@@ -1,6 +1,8 @@
 {% extends "base.html" %}
+{% load static %}
 {% load i18n %}
 {% block content %}
+    <script type="module" src="{% static "pecunia/js/annotator.js" %}"></script>
     <form method="post">{% csrf_token %}
         <div class="annotator-columns">
             <div class="annotator-text-column">
