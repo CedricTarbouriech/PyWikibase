@@ -129,10 +129,9 @@ def handle_tag(el: etree._Element) -> str:
     inner = ""
     for child in el.getchildren():
         inner += handle_tag(child)
-    text = el.text or ''
-    text = text.strip().replace('\n', ' ')
-    if el.tag == 'w':
-        w_text = text + inner
+    text = (el.text or '') + inner
+    if el.tag == 'w' and not el.get("part", None):
+        w_text = text
         w_type = el.get("type", "")
         w_id = el.get("qid", "")
         if w_id:
@@ -145,12 +144,12 @@ def handle_tag(el: etree._Element) -> str:
             output += '-'
         output += '<br>'
     elif el.tag == 'orig':
-        w_text = text.strip() + inner
+        w_text = text
         output += w_text.upper()
     elif el.tag == 'unclear':
-        w_text = text.strip()
+        w_text = text
         w_text = ''.join(c + ("\u0323" if not c.isspace() else "") for c in w_text)
-        output += w_text + inner
+        output += w_text
     elif el.tag == 'gap':
         # if 'extent' in el.attrib and el.attrib['extent'] == 'unknown' and el.attrib['reason'] == 'lost':
         #     output += ""
@@ -165,39 +164,39 @@ def handle_tag(el: etree._Element) -> str:
             res = f"[{res}]"
         output += res
     elif el.tag == 'del':
-        res = text + inner
+        res = text
         if res[0] == '[' and res[-1] == ']':
             res = res[1:-1]
         output += f"〚{res}〛"
     elif el.tag == 'supplied':
         reason = el.attrib['reason']
         if reason == 'lost':
-            output += f"[{text + inner}]"
+            output += f"[{text}]"
         elif reason == 'omitted':
             output += f"&#60;{text}&#62;"
     elif el.tag == 'surplus':
         output += f"{{{text}}}"
     elif el.tag == 'choice':
-        output += f"&#60;{text + inner}&#62;"
+        output += f"&#60;{text}&#62;"
     elif el.tag == 'sic':
         return ""
     elif el.tag == 'expan':
-        output += f"{text + inner}"
+        output += f"{text}"
     elif el.tag == 'ex':
         final = ")"
         if 'cert' in el.attrib and el.attrib['cert'] == 'low':
             final = "?)"
-        output += f"({text + inner}{final}"
+        output += f"({text}{final}"
     elif el.tag == 'space':
         output += 'v.'
     elif el.tag == 'g':
         output += f"(({el.attrib['type']}))"
     elif el.text:
-        output += str(text).strip()
+        output += str(text)
 
     # Ajouter le texte qui suit la balise <w>
     if el.tail:
-        output += el.tail.strip()
+        output += el.tail
     return output
 
 
@@ -214,9 +213,11 @@ def highlight_words(value):
 
     for el in root:
         output += handle_tag(el)
-    # Removed first <br>
+    # Remove first <br>
     if output.startswith('<br>'):
         output = output[4:]
+    output = output.replace('\n', '')
+    output = re.sub(r'](\s*)\[', r'\1', output)
     return mark_safe(output)
 
 
