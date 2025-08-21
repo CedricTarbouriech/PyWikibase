@@ -3,6 +3,7 @@ import json
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.core.exceptions import ObjectDoesNotExist
 from django.core.paginator import Paginator
+from django.db import transaction
 from django.http import Http404, JsonResponse
 from django.shortcuts import redirect
 from django.template.loader import render_to_string
@@ -36,62 +37,91 @@ class ItemApiView(View):
     def get(self, request):
         items = {}
         for item in m.Item.objects.all():
+            items[item.display_id] = {'labels': {mlt.language: mlt.text for mlt in item.labels.all()}}
+        return JsonResponse(items)
+
+
+class SearchItemApiView(View):
+    def get(self, request, search):
+        items = {}
+        for item in m.Item.objects.filter(labels__text__contains=search).distinct():
             items[item.display_id] = {
-                'labels': {mlt.language: mlt.text for mlt in item.labels.all()}}
+                'labels': {mlt.language: mlt.text for mlt in item.labels.all()},
+                'descriptions': {mlt.language: mlt.text for mlt in item.descriptions.all()}
+            }
         return JsonResponse(items)
 
 
 class NewItemApiView(LoginRequiredMixin, View):
     def post(self, request, *args, **kwargs):
-        item = m.Item.objects.create()
+        with transaction.atomic():
+            item = m.Item.objects.create()
+            post_data = json.loads(request.body.decode('utf-8'))
+            if post_data:
+                for statement in post_data['statements']:
+                    prop = None
+                    value = None
+                    if isinstance(statement['property'], str):
+                        prop = PropertyMapping.get(statement['property'])
+                    elif isinstance(statement['property'], int):
+                        prop = m.Property.objects.get(display_id=statement['property'])
+                    if isinstance(statement['value'], str):
+                        value = ItemMapping.get(statement['value'])
+                    elif isinstance(statement['value'], int):
+                        value = m.Item.objects.get(display_id=statement['value'])
+
+                    snak = m.PropertySnak(property=prop, value=value, type=0)
+                    snak.save()
+                    statement = m.Statement(subject=item, mainsnak=snak, rank=0)
+                    statement.save()
         return JsonResponse({'display_id': item.display_id})
 
 
 class StatementAddApiView(LoginRequiredMixin, View):
     def post(self, request, *args, **kwargs):
-        post_data = json.loads(request.body.decode('utf-8'))
-        type_field_value = int(post_data.get('snak_type'))
-        prop = m.Property.objects.get(display_id=post_data.get('prop_id'))
-        # FIXME: Not compatible if we want to add statements to properties
-        subject = m.Item.objects.get(display_id=post_data.get('entity_id'))
+        with transaction.atomic():
+            post_data = json.loads(request.body.decode('utf-8'))
+            type_field_value = int(post_data.get('snak_type'))
+            prop = m.Property.objects.get(display_id=post_data.get('prop_id'))
+            # FIXME: Not compatible if we want to add statements to properties
+            subject = m.Item.objects.get(display_id=post_data.get('entity_id'))
 
-        value = None
-        if type_field_value == PropertyType.VALUE:
-            type_name = prop.data_type.class_name
-            if type_name == 'Item':
-                value = m.Item.objects.get(display_id=post_data['value']['item'])
-            elif type_name == 'MonolingualTextValue':
-                value = m.MonolingualTextValue(language=post_data['value']['language'],
-                                               text=post_data['value']['value'])
-                value.save()
-            elif type_name == 'StringValue':
-                value = m.StringValue(value=post_data['value']['value'])
-                value.save()
-            elif type_name == 'UrlValue':
-                value = m.UrlValue(value=post_data['value']['value'])
-                value.save()
-            elif type_name == 'QuantityValue':
-                value = m.QuantityValue(number=post_data['value']['number'])
-                value.save()
-            elif type_name == 'GlobeCoordinatesValue':
-                data = post_data['value']
-                value = m.GlobeCoordinatesValue(latitude=data['latitude'], longitude=data['longitude'],
-                                                precision='0.0000001', globe=ItemMapping.get('earth'))
-                value.save()
-            else:
-                raise Exception(f"Unknown datatype: {type_name}")
-        snak = m.PropertySnak(property=prop, value=value, type=type_field_value)
+            value = None
+            if type_field_value == PropertyType.VALUE:
+                type_name = prop.data_type.class_name
+                if type_name == 'Item':
+                    value = m.Item.objects.get(display_id=post_data['value']['item'])
+                elif type_name == 'MonolingualTextValue':
+                    value = m.MonolingualTextValue(language=post_data['value']['language'],
+                                                   text=post_data['value']['value'])
+                    value.save()
+                elif type_name == 'StringValue':
+                    value = m.StringValue(value=post_data['value']['value'])
+                    value.save()
+                elif type_name == 'UrlValue':
+                    value = m.UrlValue(value=post_data['value']['value'])
+                    value.save()
+                elif type_name == 'QuantityValue':
+                    value = m.QuantityValue(number=post_data['value']['number'])
+                    value.save()
+                elif type_name == 'GlobeCoordinatesValue':
+                    data = post_data['value']
+                    value = m.GlobeCoordinatesValue(latitude=data['latitude'], longitude=data['longitude'],
+                                                    precision='0.0000001', globe=ItemMapping.get('earth'))
+                    value.save()
+                else:
+                    raise Exception(f"Unknown datatype: {type_name}")
+            snak = m.PropertySnak(property=prop, value=value, type=type_field_value)
+            snak.save()
+            statement = m.Statement(subject=subject, mainsnak=snak, rank=post_data.get('rank'))
+            statement.save()
 
-        snak.save()
-        statement = m.Statement(subject=subject, mainsnak=snak, rank=post_data.get('rank'))
-        statement.save()
-
-        data = {
-            'statement': [statement],
-            'prop': prop,
-            'item': subject
-        }
-        updated_html = render_to_string('wikibase/widgets/property_table.html', data, request=request)
+            data = {
+                'statement': [statement],
+                'prop': prop,
+                'item': subject
+            }
+            updated_html = render_to_string('wikibase/widgets/property_table.html', data, request=request)
         return JsonResponse({'updatedHtml': updated_html})
 
 
