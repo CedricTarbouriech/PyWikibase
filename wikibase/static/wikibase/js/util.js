@@ -8,100 +8,147 @@ function getLabel(value, lang_code) {
 }
 
 /**
- * Create two buttons: submit and cancel, attach to them click event handles and append them to the $actions element.
- * @param $actions The element to which the two buttons will be appended.
+ *
+ * @param html
+ * @returns {HTMLElement}
+ */
+export function generateElement(html) {
+  const template = document.createElement('template');
+  template.innerHTML = html.trim();
+  return template.content.children[0];
+}
+
+/**
+ * Create two buttons: submit and cancel, attach to them click event handles and append them to the actions element.
+ * @param actions The element to which the two buttons will be appended.
  * @param submitHandle The click event handle for the submit button.
  * @param cancelHandle The click event handle for the cancel button.
  */
-export function createSubmitCancelButtons($actions, submitHandle, cancelHandle) {
-  const $submitBtn = $('<a class="button">Submit</a>');
-  const $cancelBtn = $('<a class="button">Cancel</a>');
+export function createSubmitCancelButtons(actions, submitHandle, cancelHandle) {
+  const submitBtn = generateElement('<a class="button">Submit</a>');
+  const cancelBtn = generateElement('<a class="button">Cancel</a>');
 
-  $submitBtn.on('click', submitHandle);
-  $cancelBtn.on('click', cancelHandle);
+  submitBtn.addEventListener('click', submitHandle);
+  cancelBtn.addEventListener('click', cancelHandle);
 
-  $actions.empty();
-  $actions.append($submitBtn, $cancelBtn);
+  actions.replaceChildren();
+  actions.append(submitBtn, cancelBtn);
 }
 
-export function updateDivWithNewStatement(updatedHtml, $snakDiv) {
-  const $updateHtml = $(updatedHtml);
-  const $newSnakDiv = $updateHtml.find('.snak-cell');
-  $snakDiv.replaceWith($newSnakDiv);
+export function updateDivWithNewStatement(updatedHtml, snakDiv) {
+  const wrapper = document.createElement('div');
+  wrapper.innerHTML = updatedHtml;
+  snakDiv.replaceWith(wrapper.querySelector('.snak-cell'));
 }
 
 /**
  * Creates a promise for a selector filled with the existing properties.
- * @param lang_code The language code to use for the properties’ label.
- * @returns {Promise<JQuery<HTMLElement>>}
+ * @param {string} langCode The language code to use for the properties’ label.
+ * @returns {Promise<HTMLElement>}
  */
-export async function createPropertySelector(lang_code) {
+export async function createPropertySelector(langCode) {
   const data = await getAsJson('/api/properties', 'Erreur de chargement des propriétés');
 
-  const $propertySelector = $('<select><option value="" disabled selected>-- Select a property --</option></select>');
+  const propertySelector = generateElement('<select><option value="" disabled selected>-- Select a property --</option></select>');
   Object.entries(data).forEach(([key, value]) => {
-    const $option = $('<option>')
-      .val(key)
-      .data('type', value.type)
-      .text(getLabel(value, lang_code))
-    $propertySelector.append($option);
+    const option = generateElement('<option>');
+    option.value = key;
+    option.dataset.type = value.type;
+    option.textContent = getLabel(value, langCode);
+    propertySelector.append(option);
   });
-  return $propertySelector;
+  return propertySelector;
 }
 
 const datatypeHandlers = {
   Item: {
+    /**
+     *
+     * @param langCode
+     * @param defaultValue
+     * @returns {Promise<HTMLElement>}
+     */
     createInput: async (langCode, defaultValue) => {
       const data = await getAsJson('/api/items', 'Erreur de chargement des éléments.');
 
-      let $valueInput = $('<select class="value-selector">');
+      let valueInput = generateElement('<select class="value-selector">');
       if (!defaultValue) {
-        $valueInput.append($('<option value="" disabled selected>-- Select an item --</option>'));
+        valueInput.append(generateElement('<option value="" disabled selected>-- Select an item --</option>'));
       }
 
       Object.entries(data).forEach(([key, value]) => {
         let itemName = getLabel(value, langCode);
-        const $option = $('<option>')
-          .val(key)
-          .text(itemName);
+        const option = generateElement('<option>');
+        option.value = key;
+        option.textContent = itemName;
         if (defaultValue && parseInt(key) === parseInt(defaultValue.id))
-          $option.prop('selected', true);
-
-        $valueInput.append($option);
+          option.selected = true;
+        valueInput.append(option);
       });
-      return $valueInput;
+      return valueInput;
     },
 
-    getValue: ($input) => {
-      return {item: $input.find('.value-selector option:selected').val()};
+    getValue: (input) => {
+      const selected = input.querySelector('.value-selector option:checked');
+      return {item: selected ? selected.value : ""};
     }
   },
   StringValue: {
+    /**
+     *
+     * @param langCode
+     * @param defaultValue
+     * @returns {Promise<HTMLElement>}
+     */
     createInput: async (langCode, defaultValue) => {
-      return $('<input>').attr('type', 'text').val(defaultValue ? defaultValue.value : "");
+      const input = generateElement('<input>');
+      input.setAttribute('type', 'text');
+      input.value = defaultValue ? defaultValue.value : "";
+      return input;
     },
-    getValue: ($input) => {
-      return {value: $input.find('input').val()};
+    getValue: input => {
+      return {value: input.querySelector('input').value};
     }
   },
   UrlValue: {
+    /**
+     *
+     * @param langCode
+     * @param defaultValue
+     * @returns {Promise<HTMLElement>}
+     */
     createInput: async (langCode, defaultValue) => {
-      return $('<input>').attr('type', 'text').val(defaultValue ? defaultValue.value : "");
+      const input = generateElement('<input>');
+      input.setAttribute('type', 'text');
+      input.value = defaultValue ? defaultValue.value : "";
+      return input;
     },
-    getValue: ($input) => {
-      return {value: $input.find('input').val()};
+    getValue: input => {
+      return {value: input.querySelector('input').value};
     }
   },
   MonolingualTextValue: {
+    /**
+     *
+     * @param langCode
+     * @param defaultValue
+     * @returns {Promise<HTMLElement>}
+     */
     createInput: async (langCode, defaultValue) => {
-      const $languageInput = $('<input>').attr('type', 'text').attr('placeholder', 'Language code').val(defaultValue ? defaultValue.lang : "");
-      const $textInput = $('<input>').attr('type', 'text').attr('placeholder', 'Text').val(defaultValue ? defaultValue.value : "");
-      return $('<span>').append($languageInput, $textInput);
+      const languageInput = generateElement('<input>');
+      languageInput.setAttribute('type', 'text');
+      languageInput.setAttribute('placeholder', 'Language code');
+      languageInput.value = defaultValue ? defaultValue.lang : "";
+      const textInput = generateElement('<input>');
+      textInput.setAttribute('type', 'text');
+      textInput.setAttribute('placeholder', 'Text');
+      textInput.value = defaultValue ? defaultValue.value : "";
+      const span = generateElement('<span>');
+      span.append(languageInput, textInput);
+      return span;
     },
-    getValue: ($input) => {
-      const values = $input.find('input').map(function () {
-        return $(this).val();
-      }).get();
+    getValue: input => {
+      const values = Array.from(input.querySelectorAll('input')).map(input => input.value);
       return {
         language: values[0],
         value: values[1]
@@ -109,23 +156,46 @@ const datatypeHandlers = {
     }
   },
   QuantityValue: {
+    /**
+     *
+     * @param langCode
+     * @param defaultValue
+     * @returns {Promise<HTMLElement>}
+     */
     createInput: async (langCode, defaultValue) => {
-      return $('<input>').attr('type', 'text').val(defaultValue ? defaultValue.number : "");
+      const htmlElement = generateElement('<input>');
+      htmlElement.setAttribute('type', 'text');
+      htmlElement.value = defaultValue ? defaultValue.number : "";
+      return htmlElement;
     },
-    getValue: ($input) => {
-      return {number: $input.find('input').val()};
+    getValue: input => {
+      return {number: input.querySelector('input').value};
     }
   },
   GlobeCoordinatesValue: {
+    /**
+     *
+     * @param langCode
+     * @param defaultValue
+     * @returns {Promise<HTMLElement>}
+     */
     createInput: async (langCode, defaultValue) => {
-      const $latitudeInput = $('<input>').attr('type', 'text').attr('placeholder', 'latitude').val(defaultValue ? defaultValue.latitude : "");
-      const $longitudeInput = $('<input>').attr('type', 'text').attr('placeholder', 'longitude').val(defaultValue ? defaultValue.longitude : "");
-      return $('<span>').append($latitudeInput, $longitudeInput);
+      const latitudeInput = generateElement('<input>');
+      latitudeInput.setAttribute('type', 'text');
+      latitudeInput.setAttribute('placeholder', 'latitude');
+      latitudeInput.value = defaultValue ? defaultValue.latitude : "";
+      const longitudeInput = generateElement('<input>');
+      longitudeInput.setAttribute('type', 'text');
+      longitudeInput.setAttribute('placeholder', 'longitude');
+      longitudeInput.value = defaultValue ? defaultValue.longitude : "";
+      const span = generateElement('<span>');
+      span.append(latitudeInput, longitudeInput);
+      return span;
     },
-    getValue: ($input) => {
-      const values = $input.find('input').map(function () {
-        return $(this).val();
-      }).get();
+    getValue: input => {
+      const values = Array.from(input.querySelectorAll('input')).map(function () {
+        return this.value;
+      });
       return {
         latitude: values[0],
         longitude: values[1]
@@ -138,59 +208,70 @@ const datatypeHandlers = {
 export async function createSnakInput(langCode, datatype, defaultValue = null, rank = 0, snakType = 0) {
   const handler = datatypeHandlers[datatype];
   if (!handler) throw new Error(`No input creator for datatype: ${datatype}.`)
-  const $snakInput = await handler.createInput(langCode, defaultValue);
-  const $rankSelector = createRankSelector(rank);
-  const $snakTypeSelector = createSnakTypeSelector($snakInput, snakType);
-  $snakTypeSelector.trigger('change');
+  const snakInput = await handler.createInput(langCode, defaultValue);
+  const rankSelector = createRankSelector(rank);
+  const snakTypeSelector = createSnakTypeSelector(snakInput, snakType);
+  snakTypeSelector.dispatchEvent(new Event('change'));
 
-  return {$rankSelector, $snakTypeSelector, $snakInput};
+  return {rankSelector, snakTypeSelector, snakInput};
 }
 
-export function getValueFromInputTd(datatype, $valueInputTd) {
+/**
+ *
+ * @param datatype
+ * @param valueInputTd
+ * @returns {string}
+ */
+export function getValueFromInputTd(datatype, valueInputTd) {
   const handler = datatypeHandlers[datatype];
   if (!handler) throw new Error(`No value extractor for datatype: ${datatype}.`)
-  return handler.getValue($valueInputTd);
+  return handler.getValue(valueInputTd);
 }
 
 /**
  * Create a selector for the snak type (Value, SomeValue, NoValue) and initialise it.
  * The selected option is the one matching the value of snakType.
- * @param $snakInput The input field of the snak value to be shown or hidden.
+ * @param {HTMLElement} snakInput The input field of the snak value to be shown or hidden.
  * @param {int} snakType The index of the option to be selected.
- * @returns {*|jQuery|HTMLElement|JQuery<HTMLElement>} The snak type selector element.
+ * @returns {HTMLElement} The snak type selector element.
  */
-export function createSnakTypeSelector($snakInput, snakType = 0) {
-  const $snakTypeSelector = $('<select class="snak-type-selector">');
+export function createSnakTypeSelector(snakInput, snakType = 0) {
+  const snakTypeSelector = generateElement('<select class="snak-type-selector">');
   for (const [snakTypeValue, snakTypeLabel] of [[0, 'Value'], [1, 'Unknown value'], [2, 'No value']]) {
-    const $option = $('<option>').val(snakTypeValue).text(snakTypeLabel);
+    const option = generateElement('<option>');
+    option.value = snakTypeValue;
+    option.textContent = snakTypeLabel;
     if (snakType === snakTypeValue)
-      $option.prop('selected', true);
-    $snakTypeSelector.append($option);
+      option.selected = true;
+    snakTypeSelector.append(option);
   }
 
-  $snakTypeSelector.on('change', event => {
-    const value = parseInt($(event.currentTarget).val());
+  snakTypeSelector.addEventListener('change', event => {
+    const value = parseInt(event.target.value, 10);
     if (value === 0) {
-      $snakInput.show();
+      snakInput.style.display = '';
     } else {
-      $snakInput.hide();
+      snakInput.style.display = 'none';
     }
   });
-  return $snakTypeSelector;
+
+  return snakTypeSelector;
 }
 
 /**
  * Create a selector for the snak rank and initialise it.
  * @param {int} rank The index of the rank to be selected by default. 1 for Preferred, 0 for Normal, -1 for Obsolete.
- * @returns {*|jQuery|HTMLElement|JQuery<HTMLElement>} The rank selector.
+ * @returns {HTMLElement} The rank selector.
  */
 export function createRankSelector(rank = 0) {
-  const $rankSelector = $('<select class="rank-selector">');
+  const rankSelector = generateElement('<select class="rank-selector">');
   for (const [rankValue, rankLabel] of [[1, 'Preferred'], [0, 'Normal'], [-1, 'Obsolete']]) {
-    const $option = $('<option>').val(rankValue).text(rankLabel);
+    const option = generateElement('<option>');
+    option.value = rankValue;
+    option.textContent = rankLabel;
     if (rank === rankValue)
-      $option.prop('selected', true);
-    $rankSelector.append($option);
+      option.selected = true;
+    rankSelector.append(option);
   }
-  return $rankSelector;
+  return rankSelector;
 }

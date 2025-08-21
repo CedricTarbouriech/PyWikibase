@@ -2,6 +2,7 @@
 
 import {createStatement, updateStatement, fetchPropertyDataType, getAsJson, postAsJson} from './api.js';
 import {
+  generateElement,
   createPropertySelector,
   createSnakInput,
   createSubmitCancelButtons,
@@ -13,131 +14,142 @@ import {
 /**
  *
  * @param event
- * @returns {Promise<void>}
  */
 async function addNewStatement(event) {
   event.preventDefault();
 
-  const langCode = $('body').data('lang');
+  const langCode = document.querySelector('body').dataset.lang;
 
   // Choose property
-  const $propertySelector = await createPropertySelector(langCode);
+  const propertySelector = await createPropertySelector(langCode);
 
-  const $propertyDiv = $('<div class="property-cell">').append($propertySelector);
-  const $valueDiv = $('<div class="value-cell">');
-  const $actionsDiv = $('<div class="actions-cell">');
-  const $snakDiv = $('<div class="snak-cell">').append($valueDiv, $actionsDiv);
-  const $statementsDiv = $('<div class="statement-group">').append($propertyDiv, $snakDiv);
+  const propertyDiv = generateElement('<div class="property-cell">');
+  propertyDiv.append(propertySelector);
+  const valueDiv = generateElement('<div class="value-cell">');
+  const actionsDiv = generateElement('<div class="actions-cell">');
+  const snakDiv = generateElement('<div class="snak-cell">');
+  snakDiv.append(valueDiv, actionsDiv);
+  const statementsDiv = generateElement('<div class="statement-group">');
+  statementsDiv.append(propertyDiv, snakDiv);
 
-  $(event.currentTarget).before($statementsDiv);
+  event.target.before(statementsDiv);
 
-  $propertySelector.on('change', async () => {
-    const datatype = $propertySelector.find('option:selected').data('type');
-    const {$rankSelector, $snakTypeSelector, $snakInput} = await createSnakInput(langCode, datatype);
-    $valueDiv.empty().append($rankSelector, $snakTypeSelector, $snakInput);
+  propertySelector.addEventListener('change', async () => {
+    const datatype = propertySelector.querySelector('option:checked').dataset.type;
+    const {rankSelector, snakTypeSelector, snakInput} = await createSnakInput(langCode, datatype);
+    valueDiv.replaceChildren();
+    valueDiv.append(rankSelector, snakTypeSelector, snakInput);
   });
 
   const getSubmitHandler = async event => {
     event.preventDefault();
 
-    const $selectedOption = $propertySelector.find('option:selected');
-    const datatype = $selectedOption.data('type');
-    const propertyId = $selectedOption.val();
-    const data = await createStatement($valueDiv.find('.snak-type-selector').val(), $valueDiv.find('.rank-selector').val(), propertyId, $('h1').data('item_id'), getValueFromInputTd(datatype, $valueDiv));
-    $statementsDiv.replaceWith(data.updatedHtml);
-    $statementsDiv.find('.btn-add-value').on('click', addnewSnak);
+    const selectedOption = propertySelector.querySelector('option:checked');
+    const datatype = selectedOption.dataset.type;
+    const propertyId = selectedOption.value;
+    const data = await createStatement(valueDiv.querySelector('.snak-type-selector').value,
+      valueDiv.querySelector('.rank-selector').value, propertyId, document.querySelector('h1').dataset.itemId,
+      getValueFromInputTd(datatype, valueDiv));
+    statementsDiv.outerHTML = data.updatedHtml;
   };
 
   const getCancelHandler = event => {
     event.preventDefault();
-    $statementsDiv.remove();
+    statementsDiv.remove();
   };
 
-  createSubmitCancelButtons($actionsDiv, getSubmitHandler, getCancelHandler);
+  createSubmitCancelButtons(actionsDiv, getSubmitHandler, getCancelHandler);
 }
 
 async function addnewSnak(event) {
   event.preventDefault();
 
-  const langCode = $('body').data('lang');
+  const langCode = document.querySelector('body').dataset.lang;
 
-  const $btn = $(this);
-  const $newValueDiv = $btn.closest('.new-value-cell');
+  const btn = event.target;
+  const newValueDiv = btn.closest('.new-value-cell');
 
-  const $statementsDiv = $btn.closest('.statement-group');
-  const propertyId = $statementsDiv.data('property-id');
+  const statementsDiv = btn.closest('.statement-group');
+  const propertyId = statementsDiv.dataset.propertyId;
 
-  const $valueDiv = $('<div class="value-cell">');
-  const $actionsDiv = $('<div class="actions-cell">');
-  const $snakDiv = $('<div class="snak-cell">').append($valueDiv, $actionsDiv);
-  $newValueDiv.before($snakDiv);
+  const valueDiv = generateElement('<div class="value-cell">');
+  const actionsDiv = generateElement('<div class="actions-cell">');
+  const snakDiv = generateElement('<div class="snak-cell">');
+  snakDiv.append(valueDiv, actionsDiv);
+  newValueDiv.before(snakDiv);
 
   const propertyType = await fetchPropertyDataType(propertyId);
-  const {$rankSelector, $snakTypeSelector, $snakInput} = await createSnakInput(langCode, propertyType);
-  $valueDiv.empty().append($rankSelector, $snakTypeSelector, $snakInput);
+  const {rankSelector, snakTypeSelector, snakInput} = await createSnakInput(langCode, propertyType);
+  valueDiv.replaceChildren();
+  valueDiv.append(rankSelector, snakTypeSelector, snakInput);
 
   const getSubmitHandler = async event => {
     event.preventDefault();
-    const data = await createStatement($snakTypeSelector.val(), $rankSelector.val(), propertyId, $('h1').data('item_id'), getValueFromInputTd(propertyType, $valueDiv));
-    updateDivWithNewStatement(data.updatedHtml, $snakDiv);
+    const data = await createStatement(snakTypeSelector.value, rankSelector.value, propertyId,
+      document.querySelector('h1').dataset.itemId, getValueFromInputTd(propertyType, valueDiv));
+    updateDivWithNewStatement(data.updatedHtml, snakDiv);
   };
 
   const getCancelHandler = event => {
     event.preventDefault();
-    $snakDiv.remove();
+    snakDiv.remove();
   };
 
-  createSubmitCancelButtons($actionsDiv, getSubmitHandler, getCancelHandler);
+  createSubmitCancelButtons(actionsDiv, getSubmitHandler, getCancelHandler);
 }
 
 async function editSnak(event) {
   event.preventDefault();
 
-  const langCode = $('body').data('lang');
+  const langCode = document.querySelector('body').dataset.lang;
 
-  const $btn = $(this);
-  const $snakDiv = $btn.closest('.snak-cell');
+  const btn = event.target;
+  const snakDiv = btn.closest('.snak-cell');
 
-  const originalHtml = $snakDiv.html();
-  const statementId = $snakDiv.data('statement-id');
+  const originalHtml = snakDiv.innerHTML;
+  const statementId = parseInt(snakDiv.dataset.statementId, 10);
 
   const {
     rank,
     mainSnak
   } = await getAsJson(`/api/statement/${statementId}`, "Erreur de chargement des données du statement.");
   const {propertyType, value, snak_type} = mainSnak;
-  const $valueDiv = $snakDiv.find('.value-cell');
+  const valueDiv = snakDiv.querySelector('.value-cell');
 
-  const {$rankSelector, $snakTypeSelector, $snakInput} = await createSnakInput(langCode, propertyType, value, rank, snak_type);
-  $valueDiv.empty().append($rankSelector, $snakTypeSelector, $snakInput);
+  const {
+    rankSelector,
+    snakTypeSelector,
+    snakInput
+  } = await createSnakInput(langCode, propertyType, value, rank, snak_type);
+  valueDiv.replaceChildren();
+  valueDiv.append(rankSelector, snakTypeSelector, snakInput);
 
-  const $actionsDiv = $snakDiv.find('.actions-cell');
+  const actionsDiv = snakDiv.querySelector('.actions-cell');
 
   const getSubmitHandler = async event => {
     event.preventDefault();
 
-    const data = await updateStatement(statementId, $rankSelector.val(), $snakTypeSelector.val(), getValueFromInputTd(propertyType, $valueDiv));
-    updateDivWithNewStatement(data.updatedHtml, $snakDiv);
+    const data = await updateStatement(statementId, rankSelector.value, snakTypeSelector.value,
+      getValueFromInputTd(propertyType, valueDiv));
+    updateDivWithNewStatement(data.updatedHtml, snakDiv);
   };
 
   const getCancelHandler = event => {
     event.preventDefault();
-    $snakDiv.html(originalHtml);
-    $snakDiv.find('.btn-edit-value').on('click', editSnak);
-    $snakDiv.find('.btn-delete-value').on('click', deleteValue);
+    snakDiv.innerHTML = originalHtml;
   };
 
-  createSubmitCancelButtons($actionsDiv, getSubmitHandler, getCancelHandler);
+  createSubmitCancelButtons(actionsDiv, getSubmitHandler, getCancelHandler);
 }
 
 async function deleteValue(event) {
   event.preventDefault();
 
-  const $btn = $(this);
+  const btn = event.target;
 
-  const $snakDiv = $btn.closest('.snak-cell');
-  const $statementDiv = $snakDiv.closest('.statement-group');
-  const statementId = $snakDiv.data('statement-id');
+  const snakDiv = btn.closest('.snak-cell');
+  const statementDiv = snakDiv.closest('.statement-group');
+  const statementId = snakDiv.dataset.statementId;
 
   const confirmed = window.confirm("Are you sure?");
   if (!confirmed) return;
@@ -145,17 +157,20 @@ async function deleteValue(event) {
   const data = await postAsJson('/api/statement/delete', `Erreur lors de la suppression du statement ${statementId}`, {statement_id: statementId});
   const statementNumber = data.number;
   if (statementNumber === 0) {
-    $statementDiv.remove();
+    statementDiv.remove();
   } else {
-    $snakDiv.remove();
+    snakDiv.remove();
   }
 }
 
-function generateLeafletMap() {
-  const $map = $(this);
-  const id = $map.attr('id');
-  const latitude = parseFloat($map.data('lat'));
-  const longitude = parseFloat($map.data('lon'));
+/**
+ *
+ * @param {HTMLElement} mapElement
+ */
+function generateLeafletMap(mapElement) {
+  const id = mapElement.getAttribute('id');
+  const latitude = parseFloat(mapElement.dataset.lat);
+  const longitude = parseFloat(mapElement.dataset.lon);
 
   const map = L.map(id).setView([latitude, longitude], 6);
   L.tileLayer('https://dh.gu.se/tiles/imperium/{z}/{x}/{y}.png', {
@@ -165,11 +180,17 @@ function generateLeafletMap() {
   L.marker([latitude, longitude]).addTo(map);
 }
 
-$(function () {
-  $('#btn-new-statement').on('click', addNewStatement);
-  $('.statements')
-    .on('click', '.btn-add-value', addnewSnak)
-    .on('click', '.btn-edit-value', editSnak)
-    .on('click', '.btn-delete-value', deleteValue);
-  $('.map').each(generateLeafletMap);
+document.addEventListener("DOMContentLoaded", () => {
+  const newStatementBtn = document.querySelector('#btn-new-statement');
+  if (newStatementBtn) newStatementBtn.addEventListener('click', addNewStatement);
+  document.querySelectorAll('.statements').forEach(element =>
+    element.addEventListener('click', async event => {
+      if (event.target.closest('.btn-add-value'))
+        await addnewSnak(event);
+      if (event.target.closest('.btn-edit-value'))
+        await editSnak(event);
+      if (event.target.closest('.btn-delete-value'))
+        await deleteValue(event);
+    }));
+  document.querySelectorAll('.map').forEach(item => generateLeafletMap(item));
 });
