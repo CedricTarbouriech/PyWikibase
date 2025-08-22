@@ -194,6 +194,9 @@ def handle_tag(el: etree._Element) -> str:
     elif el.text:
         output += str(text)
 
+    if inner:
+        output += str(inner)
+
     # Ajouter le texte qui suit la balise <w>
     if el.tail:
         output += el.tail
