@@ -175,6 +175,10 @@ def json_to_python(type_name, value):
         value = m.StringValue(value=value['value'])
         value.save()
         return value
+    elif type_name == 'UrlValue':
+        value = m.UrlValue(value=value['value'])
+        value.save()
+        return value
     elif type_name == 'QuantityValue':
         value = m.QuantityValue(number=value['number'])
         value.save()
