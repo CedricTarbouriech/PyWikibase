@@ -300,10 +300,8 @@ class ItemDisplay(TemplateView):
             statements.append((prop, values))
         context['statements'] = statements
 
-        linked_items = []
-        for stmt in m.Statement.objects.filter(mainsnak__value=item):
-            linked_items.append(stmt.subject.display_id)
-        context['linked_items'] = sorted(linked_items)
+        context['linked_items'] = sorted(
+            m.Statement.objects.filter(mainsnak__value=item).values_list("subject__describedentity__item__display_id", flat=True).distinct())
         return context
 
 
