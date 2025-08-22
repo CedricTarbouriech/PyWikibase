@@ -14,8 +14,8 @@ function addTag(beginTag, endTag) {
   const {
     charOverlap,
     msgOverlap
-  } = checkCharacterOverlap(textarea.textContent, selection, start);
-  if (charOverlap || checkTagOverlap(textarea.textContent, selection)) {
+  } = checkCharacterOverlap(textarea.value, selection, start);
+  if (charOverlap || checkTagOverlap(textarea.value, selection)) {
     alert(`Erreur dans la sélection : ${msgOverlap}. Impossible d’ajouter les balises.`);
   } else {
     textarea.setRangeText(tagged, start, end, 'end');
@@ -409,8 +409,8 @@ document.addEventListener("DOMContentLoaded", () => {
         const {
           charOverlap,
           msgOverlap
-        } = checkCharacterOverlap(annotatorTextField.textContent, selection, annotatorTextField.selectionStart);
-        if (charOverlap || checkTagOverlap(annotatorTextField.textContent, selection)) {
+        } = checkCharacterOverlap(annotatorTextField.value, selection, annotatorTextField.selectionStart);
+        if (charOverlap || checkTagOverlap(annotatorTextField.value, selection)) {
           $warningSpan.textContent = `Erreur ! (${msgOverlap})`;
         } else {
           $warningSpan.textContent = "Pas d’erreur.";
