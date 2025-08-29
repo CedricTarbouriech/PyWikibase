@@ -1,0 +1,27 @@
+{% load pecunia_tags %}
+{% load i18n %}
+{% get_current_language as LANGUAGE_CODE %}
+<div class="qualifiers-cell">
+    {% for qual in stat.qualifiers.all %}
+        <div class="qualifier-cell" data-qualifier-id="{{ qual.id }}">
+            <a href='{% url "property_display" qual.snak.property.display_id %}'>{{ qual.snak.property|label_or_default:LANGUAGE_CODE }}</a>
+            {% if qual.snak.type == 0 %}
+                {{ qual.snak|html }}
+            {% elif qual.snak.type == 1 %}
+                <i>Unknown value</i>
+            {% elif qual.snak.type == 2 %}
+                <i>No value</i>
+            {% endif %}
+            <span>
+                (<a class="btn-delete-qualifier" href='#'>supprimer</a>)
+            </span>
+        </div>
+    {% empty %}
+        <div>
+            No qualifiers.
+        </div>
+    {% endfor %}
+
+    <a class="btn-add-qualifier" data-statement-id="{{ stat.id }}"
+       href='#'>{% trans "form.qualifier.new" %}</a>
+</div>

@@ -30,7 +30,8 @@ urlpatterns = [
     path("api/statement/update", views.StatementUpdateApiView.as_view(), name="api_statement_snak_update"),
     path("api/statement/<int:statement_id>", views.StatementApiView.as_view(), name="api_statements"),
     path("api/statement/delete", views.StatementDeleteApiView.as_view(), name="api_statement_delete"),
-
+    path("api/qualifier/add", views.QualifierAddApiView.as_view(), name="api_new_qualifier"),
+    path("api/qualifier/delete", views.QualifierDeleteApiView.as_view(), name="api_qualifier_delete"),
     path("item/", views.ItemDashboard.as_view(), name="item_list"),
     path("item/new/", views.ItemCreation.as_view(), name="item_create"),
     path("item/<int:display_id>/", views.ItemDisplay.as_view(), name="item_display"),

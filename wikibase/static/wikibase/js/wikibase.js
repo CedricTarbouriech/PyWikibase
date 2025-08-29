@@ -1,11 +1,18 @@
 'use strict';
 
-import {createStatement, updateStatement, fetchPropertyDataType, getAsJson, postAsJson} from './api.js';
 import {
-  generateElement,
+  createQualifier,
+  createStatement,
+  fetchPropertyDataType,
+  getAsJson,
+  postAsJson,
+  updateStatement
+} from './api.js';
+import {
   createPropertySelector,
   createSnakInput,
   createSubmitCancelButtons,
+  generateElement,
   getValueFromInputTd,
   updateDivWithNewStatement
 } from './util.js';
@@ -180,6 +187,117 @@ function generateLeafletMap(mapElement) {
   L.marker([latitude, longitude]).addTo(map);
 }
 
+async function addNewQualifier(event) {
+  event.preventDefault();
+
+  const statementId = event.target.dataset.statementId;
+  const langCode = document.querySelector('body').dataset.lang;
+
+  // Choose property
+  const propertySelector = await createPropertySelector(langCode);
+  const propertyDiv = generateElement('<div class="qualifier-cell">');
+  propertyDiv.append(propertySelector);
+
+  const valueDiv = generateElement('<div class="qualifier-value-div">');
+  const actionsDiv = generateElement('<div class="actions-cell">');
+  const snakDiv = generateElement('<div class="snak-cell">');
+  snakDiv.append(valueDiv, actionsDiv);
+  propertyDiv.append(snakDiv);
+  event.target.before(propertyDiv);
+
+  propertySelector.addEventListener('change', async () => {
+    const datatype = propertySelector.querySelector('option:checked').dataset.type;
+    const {snakInput} = await createSnakInput(langCode, datatype);
+    valueDiv.replaceChildren();
+    valueDiv.append(snakInput);
+  });
+
+  const getSubmitHandler = async event => {
+    event.preventDefault();
+
+    const selectedOption = propertySelector.querySelector('option:checked');
+    const datatype = selectedOption.dataset.type;
+    const propertyId = selectedOption.value;
+    console.log(event.currentTarget, event.target);
+    const data = await createQualifier(statementId, propertyId, getValueFromInputTd(datatype, valueDiv));
+    propertyDiv.parentNode.outerHTML = data.updatedHtml;
+  };
+
+  const getCancelHandler = event => {
+    event.preventDefault();
+    propertyDiv.remove();
+  };
+
+  createSubmitCancelButtons(actionsDiv, getSubmitHandler, getCancelHandler);
+}
+
+async function editQualifier(event) {
+  event.preventDefault();
+
+  const langCode = document.querySelector('body').dataset.lang;
+
+
+  const btn = event.target;
+  const snakDiv = btn.closest('.snak-cell');
+
+  const originalHtml = snakDiv.innerHTML;
+  const statementId = parseInt(snakDiv.dataset.statementId, 10);
+
+  const {
+    rank,
+    mainSnak
+  } = await getAsJson(`/api/statement/${statementId}`, "Erreur de chargement des données du statement.");
+  const {propertyType, value, snak_type} = mainSnak;
+  const valueDiv = snakDiv.querySelector('.value-cell');
+
+  const {
+    rankSelector,
+    snakTypeSelector,
+    snakInput
+  } = await createSnakInput(langCode, propertyType, value, rank, snak_type);
+  valueDiv.replaceChildren();
+  valueDiv.append(rankSelector, snakTypeSelector, snakInput);
+
+  const actionsDiv = snakDiv.querySelector('.actions-cell');
+
+  const getSubmitHandler = async event => {
+    event.preventDefault();
+
+    const data = await updateStatement(statementId, rankSelector.value, snakTypeSelector.value,
+      getValueFromInputTd(propertyType, valueDiv));
+    updateDivWithNewStatement(data.updatedHtml, snakDiv);
+  };
+
+  const getCancelHandler = event => {
+    event.preventDefault();
+    snakDiv.innerHTML = originalHtml;
+  };
+
+  createSubmitCancelButtons(actionsDiv, getSubmitHandler, getCancelHandler);
+}
+
+async function deleteQualifier(event) {
+  event.preventDefault();
+
+  const btn = event.target;
+
+  const qualifierDiv = btn.closest('.qualifier-cell');
+  const qualifierGroupDiv = qualifierDiv.closest('.qualifiers-cell');
+  const qualifierId = qualifierDiv.dataset.qualifierId;
+
+  const confirmed = window.confirm("Are you sure?");
+  if (!confirmed) return;
+
+  const data = await postAsJson('/api/qualifier/delete', `Erreur lors de la suppression du qualifier ${qualifierId}`, {qualifier_id: qualifierId});
+  const qualifierNumber = data.number;
+  qualifierDiv.remove();
+  if (qualifierNumber === 0) {
+    const noQualifiersDiv = document.createElement('div');
+    noQualifiersDiv.textContent = 'No qualifiers.';
+    qualifierGroupDiv.prepend(noQualifiersDiv);
+  }
+}
+
 document.addEventListener("DOMContentLoaded", () => {
   const newStatementBtn = document.querySelector('#btn-new-statement');
   if (newStatementBtn) newStatementBtn.addEventListener('click', addNewStatement);
@@ -191,6 +309,14 @@ document.addEventListener("DOMContentLoaded", () => {
         await editSnak(event);
       if (event.target.closest('.btn-delete-value'))
         await deleteValue(event);
-    }));
+      if (event.target.closest('.btn-add-qualifier'))
+        await addNewQualifier(event);
+      if (event.target.closest('.btn-edit-qualifier'))
+        await editQualifier(event);
+      if (event.target.closest('.btn-delete-qualifier'))
+        await deleteQualifier(event);
+
+    })
+  );
   document.querySelectorAll('.map').forEach(item => generateLeafletMap(item));
 });

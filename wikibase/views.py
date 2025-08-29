@@ -76,13 +76,64 @@ class NewItemApiView(LoginRequiredMixin, View):
                     statement.save()
         return JsonResponse({'display_id': item.display_id})
 
+class QualifierAddApiView(LoginRequiredMixin, View):
+    def post(self, request, *args, **kwargs):
+        post_data = json.loads(request.body.decode('utf-8'))
+        statement = m.Statement.objects.get(id=(int(post_data['statement_id'])))
+        prop = m.Property.objects.get(display_id=(int(post_data['prop_id'])))
+        with transaction.atomic():
+            value = None
+            type_name = prop.data_type.class_name
+            if type_name == 'Item':
+                value = m.Item.objects.get(display_id=post_data['value']['item'])
+            elif type_name == 'MonolingualTextValue':
+                value = m.MonolingualTextValue(language=post_data['value']['language'],
+                                               text=post_data['value']['value'])
+                value.save()
+            elif type_name == 'StringValue':
+                value = m.StringValue(value=post_data['value']['value'])
+                value.save()
+            elif type_name == 'UrlValue':
+                value = m.UrlValue(value=post_data['value']['value'])
+                value.save()
+            elif type_name == 'QuantityValue':
+                value = m.QuantityValue(number=post_data['value']['number'])
+                value.save()
+            elif type_name == 'GlobeCoordinatesValue':
+                data = post_data['value']
+                value = m.GlobeCoordinatesValue(latitude=data['latitude'], longitude=data['longitude'],
+                                                precision='0.0000001', globe=ItemMapping.get('earth'))
+                value.save()
+            else:
+                raise Exception(f"Unknown datatype: {type_name}")
+            snak = m.PropertySnak(property=prop, value=value, type=m.PropertyType.VALUE)
+            snak.save()
+            statement.qualifiers.create(snak=snak)
+            statement.save()
+
+            data = {
+                'stat': statement
+            }
+            updated_html = render_to_string('wikibase/widgets/qualifiers_table.html', data, request=request)
+        return JsonResponse({'updatedHtml': updated_html})
+
+
+class QualifierDeleteApiView(LoginRequiredMixin, View):
+    def post(self, request, *args, **kwargs):
+        post_data = json.loads(request.body.decode('utf-8'))
+        qualifier_id = post_data.get('qualifier_id')
+        qualifier = m.Qualifier.objects.get(id=qualifier_id)
+        statement = qualifier.statement
+        qualifier.delete()
+
+        return JsonResponse({'number': statement.qualifiers.count()})
 
 class StatementAddApiView(LoginRequiredMixin, View):
     def post(self, request, *args, **kwargs):
+        post_data = json.loads(request.body.decode('utf-8'))
+        type_field_value = int(post_data.get('snak_type'))
+        prop = m.Property.objects.get(display_id=post_data.get('prop_id'))
         with transaction.atomic():
-            post_data = json.loads(request.body.decode('utf-8'))
-            type_field_value = int(post_data.get('snak_type'))
-            prop = m.Property.objects.get(display_id=post_data.get('prop_id'))
             # FIXME: Not compatible if we want to add statements to properties
             subject = m.Item.objects.get(display_id=post_data.get('entity_id'))
 

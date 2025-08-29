@@ -10,47 +10,35 @@
             <div class="value-cell">
                 <span>{{ stat.rank }}</span>
                 {% if stat.mainsnak.type == 0 %}
-                    {{ stat.mainsnak|html }}
+                    {{ stat.mainsnak|html2 }}
                 {% elif stat.mainsnak.type == 1 %}
                     <i>Unknown value</i>
                 {% elif stat.mainsnak.type == 2 %}
                     <i>No value</i>
                 {% endif %}
-                {% if stat.qualifiers.count != 0 %}
-                <div class="qualifiers-cell">
-                    {% for qual in stat.qualifiers.all %}
-                        <a href='{% url "property_display" qual.snak.property.display_id %}'>{{ qual.snak.property|label_or_default:LANGUAGE_CODE }}</a>
-                        {{ qual.snak.type }}
-                        {% if qual.snak.type == 0 %}
-                            {{ qual.snak|html }}
-                        {% elif qual.snak.type == 1 %}
-                            <i>Unknown value</i>
-                        {% elif qual.snak.type == 2 %}
-                            <i>No value</i>
-                        {% endif %}
-                    {% endfor %}
-                </div>
-            {% endif %}
-                {% if stat.reference_records.count != 0 %}
+                {% include "wikibase/widgets/qualifiers_table.html" %}
                 <div class="reference-record-cell">
                     {% for ref in stat.reference_records.all %}
                         <ul class="reference-cell">
                             {% for ref_stat in ref.snaks.all %}
                                 <li>
-                                <a href='{% url "property_display" ref_stat.snak.property.display_id %}'>{{ ref_stat.snak.property|label_or_default:LANGUAGE_CODE }}</a>
-                                {{ ref_stat.snak.type }}
+                                    <a href='{% url "property_display" ref_stat.snak.property.display_id %}'>{{ ref_stat.snak.property|label_or_default:LANGUAGE_CODE }}</a>
+                                    {{ ref_stat.snak.type }}
 
-                                {{ ref_stat.snak|html }}</li>
+                                    {{ ref_stat.snak|html2 }}</li>
                             {% endfor %}
                         </ul>
+                    {% empty %}
+                        No references.
                     {% endfor %}
                 </div>
-            {% endif %}
             </div>
             {% if user.is_authenticated %}
                 <div class="actions-cell">
-                    <a class="button btn-edit-value" href='#'>{% trans "global.edit" %}</a>
-                    <a class="button btn-delete-value" href='#'>{% trans "global.delete" %}</a>
+                    <ul>
+                        <li><a class="btn-edit-value" href='#'>{% trans "global.edit" %}</a></li>
+                        <li><a class="btn-delete-value" href='#'>{% trans "global.delete" %}</a></li>
+                    </ul>
                 </div>
             {% endif %}
         </div>

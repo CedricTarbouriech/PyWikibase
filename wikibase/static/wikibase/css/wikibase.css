@@ -17,7 +17,7 @@
     border: 1px solid grey;
     grid-column: 2;
     display: grid;
-    grid-template-columns: 60% 1fr;
+    grid-template-columns: 70% 1fr;
     grid-template-rows: auto auto;
 }
 
@@ -30,7 +30,7 @@
 .actions-cell {
     border: 1px solid grey;
     grid-column: 2;
-    padding: 8px;
+    padding: 4px;
 }
 
 .new-value-cell {

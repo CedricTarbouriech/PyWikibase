@@ -62,6 +62,22 @@ export async function createStatement(snakType, rank, propertyId, entityId, valu
 /**
  *
  * @param {int} statementId
+ * @param {int} propertyId
+ * @param value
+ * @returns {Promise<{updatedHtml: string}>}
+ */
+export async function createQualifier(statementId, propertyId, value) {
+  console.log(statementId, propertyId, value);
+  return await postAsJson('/api/qualifier/add', 'Erreur lors de l’ajout d’un qualifier.', {
+    statement_id: statementId,
+    prop_id: propertyId,
+    value: value
+  });
+}
+
+/**
+ *
+ * @param {int} statementId
  * @param rank
  * @param snakType
  * @param value

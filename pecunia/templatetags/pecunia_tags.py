@@ -249,8 +249,28 @@ def html(snak: m.PropertySnak | str) -> str:
     elif isinstance(snak.value, m.UrlValue):
         label = snak.value.value
         if snak.used_in_statement.qualifiers.filter(snak__property=PropertyMapping.get('url_label')).count() > 0:
-            qual = snak.used_in_statement.qualifiers.filter(snak__property=PropertyMapping.get('url_label'))[0]
-            label = qual.snak.value.value
+            qualifier = snak.used_in_statement.qualifiers.filter(snak__property=PropertyMapping.get('url_label'))[0]
+            label = qualifier.snak.value.value
+        return mark_safe(f"<a href='{snak.value.value}'>{label}</a>")
+    elif isinstance(snak.value, m.GlobeCoordinatesValue):
+        return mark_safe(
+            f"<span>{snak.value.latitude}, {snak.value.longitude}"
+            f"<div id='map-{snak.value.id}' class='map' "
+            f"data-lat='{snak.value.latitude}' data-lon='{snak.value.longitude}'></div></span>"
+        )
+    else:
+        return mark_safe(snak.value)
+
+# FIXME retirer cette fonction
+@register.filter
+def html2(snak: m.PropertySnak | str) -> str:
+    if isinstance(snak, str):
+        return mark_safe(snak)
+    if isinstance(snak.value, m.Item):
+        return mark_safe(
+            f"<a href='{reverse('item_display', args=[snak.value.display_id])}'>{label_or_default(snak.value, get_language())}</a>")
+    elif isinstance(snak.value, m.UrlValue):
+        label = snak.value.value
         return mark_safe(f"<a href='{snak.value.value}'>{label}</a>")
     elif isinstance(snak.value, m.GlobeCoordinatesValue):
         return mark_safe(
