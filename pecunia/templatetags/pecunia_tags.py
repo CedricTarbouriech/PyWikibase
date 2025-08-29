@@ -111,6 +111,18 @@ def prop_mtv_value(item: m.Entity, prop_key_mapping: str) -> str:
 
 
 @register.filter
+def prop_mtv_langage(item: m.Entity, prop_key_mapping: str) -> str:
+    try:
+        prop = PropertyMapping.get(prop_key_mapping)
+        if not prop:
+            return f"Missing property mapping for key: {prop_key_mapping}"
+        statements = item.statements.filter(mainsnak__property=prop)
+        return statements[0].mainsnak.value.language
+    except ObjectDoesNotExist:
+        return "-"
+
+
+@register.filter
 def prop_label(item: object, prop_key_mapping: str) -> str:
     try:
         prop = PropertyMapping.get(prop_key_mapping)
