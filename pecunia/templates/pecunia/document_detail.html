@@ -42,6 +42,6 @@
             <br/>
         {% endif %}
         <div>{{ document|prop_label:'bibliography'|capitalize }}: {{ document|prop_list:'bibliography'|html }}</div>
-        <div>{{ document|prop_label:'commentary'|capitalize }}: {{ document|prop:'commentary' }}</div>
+        <div>{{ document|prop_label:'commentary'|capitalize }}: {{ document|prop_mtv_value:'commentary'|html }}</div>
     </div>
 {% endblock %}
