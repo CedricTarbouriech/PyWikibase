@@ -190,7 +190,7 @@ function generateLeafletMap(mapElement) {
 async function addNewQualifier(event) {
   event.preventDefault();
 
-  const statementId = event.target.dataset.statementId;
+  const statementId = parseInt(event.target.dataset.statementId, 10);
   const langCode = document.querySelector('body').dataset.lang;
 
   // Choose property
