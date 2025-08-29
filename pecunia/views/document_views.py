@@ -108,10 +108,11 @@ class DocumentUpdateText(LoginRequiredMixin, FormView):
         text = document.get_value(PropertyMapping.get('text'))
         with transaction.atomic():
             if text:
+                text.language = form.cleaned_data['language']
                 text.text = form.cleaned_data['text']
                 text.save()
             else:
-                text = m.MonolingualTextValue(language='la', text=form.cleaned_data['text'])
+                text = m.MonolingualTextValue(language=form.cleaned_data['language'], text=form.cleaned_data['text'])
                 text.save()
                 document.set_text(text)
             document.save()
@@ -126,7 +127,7 @@ class DocumentUpdateText(LoginRequiredMixin, FormView):
         if document.get_value(PropertyMapping.get('text')):
             kwargs["initial"] = {
                 'text': document.get_value(PropertyMapping.get('text')).text,
-                'text_language': document.get_value(PropertyMapping.get('text')).language
+                'language': document.get_value(PropertyMapping.get('text')).language
             }
         return kwargs
 

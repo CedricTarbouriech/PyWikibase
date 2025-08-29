@@ -10,18 +10,21 @@ def get_instances_of(item):
     return m.Item.objects.filter(statements__mainsnak__property=PropertyMapping.get('is_a'),
                                  statements__mainsnak__value=item)  # TODO: get subclasses
 
+
 class DocumentTextForm(forms.Form):
+    language = forms.ChoiceField(label=_('document.title_language'),
+                                 choices=(('la', 'Latin'), ('grc', 'Ancient greek')))
     text = forms.CharField(widget=forms.Textarea(attrs={'class': 'annotator-text-field', }), label=_('document.text'))
 
+
 class DocumentMetadataForm(forms.Form):
-    title = forms.CharField(label=_('document.title'))
     title_language = forms.ChoiceField(label=_('document.title_language'),
                                        choices=(('en', 'English'), ('fr', 'Français')))
+    title = forms.CharField(label=_('document.title'))
     source_type = forms.ChoiceField(label=_('document.type'))
     author = forms.ChoiceField(label=_('document.author'))
     author_function = forms.ChoiceField(label=_('document.author_function'))
-    # date = forms.DateField(label=_('document.date'),
-    #                        input_formats=['%Y', ])
+    # date = forms.DateField(label=_('document.date'), input_formats=['%Y', ])
     # calendar = forms.ChoiceField(label=_('document.calendar'))
     place = forms.ChoiceField(label=_('document.place'))
 

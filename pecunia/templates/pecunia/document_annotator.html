@@ -6,6 +6,7 @@
     <form method="post">{% csrf_token %}
         <div class="annotator-columns">
             <div class="annotator-text-column">
+                {{ form.language.label_tag }}{{ form.language.as_widget }}
                 {{ form.text.label_tag }}
                 <span class="warning-span">Pas d’erreur.</span>
                 {{ form.text.as_widget }}

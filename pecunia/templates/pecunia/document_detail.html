@@ -19,7 +19,6 @@
         </div>
         <br/>
         <div>{{ document|prop_label:'source_type'|capitalize }}: {{ document|prop:'source_type'|html }}</div>
-        <div>{{ document|prop_label:'language'|capitalize }}: {{ document|prop:'language'|html }}</div>
 {#        <div>{{ document|prop_label:'date'|capitalize }}: {{ document|prop:'date' }}</div>#}
         <div>{{ document|prop_label:'author'|capitalize }}: {{ document|prop:'author'|html }}</div>
         <div>{{ document|prop_label:'author_function'|capitalize }}: {{ document|prop:'author_function'|html }}</div>
@@ -28,6 +27,7 @@
         <div>{{ document|prop_label:'provenance'|capitalize }}: {{ document|prop:'provenance'|html }}</div>
         {% if document|has_prop:'text' %}
             <br/>
+            <div>{{ document|prop_label:'language'|capitalize }}: {{ document|prop_mtv_langage:'text'|html }}</div>
             <div {% if document.translation %}style="display: grid; grid-template-columns: auto auto;"{% endif %}>
                 <div class="text-wrapper">
                     <div class="line-numbers">

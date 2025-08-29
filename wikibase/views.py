@@ -76,6 +76,7 @@ class NewItemApiView(LoginRequiredMixin, View):
                     statement.save()
         return JsonResponse({'display_id': item.display_id})
 
+
 class QualifierAddApiView(LoginRequiredMixin, View):
     def post(self, request, *args, **kwargs):
         post_data = json.loads(request.body.decode('utf-8'))
@@ -127,6 +128,7 @@ class QualifierDeleteApiView(LoginRequiredMixin, View):
         qualifier.delete()
 
         return JsonResponse({'number': statement.qualifiers.count()})
+
 
 class StatementAddApiView(LoginRequiredMixin, View):
     def post(self, request, *args, **kwargs):
@@ -355,8 +357,10 @@ class ItemDisplay(TemplateView):
             statements.append((prop, values))
         context['statements'] = statements
 
-        context['linked_items'] = sorted(
-            m.Statement.objects.filter(mainsnak__value=item).values_list("subject__describedentity__item__display_id", flat=True).distinct())
+        matching_statements = m.Statement.objects.filter(mainsnak__value=item)
+        field_name = "subject__describedentity__item__display_id"
+        linked_items = matching_statements.values_list(field_name, flat=True).distinct()
+        context['linked_items'] = sorted(linked_items)
         return context
 
 
