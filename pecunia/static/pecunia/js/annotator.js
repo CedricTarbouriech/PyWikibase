@@ -1,6 +1,7 @@
 'use strict';
 
 import {Stack} from './stack.js';
+// noinspection JSFileReferences
 import {getAsJson, postAsJson} from '/static/wikibase/js/api.js';
 
 function addTag(beginTag, endTag) {
