@@ -260,7 +260,8 @@ def html(snak: m.PropertySnak | str) -> str:
             f"<a href='{reverse('item_display', args=[snak.value.display_id])}'>{label_or_default(snak.value, get_language())}</a>")
     elif isinstance(snak.value, m.UrlValue):
         label = snak.value.value
-        if snak.used_in_statement.qualifiers.filter(snak__property=PropertyMapping.get('url_label')).count() > 0:
+        if hasattr(snak, 'used_in_statement') and snak.used_in_statement.qualifiers.filter(
+                snak__property=PropertyMapping.get('url_label')).count() > 0:
             qualifier = snak.used_in_statement.qualifiers.filter(snak__property=PropertyMapping.get('url_label'))[0]
             label = qualifier.snak.value.value
         return mark_safe(f"<a href='{snak.value.value}'>{label}</a>")
@@ -272,6 +273,7 @@ def html(snak: m.PropertySnak | str) -> str:
         )
     else:
         return mark_safe(snak.value)
+
 
 # FIXME retirer cette fonction
 @register.filter
