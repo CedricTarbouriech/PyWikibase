@@ -1,5 +1,8 @@
 from __future__ import annotations
 
+import builtins
+
+from django.core.exceptions import ValidationError, FieldDoesNotExist
 from django.db import models
 from django.db.models import OneToOneField
 from django.db.models.fields.related_descriptors import ForwardManyToOneDescriptor
@@ -133,23 +136,44 @@ class Property(DescribedEntity):
         return f"P{self.display_id}"
 
 
-class PropertyType(models.IntegerChoices):
-    VALUE = 0, "value"
-    SOME_VALUE = 1, "somevalue"
-    NO_VALUE = 2, "novalue"
-
-
 class PropertySnak(models.Model):
+    class Type(models.IntegerChoices):
+        VALUE = 0, "value"
+        SOME_VALUE = 1, "somevalue"
+        NO_VALUE = 2, "novalue"
+
     property = InheritanceForeignKey(Property, on_delete=models.PROTECT, related_name='using_as_property_snaks')
-    type = models.IntegerField(choices=PropertyType.choices)
+    type = models.IntegerField(choices=Type.choices)
     # TODO: make sure that if value is instance of Datatype, it should be used by only 1 statement.
-    value = InheritanceForeignKey(
+    _value = InheritanceForeignKey(
         Value,
+        db_column='value',
         on_delete=models.PROTECT,
         related_name='using_as_value_snaks',
         null=True,
         blank=True
     )
+
+    @builtins.property
+    def value(self):
+        if self.type != self.Type.VALUE:
+            raise FieldDoesNotExist("value is not accessible if type is not VALUE")
+        return self._value
+
+    @value.setter
+    def value(self, value: Value):
+        if self.type != self.Type.VALUE:
+            raise FieldDoesNotExist("value is not accessible if type is not VALUE")
+        self._value = value
+
+    def clean(self):
+        super().clean()
+        if self.type == self.Type.VALUE and self.value is None:
+            raise ValidationError("value should be specified if type is VALUE")
+
+    def save(self, *args, **kwargs):
+        self.full_clean()
+        super().save(*args, **kwargs)
 
     def delete(self, *args, **kwargs):
         keep_value = isinstance(self.value, Entity)
@@ -159,16 +183,12 @@ class PropertySnak(models.Model):
         if value and not keep_value:
             value.delete()
 
-    def save(self, *args, **kwargs):
-        self.full_clean()
-        super().save(*args, **kwargs)
-
     def __str__(self):
-        if self.type == PropertyType.VALUE:
+        if self.type == self.Type.VALUE:
             value = self.value
-        elif self.type == PropertyType.SOME_VALUE:
+        elif self.type == self.Type.SOME_VALUE:
             value = "*somevalue*"
-        elif self.type == PropertyType.NO_VALUE:
+        elif self.type == self.Type.NO_VALUE:
             value = "*novalue*"
         else:
             raise Exception(f"Impossible value for type in PropertySnak: {self.type}")

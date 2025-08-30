@@ -1,6 +1,9 @@
+from django.core.exceptions import FieldDoesNotExist, ValidationError
 from django.test import TestCase
+from parameterized import parameterized
 
 import wikibase.models as m
+from wikibase.models import PropertySnak
 
 
 def check_has_described_entity_fields(test_case, entity) -> None:
@@ -115,8 +118,44 @@ class PropertyTestCase(TestCase):
         self.assertEqual(2, prop2.display_id)
 
 
-class DeleteTestCase(TestCase):
-    def test_delete_snak(self):
+class PropertySnakTestCase(TestCase):
+    def test_create_with_item(self):
+        p = m.Property.objects.create(data_type=m.Datatype.objects.get(class_name='Item'))
+        i = m.Item.objects.create()
+        sn = m.PropertySnak.objects.create(property=p, type=m.PropertySnak.Type.VALUE, value=i)
+
+    def test_create_with_type_value_without_value(self):
+        p = m.Property.objects.create(data_type=m.Datatype.objects.get(class_name='Item'))
+        with self.assertRaises(ValidationError):
+            m.PropertySnak.objects.create(property=p, type=m.PropertySnak.Type.VALUE)
+
+    def test_create_with_type_some_value(self):
+        p = m.Property.objects.create(data_type=m.Datatype.objects.get(class_name='Item'))
+        sn = m.PropertySnak.objects.create(property=p, type=m.PropertySnak.Type.SOME_VALUE)
+        self.assertEqual(p, sn.property)
+        self.assertEqual(PropertySnak.Type.SOME_VALUE, sn.type)
+
+    @parameterized.expand([
+        m.PropertySnak.Type.SOME_VALUE,
+        m.PropertySnak.Type.NO_VALUE
+    ])
+    def test_create_with_value_when_type_is_wrong(self, snak_type: PropertySnak.Type):
+        p = m.Property.objects.create(data_type=m.Datatype.objects.get(class_name='Item'))
+        i = m.Item.objects.create()
+        with self.assertRaises(FieldDoesNotExist):
+            m.PropertySnak.objects.create(property=p, type=snak_type, value=i)
+
+    @parameterized.expand([
+        m.PropertySnak.Type.SOME_VALUE,
+        m.PropertySnak.Type.NO_VALUE
+    ])
+    def test_get_value_when_type_is_wrong(self, snak_type: PropertySnak.Type):
+        p = m.Property.objects.create(data_type=m.Datatype.objects.get(class_name='Item'))
+        sn = m.PropertySnak.objects.create(property=p, type=snak_type)
+        with self.assertRaises(FieldDoesNotExist):
+            _ = sn.value
+
+    def test_delete(self):
         self.assertEqual(m.QuantityValue.objects.count(), 0)
         self.assertEqual(m.PropertySnak.objects.count(), 0)
         p = m.Property.objects.create(data_type=m.Datatype.objects.get(class_name='QuantityValue'))
@@ -132,7 +171,9 @@ class DeleteTestCase(TestCase):
         self.assertEqual(m.PropertySnak.objects.count(), 0)
         self.assertEqual(m.QuantityValue.objects.count(), 0)
 
-    def test_delete_statement(self):
+
+class StatementTestCase(TestCase):
+    def test_delete(self):
         self.assertEqual(m.QuantityValue.objects.count(), 0)
         self.assertEqual(m.PropertySnak.objects.count(), 0)
         self.assertEqual(m.Statement.objects.count(), 0)

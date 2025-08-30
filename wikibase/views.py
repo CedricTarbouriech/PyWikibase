@@ -12,7 +12,7 @@ from django.views.generic import DetailView, FormView, TemplateView, View
 
 from wikibase import models as m
 from wikibase.forms import ItemLabelDescriptionForm, PropertyLabelDescriptionForm
-from wikibase.models import ItemMapping, PropertyMapping, PropertyType
+from wikibase.models import ItemMapping, PropertyMapping, PropertySnak
 
 
 class PropertyApiView(View):
@@ -107,7 +107,7 @@ class QualifierAddApiView(LoginRequiredMixin, View):
                 value.save()
             else:
                 raise Exception(f"Unknown datatype: {type_name}")
-            snak = m.PropertySnak(property=prop, value=value, type=m.PropertyType.VALUE)
+            snak = m.PropertySnak(property=prop, value=value, type=m.PropertySnak.Type.VALUE)
             snak.save()
             statement.qualifiers.create(snak=snak)
             statement.save()
@@ -140,7 +140,7 @@ class StatementAddApiView(LoginRequiredMixin, View):
             subject = m.Item.objects.get(display_id=post_data.get('entity_id'))
 
             value = None
-            if type_field_value == PropertyType.VALUE:
+            if type_field_value == PropertySnak.Type.VALUE:
                 type_name = prop.data_type.class_name
                 if type_name == 'Item':
                     value = m.Item.objects.get(display_id=post_data['value']['item'])
