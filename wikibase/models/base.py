@@ -64,10 +64,10 @@ class DescribedEntity(Entity):
 
     def set_label(self, language: str, text: str) -> None:
         """
-        Adds a label to a described entity. Replace the label if already existing.
-        :param language:
-        :param text:
-        :return:
+        Adds a label to a described entity.
+        Replaces the label if the entity has a label with the given language code.
+        :param language: language code of the label
+        :param text: value of the label
         """
         if self.labels.filter(language=language).exists():
             label = self.labels.get(language=language)

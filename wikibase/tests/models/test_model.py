@@ -10,10 +10,59 @@ def check_has_described_entity_fields(test_case, entity) -> None:
 
 
 class DescribedEntityTestCase(TestCase):
+    def setUp(self):
+        self.de = m.DescribedEntity.objects.create()
+
     def test_creation(self):
-        de = m.DescribedEntity.objects.create()
-        self.assertIsInstance(de, m.DescribedEntity)
-        check_has_described_entity_fields(self, de)
+        self.assertIsInstance(self.de, m.DescribedEntity)
+        check_has_described_entity_fields(self, self.de)
+
+    def test_set_label(self):
+        language = 'fr'
+        text = 'label en français'
+        self.de.set_label(language, text)
+        self.assertEqual(1, self.de.labels.count())
+
+        label = self.de.labels.first()
+        self.assertIsInstance(label, m.Label)
+        self.assertEqual(language, label.language)
+        self.assertEqual(text, label.text)
+        self.assertEqual(self.de, label.described_entity)
+
+    def test_change_label(self):
+        language = 'fr'
+        text = 'label en français'
+        self.de.set_label(language, text)
+
+        text = 'label en français 2'
+        self.de.set_label(language, text)
+        self.assertEqual(1, self.de.labels.count())
+
+        label = self.de.labels.first()
+        self.assertEqual(language, label.language)
+        self.assertEqual(text, label.text)
+
+    def test_set_labels_in_two_languages(self):
+        language1 = 'fr'
+        text1 = 'label en français'
+        language2 = 'en'
+        text2 = 'label in English'
+
+        self.de.set_label(language1, text1)
+        self.de.set_label(language2, text2)
+
+        self.assertEqual(2, self.de.labels.count())
+
+    def test_get_labels(self):
+        language1 = 'fr'
+        text1 = 'label en français'
+        language2 = 'en'
+        text2 = 'label in English'
+
+        self.de.set_label(language1, text1)
+        self.de.set_label(language2, text2)
+
+        self.assertEqual(2, len(self.de.get_labels()))
 
 
 class ItemTestCase(TestCase):
