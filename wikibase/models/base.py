@@ -171,7 +171,7 @@ class PropertySnak(models.Model):
         elif self.type == PropertyType.NO_VALUE:
             value = "*novalue*"
         else:
-            raise Exception(f"Impossible valuee for type in PropertySnak: {self.type}")
+            raise Exception(f"Impossible value for type in PropertySnak: {self.type}")
         return f"{self.property} --> {value}"
 
 
