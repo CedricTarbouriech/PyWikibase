@@ -41,6 +41,12 @@
             </div>
             <br/>
         {% endif %}
+        <div>
+            {% for process in processes %}
+                {% empty %}
+                No processes identified.
+            {% endfor %}
+        </div>
         <div>{{ document|prop_label:'bibliography'|capitalize }}: {{ document|prop_list:'bibliography'|html }}</div>
         <div>{{ document|prop_label:'commentary'|capitalize }}: {{ document|prop_mtv_value:'commentary'|html }}</div>
     </div>

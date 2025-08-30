@@ -28,7 +28,10 @@ class DocumentDisplay(TemplateView):
         except ObjectDoesNotExist as e:
             raise Http404 from e
 
+        processes = []
+
         context['document'] = doc
+        context['processes'] = processes
         return context
 
 
