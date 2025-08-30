@@ -105,7 +105,10 @@ def prop_mtv_value(item: m.Entity, prop_key_mapping: str) -> str:
         if not prop:
             return f"Missing property mapping for key: {prop_key_mapping}"
         statements = item.statements.filter(mainsnak__property=prop)
-        return statements[0].mainsnak.value.text
+        if statements:
+            return statements[0].mainsnak.value.text
+        else:
+            return "-"
     except ObjectDoesNotExist:
         return "-"
 
