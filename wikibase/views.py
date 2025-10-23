@@ -335,6 +335,11 @@ class ItemDashboard(ModelDashboardView):
     template_name = 'wikibase/item_list.html'
     model = m.Item
 
+# TODO Rendre paramétrable
+prop_order = {
+    PropertyMapping.get('is_a'): -1
+}
+
 
 class ItemDisplay(TemplateView):
     template_name = 'wikibase/item_detail.html'
@@ -355,7 +360,7 @@ class ItemDisplay(TemplateView):
             for statement in item.statements.filter(mainsnak__property=prop):
                 values.append(statement)
             statements.append((prop, values))
-        context['statements'] = statements
+        context['statements'] = sorted(statements, key=lambda x: prop_order.get(x[0], 0))
 
         matching_statements = m.Statement.objects.filter(mainsnak__value=item)
         field_name = "subject__describedentity__item__display_id"
