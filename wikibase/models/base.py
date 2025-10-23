@@ -1,7 +1,5 @@
 from __future__ import annotations
 
-import builtins
-
 from django.core.exceptions import ValidationError, FieldDoesNotExist
 from django.db import models
 from django.db.models import OneToOneField
@@ -145,26 +143,23 @@ class PropertySnak(models.Model):
     property = InheritanceForeignKey(Property, on_delete=models.PROTECT, related_name='using_as_property_snaks')
     type = models.IntegerField(choices=Type.choices)
     # TODO: make sure that if value is instance of Datatype, it should be used by only 1 statement.
-    _value = InheritanceForeignKey(
+    value = InheritanceForeignKey(
         Value,
-        db_column='value',
         on_delete=models.PROTECT,
         related_name='using_as_value_snaks',
         null=True,
         blank=True
     )
 
-    @builtins.property
-    def value(self):
-        if self.type != self.Type.VALUE:
+    def __setattr__(self, key, value):
+        if key == 'value' and self.type != self.Type.VALUE:
             raise FieldDoesNotExist("value is not accessible if type is not VALUE")
-        return self._value
+        super().__setattr__(key, value)
 
-    @value.setter
-    def value(self, value: Value):
-        if self.type != self.Type.VALUE:
+    def __getattribute__(self, key):
+        if key == 'value' and self.type != self.Type.VALUE:
             raise FieldDoesNotExist("value is not accessible if type is not VALUE")
-        self._value = value
+        return super().__getattribute__(key)
 
     def clean(self):
         super().clean()
@@ -175,10 +170,15 @@ class PropertySnak(models.Model):
         self.full_clean()
         super().save(*args, **kwargs)
 
-    def delete(self, *args, **kwargs):
-        keep_value = isinstance(self.value, Entity)
-        value = self.value  # stocker avant la suppression de self
-        super().delete(*args, **kwargs)
+    def delete(self, using=None, keep_parents=False):
+        if self.type == self.Type.VALUE:
+            keep_value = isinstance(self.value, Entity)
+            value = self.value  # stocker avant la suppression de self
+        else:
+            keep_value = False
+            value = None
+
+        super().delete(using, keep_parents)
 
         if value and not keep_value:
             value.delete()
@@ -206,10 +206,10 @@ class Statement(models.Model):
     mainsnak = OneToOneField(PropertySnak, on_delete=models.PROTECT, related_name='used_in_statement')
     rank = models.IntegerField(choices=StatementRank)
 
-    def delete(self, *args, **kwargs):
+    def delete(self, using=None, keep_parents=False):
         mainsnak = self.mainsnak
-        super().delete(*args, **kwargs)
-        mainsnak.delete()
+        super().delete(using, keep_parents)
+        mainsnak.delete(using, keep_parents)
 
     def save(self, *args, **kwargs):
         self.full_clean()

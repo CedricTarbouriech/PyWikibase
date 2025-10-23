@@ -45,7 +45,7 @@ class Migration(migrations.Migration):
             fields=[
                 ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
                 ('type', models.IntegerField(choices=[(0, 'value'), (1, 'somevalue'), (2, 'novalue')])),
-                ('_value', wikibase.models.base.InheritanceForeignKey(db_column='value', blank=True, null=True, on_delete=django.db.models.deletion.PROTECT, related_name='using_as_value_snaks', to='wikibase.value')),
+                ('value', wikibase.models.base.InheritanceForeignKey(blank=True, null=True, on_delete=django.db.models.deletion.PROTECT, related_name='using_as_value_snaks', to='wikibase.value')),
             ],
         ),
         migrations.CreateModel(
