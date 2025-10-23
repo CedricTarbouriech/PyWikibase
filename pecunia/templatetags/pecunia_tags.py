@@ -258,6 +258,10 @@ def has_prop(value: m.Entity, prop_key: str) -> bool:
 def html(snak: m.PropertySnak | str) -> str:
     if isinstance(snak, str):
         return mark_safe(snak)
+    if snak.type == snak.Type.NO_VALUE:
+        return "-"
+    if snak.type == snak.Type.SOME_VALUE:
+        return "Unknown"
     if isinstance(snak.value, m.Item):
         return mark_safe(
             f"<a href='{reverse('item_display', args=[snak.value.display_id])}'>{label_or_default(snak.value, get_language())}</a>")
