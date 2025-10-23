@@ -77,7 +77,7 @@ class DescribedEntity(Entity):
         else:
             self.labels.create(language=language, text=text)
 
-    def add_description(self, language: str, text: str) -> None:
+    def set_description(self, language: str, text: str) -> None:
         if self.descriptions.filter(language=language).exists():
             description = self.descriptions.get(language=language)
             description.text = text

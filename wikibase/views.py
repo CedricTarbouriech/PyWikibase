@@ -409,7 +409,7 @@ class ItemUpdateLabelDescription(LoginRequiredMixin, FormView):
             if label:
                 item.set_label(language_code, label)
             if description:
-                item.add_description(language_code, description)
+                item.set_description(language_code, description)
             self.kwargs['display_id'] = item.display_id
         return super().form_valid(form)
 
@@ -434,7 +434,7 @@ class ItemCreation(LoginRequiredMixin, FormView):
             if label:
                 item.set_label(language_code, label)
             if description:
-                item.add_description(language_code, description)
+                item.set_description(language_code, description)
 
         return super().form_valid(form)
 
@@ -502,7 +502,7 @@ class PropertyCreation(LoginRequiredMixin, FormView):
             if label:
                 prop.set_label(language_code, label)
             if description:
-                prop.add_description(language_code, description)
+                prop.set_description(language_code, description)
 
         return super().form_valid(form)
 
@@ -543,7 +543,7 @@ class PropertyUpdateLabelDescription(LoginRequiredMixin, FormView):
             if label:
                 prop.set_label(language_code, label)
             if description:
-                prop.add_description(language_code, description)
+                prop.set_description(language_code, description)
             self.kwargs['display_id'] = prop.display_id
         return super().form_valid(form)
 
