@@ -139,8 +139,9 @@ class StatementAddApiView(LoginRequiredMixin, View):
             # FIXME: Not compatible if we want to add statements to properties
             subject = m.Item.objects.get(display_id=post_data.get('entity_id'))
 
-            value = None
+            snak = None
             if type_field_value == PropertySnak.Type.VALUE:
+                value = None
                 type_name = prop.data_type.class_name
                 if type_name == 'Item':
                     value = m.Item.objects.get(display_id=post_data['value']['item'])
@@ -164,7 +165,14 @@ class StatementAddApiView(LoginRequiredMixin, View):
                     value.save()
                 else:
                     raise Exception(f"Unknown datatype: {type_name}")
-            snak = m.PropertySnak(property=prop, value=value, type=type_field_value)
+                snak = m.PropertySnak(property=prop, value=value, type=type_field_value)
+            elif type_field_value == PropertySnak.Type.SOME_VALUE:
+                snak = m.PropertySnak(property=prop, type=type_field_value)
+            elif type_field_value == PropertySnak.Type.NO_VALUE:
+                snak = m.PropertySnak(property=prop, type=type_field_value)
+            else:
+                print("error")  # FIXME
+
             snak.save()
             statement = m.Statement(subject=subject, mainsnak=snak, rank=post_data.get('rank'))
             statement.save()
