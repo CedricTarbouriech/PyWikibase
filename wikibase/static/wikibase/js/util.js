@@ -193,8 +193,8 @@ const datatypeHandlers = {
       return span;
     },
     getValue: input => {
-      const values = Array.from(input.querySelectorAll('input')).map(function () {
-        return this.value;
+      const values = Array.from(input.querySelectorAll('input')).map(input => {
+        return input.value;
       });
       return {
         latitude: values[0],
