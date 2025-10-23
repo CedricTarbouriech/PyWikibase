@@ -41,15 +41,25 @@ class ItemApiView(View):
         return JsonResponse(items)
 
 
-class SearchItemApiView(View):
+class SearchApiView(View):
+    result_class = None
+
     def get(self, request, search):
-        items = {}
-        for item in m.Item.objects.filter(labels__text__contains=search).distinct():
-            items[item.display_id] = {
+        results = {}
+        for item in self.result_class.objects.filter(labels__text__contains=search).distinct():
+            results[item.display_id] = {
                 'labels': {mlt.language: mlt.text for mlt in item.labels.all()},
                 'descriptions': {mlt.language: mlt.text for mlt in item.descriptions.all()}
             }
-        return JsonResponse(items)
+        return JsonResponse(results)
+
+
+class SearchItemApiView(View):
+    result_class = m.Item
+
+
+class SearchPropertyApiView(View):
+    result_class = m.Property
 
 
 class NewItemApiView(LoginRequiredMixin, View):
@@ -342,6 +352,7 @@ class ModelDashboardView(TemplateView):
 class ItemDashboard(ModelDashboardView):
     template_name = 'wikibase/item_list.html'
     model = m.Item
+
 
 # TODO Rendre paramétrable
 prop_order = {
