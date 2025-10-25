@@ -108,3 +108,119 @@ article {
     color: #666;
     cursor: default;
 }
+
+textarea {
+    width: 100%;
+    resize: vertical;
+    min-height: 200px;
+}
+
+.columns {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    grid-gap: 20px;
+}
+
+.entity-token {
+    border: solid 1px;
+    width: fit-content;
+    padding: 0 10px;
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    background: rgba(255, 255, 255, 0.9);
+    backdrop-filter: blur(4px);
+    -webkit-backdrop-filter: blur(4px);
+    border-radius: 10px;
+    transition: 0.3s;
+}
+
+.drop-zone {
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    background: rgba(0, 0, 0, 0.7);
+    backdrop-filter: blur(4px);
+    -webkit-backdrop-filter: blur(4px);
+    border-radius: 10px;
+    transition: 0.3s;
+}
+
+.multi-drop {
+    width: 100%;
+    min-height: 5rem;
+    height: fit-content;
+    border-radius: 10px;
+    display: flex;
+}
+
+.single-drop {
+    min-width: 2em;
+    width: fit-content;
+    height: 1.5em;
+    border-radius: 10px;
+    display: inline-block;
+    vertical-align: middle;
+}
+
+.beingDragged {
+    color: white;
+    background-color: black;
+}
+
+.hoverOver {
+    transition: 0.3s ease-out;
+    border: solid 5px #2a9d8f;
+}
+
+/* Style the button that is used to open and close the collapsible content */
+.collapsible {
+    background-color: #eee;
+    color: #444;
+    cursor: pointer;
+    padding: 18px;
+    width: 100%;
+    border: none;
+    text-align: left;
+    outline: none;
+    font-size: 15px;
+}
+
+/* Add a background color to the button if it is clicked on (add the .active class with JS), and when you move the mouse over it (hover) */
+.active, .collapsible:hover {
+    background-color: #ccc;
+}
+
+/* Style the collapsible content. Note: hidden by default */
+.content {
+    padding: 0 18px;
+    margin-bottom: 10px;
+    transition: max-height 0.2s ease-out;
+}
+
+.pool {
+    display: flex;
+    flex-wrap: wrap;
+    background: #111;
+    padding: 5px;
+    border-radius: 10px;
+    margin: 10px;
+}
+
+.pool .entity-token {
+    margin: 2px;
+}
+
+.multi-drop .entity-token {
+    margin: 2px
+}
+
+.lang-code-input {
+    width: 75px;
+}
+
+.qualifier-cell {
+    background: #2a9d8f;
+}

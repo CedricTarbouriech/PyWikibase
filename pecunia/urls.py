@@ -36,4 +36,6 @@ urlpatterns = [
     path("place/<int:pk>/", views.PlaceDisplay.as_view(), name="place_display"),
     path("place/update/<int:display_id>/", views.PlaceUpdate.as_view(), name="place_update"),
     path("place/delete/<int:display_id>/", views.PlaceDelete.as_view(), name="place_delete"),
+    path("api/annotator", views.AnnotatorApiView.as_view(), name="api_annotator"),
+
 ]

@@ -1,16 +1,19 @@
+import json
+
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.core.exceptions import ObjectDoesNotExist
 from django.db import transaction
-from django.http import Http404
+from django.http import Http404, JsonResponse
 from django.shortcuts import redirect
 from django.urls import reverse, reverse_lazy
+from django.views import View
 from django.views.generic import TemplateView, FormView
 
 from pecunia.forms import DocumentMetadataForm, DocumentTextForm
 from pecunia.models import Document
 from wikibase import models as m
 from wikibase.models import PropertyMapping
-from wikibase.views import InstanceDashboardView
+from wikibase.views import InstanceDashboardView, json_to_python
 
 
 class DocumentDashboard(InstanceDashboardView):
@@ -108,29 +111,31 @@ class DocumentUpdateText(LoginRequiredMixin, FormView):
     def form_valid(self, form):
         display_id = self.kwargs['display_id']
         document = Document.get_by_id(display_id)
-        text = document.get_value(PropertyMapping.get('text'))
-        with transaction.atomic():
-            if text:
-                text.language = form.cleaned_data['language']
-                text.text = form.cleaned_data['text']
-                text.save()
-            else:
-                text = m.MonolingualTextValue(language=form.cleaned_data['language'], text=form.cleaned_data['text'])
-                text.save()
-                document.set_text(text)
-            document.save()
+        if document.get_value(PropertyMapping.get('language')):
+            document.set_value(PropertyMapping.get('language'), form.cleaned_data['language'])
+        else:
+            # FIXME
+            # document.add_value(PropertyMapping.get('language'), form.cleaned_data['language'])
+            pass
+        document.set_value(PropertyMapping.get('text'), m.StringValue.objects.create(value=form.cleaned_data['text']))
+        document.save()
         return super().form_valid(form)
 
     def get_success_url(self):
         return reverse('document_display', kwargs=self.kwargs)
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['object'] = self.kwargs['display_id']
+        return context
 
     def get_form_kwargs(self):
         kwargs = super().get_form_kwargs()
         document = m.Item.objects.get(display_id=self.kwargs['display_id'])
         if document.get_value(PropertyMapping.get('text')):
             kwargs["initial"] = {
-                'text': document.get_value(PropertyMapping.get('text')).text,
-                'language': document.get_value(PropertyMapping.get('text')).language
+                'text': document.get_value(PropertyMapping.get('text')),
+                'language': document.get_value(PropertyMapping.get('language'))
             }
         return kwargs
 
@@ -148,3 +153,101 @@ class DocumentDelete(LoginRequiredMixin, TemplateView):
         context = super().get_context_data(**kwargs)
         context['object'] = f"Document {self.kwargs['display_id']}"
         return context
+
+
+class AnnotatorApiView(LoginRequiredMixin, View):
+    def post(self, request, *args, **kwargs):
+        data = json.loads(request.body.decode('utf-8'))
+        print(data)
+        document = Document.get_by_id(data['document'])
+        print(document)
+
+        entities = data['entities']
+
+        tokens = {}
+        for token in entities['taggedEntities'].values():
+            tokens[token['tokenId']] = token
+        for token in entities['untaggedEntities'].values():
+            tokens[token['tokenId']] = token
+
+        reconciliations = data['reconciliations']
+        items = {}
+        unknown_entities = []
+        for new_entity in reconciliations['newEntities']:
+            items[new_entity['tokenId']] = m.Item.objects.create()
+
+        for unknown_entity in reconciliations['unknownEntities']:
+            unknown_entities.append(unknown_entity['tokenId'])
+
+        for linked_entity in reconciliations['linkedEntities']:
+            items[linked_entity['token']['tokenId']] = m.Item.objects.get(display_id=linked_entity['qid'])
+
+        schemata = data['schemata']
+        for schema in schemata:
+            token = schema['token']
+            item = items[token['tokenId']]
+
+            for term in schema['terms']:
+                if term['type'] == 'label':
+                    item.set_label(term['langCode'], term['value'])
+                if term['type'] == 'description':
+                    item.set_description(term['langCode'], term['value'])
+                if term['type'] == 'alias':
+                    pass  # TODO Implement
+
+            for json_statement in schema['statements']:
+                prop = m.Property.objects.get(display_id=json_statement['property'])
+
+                for snak in json_statement['statements']:
+                    json_snaktype = snak['mainSnak']['type']
+                    json_value = snak['mainSnak']['value']
+
+                    mainsnak = m.PropertySnak(property=prop)
+                    print(f"snak {snak}")
+                    if json_snaktype == 'Item':
+                        if snak['mainSnak']['value']['item']['tokenId'] in unknown_entities:
+                            mainsnak.type = m.PropertySnak.Type.SOME_VALUE
+                        else:
+                            mainsnak.type = m.PropertySnak.Type.VALUE
+                            mainsnak.value = items[snak['mainSnak']['value']['item']['tokenId']]
+                    else:
+                        mainsnak.type = m.PropertySnak.Type.VALUE
+                        mainsnak.value = json_to_python(json_snaktype, json_value)
+                    mainsnak.save()
+                    statement = m.Statement(subject=item, mainsnak=mainsnak, rank=0)
+                    statement.save()
+
+                    for json_qualifier in snak['qualifiers']:
+                        prop = m.Property.objects.get(display_id=json_qualifier['property'])
+                        json_qsnak = json_qualifier['snak']
+                        json_snaktype = json_qsnak['type']
+                        qsnak = m.PropertySnak(property=prop)
+                        if json_snaktype == 'Item' and json_qsnak['value']['item']['tokenId'] in unknown_entities:
+                            qsnak.type = m.PropertySnak.Type.SOME_VALUE
+                        else:
+                            qsnak.type = m.PropertySnak.Type.VALUE
+                            qsnak.value = json_to_python(json_snaktype, json_qsnak['value'])
+                        qsnak.save()
+                        qualifier = m.Qualifier(statement=statement, snak=qsnak)
+                        qualifier.save()
+
+
+                    for json_record in snak['referenceRecords']:
+                        record = m.ReferenceRecord(statement=statement)
+                        record.save()
+
+                        for json_reference in json_record:
+                            prop = m.Property.objects.get(display_id=json_reference['property'])
+                            json_rsnak = json_reference['snak']
+                            json_snaktype = json_rsnak['type']
+                            rsnak = m.PropertySnak(property=prop)
+                            if json_snaktype == 'Item' and json_value['value']['item']['tokenId'] in unknown_entities:
+                                rsnak.type = m.PropertySnak.Type.SOME_VALUE
+                            else:
+                                rsnak.type = m.PropertySnak.Type.VALUE
+                                rsnak.value = json_to_python(json_snaktype, json_rsnak['value'])
+                            rsnak.save()
+                            reference = m.ReferenceSnak(reference=record, snak=rsnak)
+                            reference.save()
+
+        return JsonResponse({'message': "ok"})

@@ -14,7 +14,7 @@ def get_instances_of(item):
 class DocumentTextForm(forms.Form):
     language = forms.ChoiceField(label=_('document.text_language'),
                                  choices=(('la', 'Latin'), ('grc', 'Ancient greek')))
-    text = forms.CharField(widget=forms.Textarea(attrs={'class': 'annotator-text-field', }), label=_('document.text'))
+    text = forms.CharField(widget=forms.Textarea(attrs={'class': 'annotator-text-area', }), label=_('document.text'))
 
 
 class DocumentMetadataForm(forms.Form):
