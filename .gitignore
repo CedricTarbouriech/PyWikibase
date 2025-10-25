@@ -3,3 +3,4 @@
 /locale/en/LC_MESSAGES/django.mo
 /locale/fr/LC_MESSAGES/django.mo
 /db.sqlite3
+/static/
