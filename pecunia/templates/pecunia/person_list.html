@@ -5,7 +5,7 @@
     <h1>{% trans "form.person.list_title" %}</h1>
 
     {% if user.is_authenticated %}
-        <a class="button" href='{% url "person_create" %}'>{% trans "form.person.new" %}</a>
+        <a class="button" href='{% url "item_create" %}'>{% trans "form.person.new" %}</a> {# FIXME Adapter pour créer une personne #}
     {% endif %}
     <table>
         <tr>
@@ -19,9 +19,9 @@
                 <td>{{ item|label:LANGUAGE_CODE }}</td>
                 <td>{{ item|description:LANGUAGE_CODE }}</td>
                 <td>
-                    <a class="button" href='{% url "person_display" item.id %}'>{% trans "global.see" %}</a>
-                    <a class="button" href='{% url "person_update" item.id %}'>{% trans "global.edit" %}</a>
-                    <a class="button" href='{% url "person_delete" item.id %}'>{% trans "global.delete" %}</a>
+                    <a class="button" href='{% url "person_display" item.display_id %}'>{% trans "global.see" %}</a>
+                    <a class="button" href='{% url "item_display" item.display_id %}'>{% trans "global.item" %}</a>
+                    <a class="button" href='{% url "item_delete" item.display_id %}'>{% trans "global.delete" %}</a>
                 </td>
             </tr>
         {% endfor %}

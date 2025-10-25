@@ -1,9 +1,0 @@
-{% extends "base.html" %}
-{% load i18n %}
-{% block content %}
-<form method="post">{% csrf_token %}
-    {{ form.as_p }}
-    <input type="submit" value="{% trans "global.save" %}">
-        <a class="button" href="{{ request.META.HTTP_REFERER|escape }}">{% trans "global.cancel" %}</a>
-</form>
-{% endblock %}

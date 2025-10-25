@@ -5,8 +5,8 @@ from .api import PropertyApiView, SearchPropertyApiView, ItemApiView, NewItemApi
     QualifierDeleteApiView
 from .document import DocumentDashboard, DocumentDisplay, DocumentCreation, DocumentUpdateMetadata, \
     DocumentDelete, DocumentUpdateText, AnnotatorApiView
-from .person import PersonDashboard, PersonDisplay, PersonCreation, PersonUpdate, PersonDelete
-from .place import PlaceDashboard, PlaceDisplay, PlaceCreation, PlaceUpdate, PlaceDelete
+from .person import PersonDashboard, PersonDisplay
+from .place import PlaceDashboard, PlaceDisplay
 from .wikibase import InstanceDashboardView, ItemDashboard, ItemCreation, ItemDisplay, ItemUpdateLabelDescription, \
     ItemDelete, PropertyDashboard, PropertyCreation, PropertyDisplay, PropertyUpdateLabelDescription, PropertyDelete
 

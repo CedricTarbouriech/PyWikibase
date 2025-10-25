@@ -11,15 +11,3 @@ class PlaceDashboard(InstanceDashboardView):
 
 class PlaceDisplay(LoginRequiredMixin, TemplateView):
     template_name = 'pecunia/index.html'
-
-
-class PlaceCreation(LoginRequiredMixin, TemplateView):
-    template_name = 'pecunia/index.html'
-
-
-class PlaceUpdate(LoginRequiredMixin, TemplateView):
-    template_name = 'pecunia/index.html'
-
-
-class PlaceDelete(TemplateView):
-    template_name = 'pecunia/index.html'
