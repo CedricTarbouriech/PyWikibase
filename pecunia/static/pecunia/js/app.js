@@ -3,7 +3,7 @@ import Annotator from './annotator.js';
 import Reconciler from './reconcilier.js';
 import SchemaEditor from './schemaEditor.js';
 import {createCollapsible, createDiv} from "./nodeUtil.js";
-import {postAsJson} from "/static/wikibase/js/api.js";
+import {postAsJson} from "./api.js";
 
 class Application {
   constructor(id) {

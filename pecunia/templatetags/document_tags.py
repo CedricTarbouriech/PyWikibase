@@ -4,8 +4,8 @@ from django import template
 from django.core.exceptions import ObjectDoesNotExist
 from django.utils.safestring import mark_safe
 
-import wikibase.models as m
-from wikibase.models import PropertyMapping
+import pecunia.models as m
+from pecunia.models import PropertyMapping
 
 register = template.Library()
 

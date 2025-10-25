@@ -1,5 +1,5 @@
-import {debounce} from "./util.js";
-import {getAsJson} from '/static/wikibase/js/api.js';
+import {debounce} from "./util2.js";
+import {getAsJson} from './api.js';
 import {createDiv} from "./nodeUtil.js";
 
 export class Selector {

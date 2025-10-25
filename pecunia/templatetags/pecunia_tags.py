@@ -8,8 +8,8 @@ from django.utils.safestring import mark_safe
 from django.utils.translation import gettext_lazy, get_language
 from lxml import etree
 
-import wikibase.models as m
-from wikibase.models import PropertyMapping, PropertySnak
+import pecunia.models as m
+from pecunia.models import PropertyMapping, PropertySnak
 
 register = template.Library()
 

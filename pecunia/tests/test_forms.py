@@ -2,7 +2,7 @@ from http import HTTPStatus
 
 from django.test import TestCase
 from django.urls import reverse
-from wikibase.models import Item, Property, PropertyMapping, ItemMapping, Datatype
+from pecunia.models import Item, Property, PropertyMapping, ItemMapping, Datatype
 from pecunia.models import Document
 
 

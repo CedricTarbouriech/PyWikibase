@@ -1,7 +1,7 @@
 import {SingleDropZone} from "./dragAndDrop.js";
 import {createButton, createDiv, createInput} from "./nodeUtil.js";
 import {Selector} from "./selector.js";
-import {getAsJson} from "/static/wikibase/js/api.js";
+import {getAsJson} from "./api.js";
 
 class Term {
   constructor() {
