@@ -69,7 +69,8 @@ class PropertyLabelDescriptionForm(forms.Form):
                                  ("QuantityValue", 'Quantity'),
                                  ("TimeValue", 'Time'),
                                  ("GlobeCoordinatesValue", 'Globe coordinates'),
-                                 ("MonolingualTextValue", 'Monolingual string')
+                                 ("MonolingualTextValue", 'Monolingual string'),
+                                 ("UserValue", 'User')
                              ))
 
     def __init__(self, *args, **kwargs):
