@@ -9,12 +9,11 @@ from django.urls import reverse, reverse_lazy
 from django.views import View
 from django.views.generic import TemplateView, FormView
 
-from pecunia.forms import DocumentMetadataForm, DocumentTextForm
-from pecunia.models import Document
 import pecunia.models as m
-from pecunia.models import PropertyMapping
-from .wikibase import InstanceDashboardView
+from pecunia.forms import DocumentMetadataForm, DocumentTextForm
+from pecunia.models import Document, PropertyMapping
 from .api import json_to_python
+from .wikibase import InstanceDashboardView
 
 
 class DocumentDashboard(InstanceDashboardView):
@@ -231,7 +230,6 @@ class AnnotatorApiView(LoginRequiredMixin, View):
                         qsnak.save()
                         qualifier = m.Qualifier(statement=statement, snak=qsnak)
                         qualifier.save()
-
 
                     for json_record in snak['referenceRecords']:
                         record = m.ReferenceRecord(statement=statement)
