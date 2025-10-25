@@ -339,7 +339,7 @@ class ModelDashboardView(TemplateView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        items = self.model.objects.all()
+        items = self.model.objects.all().order_by('display_id')
         paginator = Paginator(items, self.request.GET.get("limit") or DEFAULT_PAGINATOR_LIMIT)
 
         page_number = self.request.GET.get("page")
