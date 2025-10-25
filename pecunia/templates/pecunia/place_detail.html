@@ -5,13 +5,13 @@
     <div style="margin: -1em 1em 2em;">
 
         {% if user.is_authenticated %}
-            <a href='{% url "place_update" place.id %}'>{% trans "global.edit" %}</a> -
+            <a href='{% url "item_display" place.display_id %}'>{% trans "global.edit" %}</a> -
         {% endif %}
         <a href="{% url "place_list" %}">{% trans "global.back" %}</a>
     </div>
     <div style="margin: -1em 1em 2em; ">
         <div style="border: solid 1px gray; border-radius: 5px; width:500px; padding:5px">
-            http://pecunia.huma-num.fr/places/{{ place.id }}
+            http://pecunia.huma-num.fr/place/{{ place.display_id }}
         </div>
         <br/>
         <div>Type: {{ place.get_type_display }}</div>

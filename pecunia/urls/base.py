@@ -32,7 +32,7 @@ urlpatterns = [
     path("person/", views.PersonDashboard.as_view(), name="person_list"),
     path("person/<int:display_id>/", views.PersonDisplay.as_view(), name="person_display"),
     path("place/", views.PlaceDashboard.as_view(), name="place_list"),
-    path("place/<int:pk>/", views.PlaceDisplay.as_view(), name="place_display"),
+    path("place/<int:display_id>/", views.PlaceDisplay.as_view(), name="place_display"),
     #
     # path("process/", views.ProcessDashboard.as_view(), name="process_list"),
     # path("vocabulary/", views.VocabularyDashboard.as_view(), name="vocabulary_list"),
