@@ -1,7 +1,7 @@
 from django.core import exceptions
 from django.core.exceptions import ValidationError
 from django.db import models
-
+from django.contrib.auth.models import User
 from .base import Value, Item, Property, DescribedEntity, Entity
 
 
@@ -42,6 +42,8 @@ class Datatype(Entity):
             return GlobeCoordinatesValue
         if self.class_name == 'MonolingualTextValue':
             return MonolingualTextValue
+        if self.class_name == 'UserValue':
+            return UserValue
         raise UnknownDatatypeException(self.class_name)
 
     def __str__(self):
@@ -119,6 +121,9 @@ class MonolingualTextValue(DataValue):
 
     def __str__(self):
         return f'({self.language}) {self.text}'
+
+class UserValue(DataValue):
+    user = models.ForeignKey(User, on_delete=models.PROTECT)
 
 
 class Label(MonolingualTextValue):
