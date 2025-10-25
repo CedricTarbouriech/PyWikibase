@@ -2,7 +2,7 @@ from adminsortable2.admin import SortableInlineAdminMixin, SortableAdminBase
 from django import forms
 from django.contrib import admin
 
-from .models import PropertyMapping, Datatype, Property, ItemMapping, Item, ItemProperty
+from .models import PropertyMapping, Datatype, Property, ItemMapping, Item, PropertyOrderPreference
 
 
 class ItemMappingForm(forms.ModelForm):
@@ -64,7 +64,7 @@ class ItemPropertyAdminProxy(Item):
 
 
 class ItemPropertyInline(SortableInlineAdminMixin, admin.TabularInline):
-    model = ItemProperty
+    model = PropertyOrderPreference
     extra = 1
     fields = ('prop', 'ordering')
     verbose_name = "Propriété de l’Item"

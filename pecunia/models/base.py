@@ -232,7 +232,7 @@ class Qualifier(models.Model):
     statement = models.ForeignKey(Statement, on_delete=models.CASCADE, related_name='qualifiers')
     snak = models.ForeignKey(PropertySnak, on_delete=models.CASCADE)
 
-class ItemProperty(models.Model):
+class PropertyOrderPreference(models.Model):
     item = models.ForeignKey(Item, on_delete=models.CASCADE)
     prop = models.ForeignKey(Property, on_delete=models.CASCADE)
     ordering = models.PositiveIntegerField(default=0)
