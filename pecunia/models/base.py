@@ -231,3 +231,15 @@ class ReferenceSnak(models.Model):
 class Qualifier(models.Model):
     statement = models.ForeignKey(Statement, on_delete=models.CASCADE, related_name='qualifiers')
     snak = models.ForeignKey(PropertySnak, on_delete=models.CASCADE)
+
+class ItemProperty(models.Model):
+    item = models.ForeignKey(Item, on_delete=models.CASCADE)
+    prop = models.ForeignKey(Property, on_delete=models.CASCADE)
+    ordering = models.PositiveIntegerField(default=0)
+
+    class Meta:
+        ordering=['ordering']
+        unique_together = ('item', 'prop')
+
+    def __str__(self):
+        return f"{self.item} - {self.prop} ({self.ordering})"

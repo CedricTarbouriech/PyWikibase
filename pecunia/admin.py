@@ -1,7 +1,8 @@
+from adminsortable2.admin import SortableInlineAdminMixin, SortableAdminBase
 from django import forms
 from django.contrib import admin
 
-from .models import PropertyMapping, Datatype, Property, ItemMapping, Item
+from .models import PropertyMapping, Datatype, Property, ItemMapping, Item, ItemProperty
 
 
 class ItemMappingForm(forms.ModelForm):
@@ -53,3 +54,40 @@ class ItemMappingAdmin(admin.ModelAdmin):
 
 
 admin.site.register(Datatype)
+
+
+class ItemPropertyAdminProxy(Item):
+    class Meta:
+        proxy = True
+        verbose_name = "Property order list"
+        verbose_name_plural = "Property order lists"
+
+
+class ItemPropertyInline(SortableInlineAdminMixin, admin.TabularInline):
+    model = ItemProperty
+    extra = 1
+    fields = ('prop', 'ordering')
+    verbose_name = "Propriété de l’Item"
+    verbose_name_plural = "Propriétés de l’Item"
+
+
+@admin.register(ItemPropertyAdminProxy)
+class ItemAdmin(SortableAdminBase, admin.ModelAdmin):
+    inlines = [ItemPropertyInline]
+    ordering = ['display_id']
+    list_display = ('display_name',)
+
+    def get_queryset(self, request):
+        qs = super().get_queryset(request)
+        # Ne garder que les Items ayant au moins une ItemProperty
+        return qs.filter(itemproperty__isnull=False).distinct()
+
+    def display_name(self, obj):
+        return str(obj)
+
+    display_name.short_description = "Item"
+
+    def changeform_view(self, request, object_id=None, form_url='', extra_context=None):
+        extra_context = extra_context or {}
+        extra_context['title'] = "Gestion des Propriétés de l’Item"
+        return super().changeform_view(request, object_id, form_url, extra_context)
