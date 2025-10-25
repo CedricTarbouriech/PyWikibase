@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2025-08-29 08:45+0200\n"
+"POT-Creation-Date: 2025-10-22 10:38+0200\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -18,79 +18,83 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
 
-#: .\pecunia\forms.py:14
+#: .\pecunia\forms.py:15
+msgid "document.text_language"
+msgstr "Text Language"
+
+#: .\pecunia\forms.py:17
 msgid "document.text"
 msgstr "Text"
 
-#: .\pecunia\forms.py:17
-msgid "document.title"
-msgstr "Title"
-
-#: .\pecunia\forms.py:18
+#: .\pecunia\forms.py:21
 msgid "document.title_language"
 msgstr "Title Language"
 
-#: .\pecunia\forms.py:20
+#: .\pecunia\forms.py:23
+msgid "document.title"
+msgstr "Title"
+
+#: .\pecunia\forms.py:24
 msgid "document.type"
 msgstr "Type"
 
-#: .\pecunia\forms.py:21
+#: .\pecunia\forms.py:25
 msgid "document.author"
 msgstr "Author"
 
-#: .\pecunia\forms.py:22
+#: .\pecunia\forms.py:26
 msgid "document.author_function"
 msgstr "Author’s function"
 
-#: .\pecunia\forms.py:26
+#: .\pecunia\forms.py:29
 msgid "document.place"
 msgstr "Place"
 
-#: .\pecunia\forms.py:43
+#: .\pecunia\forms.py:46
 msgid "person.name"
 msgstr "Name"
 
-#: .\pecunia\forms.py:44
+#: .\pecunia\forms.py:47
 msgid "person.function"
 msgstr "Function"
 
-#: .\pecunia\templates\base.html:25
+#: .\pecunia\templates\base.html:26
 msgid "nav.home"
 msgstr "Home"
 
-#: .\pecunia\templates\base.html:26
+#: .\pecunia\templates\base.html:27
 msgid "nav.document"
 msgstr "Documents"
 
-#: .\pecunia\templates\base.html:27
+#: .\pecunia\templates\base.html:28
 msgid "nav.person"
 msgstr "Person"
 
-#: .\pecunia\templates\base.html:28
+#: .\pecunia\templates\base.html:29
 msgid "nav.place"
 msgstr "Place"
 
-#: .\pecunia\templates\base.html:29
+#: .\pecunia\templates\base.html:30
 msgid "nav.item"
 msgstr "Items"
 
-#: .\pecunia\templates\base.html:30
+#: .\pecunia\templates\base.html:31
 msgid "nav.property"
 msgstr "Properties"
 
-#: .\pecunia\templates\base.html:39
+#: .\pecunia\templates\base.html:40
 msgid "nav.language.submit"
 msgstr "Switch"
 
-#: .\pecunia\templates\base.html:44
+#: .\pecunia\templates\base.html:45
 msgid "nav.logout"
 msgstr "Log out"
 
-#: .\pecunia\templates\base.html:47
+#: .\pecunia\templates\base.html:48
 msgid "nav.login"
 msgstr "Log in"
 
-#: .\pecunia\templates\pecunia\document_annotator.html:18
+#: .\pecunia\templates\pecunia\document_annotator.html:14
 #: .\pecunia\templates\pecunia\document_form.html:6
 #: .\pecunia\templates\pecunia\person_form.html:6
 #: .\pecunia\templates\pecunia\place_form.html:6
@@ -101,7 +105,17 @@ msgstr "Log in"
 msgid "global.save"
 msgstr "Save"
 
-#: .\pecunia\templates\pecunia\document_annotator.html:19
+#: .\pecunia\templates\pecunia\document_detail.html:12
+#: .\pecunia\templates\pecunia\document_list.html:34
+msgid "document.edit.text"
+msgstr "Edit text"
+
+#: .\pecunia\templates\pecunia\document_detail.html:14
+#: .\pecunia\templates\pecunia\person_detail.html:7
+#: .\pecunia\templates\pecunia\place_detail.html:10
+msgid "global.back"
+msgstr "Back"
+
 #: .\pecunia\templates\pecunia\document_form.html:7
 #: .\pecunia\templates\pecunia\person_form.html:7
 #: .\pecunia\templates\pecunia\place_form.html:7
@@ -112,22 +126,6 @@ msgstr "Save"
 #: .\wikibase\templates\wikibase\property_update_labeldescription.html:7
 msgid "global.cancel"
 msgstr "Cancel"
-
-#: .\pecunia\templates\pecunia\document_detail.html:10
-#: .\pecunia\templates\pecunia\document_list.html:26
-msgid "document.edit.metadata"
-msgstr "Edit metadata"
-
-#: .\pecunia\templates\pecunia\document_detail.html:12
-#: .\pecunia\templates\pecunia\document_list.html:29
-msgid "document.edit.text"
-msgstr "Edit text"
-
-#: .\pecunia\templates\pecunia\document_detail.html:14
-#: .\pecunia\templates\pecunia\person_detail.html:7
-#: .\pecunia\templates\pecunia\place_detail.html:10
-msgid "global.back"
-msgstr "Back"
 
 #: .\pecunia\templates\pecunia\document_list.html:6
 msgid "form.document.list_title"
@@ -146,6 +144,18 @@ msgid "form.document.description"
 msgstr "Description"
 
 #: .\pecunia\templates\pecunia\document_list.html:14
+msgid "form.document.date"
+msgstr "Date"
+
+#: .\pecunia\templates\pecunia\document_list.html:15
+msgid "form.document.place"
+msgstr "Place"
+
+#: .\pecunia\templates\pecunia\document_list.html:16
+msgid "form.document.main_editions"
+msgstr "Main editions"
+
+#: .\pecunia\templates\pecunia\document_list.html:17
 #: .\pecunia\templates\pecunia\person_list.html:14
 #: .\pecunia\templates\pecunia\place_list.html:11
 #: .\wikibase\templates\wikibase\item_detail.html:17
@@ -155,18 +165,22 @@ msgstr "Description"
 msgid "global.action"
 msgstr "Actions"
 
-#: .\pecunia\templates\pecunia\document_list.html:22
+#: .\pecunia\templates\pecunia\document_list.html:28
 #: .\pecunia\templates\pecunia\person_list.html:22
 #: .\wikibase\templates\wikibase\item_list.html:26
 #: .\wikibase\templates\wikibase\property_list.html:27
 msgid "global.see"
 msgstr "See"
 
-#: .\pecunia\templates\pecunia\document_list.html:32
+#: .\pecunia\templates\pecunia\document_list.html:31
+msgid "global.item"
+msgstr "Item"
+
+#: .\pecunia\templates\pecunia\document_list.html:37
 #: .\pecunia\templates\pecunia\person_list.html:24
 #: .\wikibase\templates\wikibase\item_list.html:29
 #: .\wikibase\templates\wikibase\property_list.html:31
-#: .\wikibase\templates\wikibase\widgets\property_table.html:62
+#: .\wikibase\templates\wikibase\widgets\property_table.html:40
 msgid "global.delete"
 msgstr "Delete"
 
@@ -181,7 +195,7 @@ msgstr "Welcome to Pecunia Project Home page!"
 #: .\wikibase\templates\wikibase\item_detail.html:39
 #: .\wikibase\templates\wikibase\property_detail.html:31
 #: .\wikibase\templates\wikibase\property_detail.html:43
-#: .\wikibase\templates\wikibase\widgets\property_table.html:61
+#: .\wikibase\templates\wikibase\widgets\property_table.html:39
 msgid "global.edit"
 msgstr "Edit"
 
@@ -287,13 +301,16 @@ msgstr "Property list"
 msgid "form.property.new"
 msgstr "Create a new property"
 
-#: .\wikibase\templates\wikibase\widgets\property_table.html:40
+#: .\wikibase\templates\wikibase\widgets\property_table.html:50
+msgid "global.statement_value.new"
+msgstr "Add new value"
+
+#: .\wikibase\templates\wikibase\widgets\qualifiers_table.html:26
 msgid "form.qualifier.new"
 msgstr "Add a qualifier"
 
-#: .\wikibase\templates\wikibase\widgets\property_table.html:71
-msgid "global.statement_value.new"
-msgstr "Add new value"
+#~ msgid "document.edit.metadata"
+#~ msgstr "Edit metadata"
 
 #~ msgid "document.date"
 #~ msgstr "Date"

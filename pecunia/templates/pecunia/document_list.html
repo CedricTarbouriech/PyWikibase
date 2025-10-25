@@ -11,20 +11,25 @@
         <tr>
             <th>{% trans "form.document.title" %}</th>
             <th>{% trans "form.document.description" %}</th>
+            <th>{% trans "form.document.date" %}</th>
+            <th>{% trans "form.document.place" %}</th>
+            <th>{% trans "form.document.main_editions" %}</th>
             <th>{% trans "global.action" %}</th>
         </tr>
         {% for item in items %}
             <tr>
                 <td>{{ item|label:LANGUAGE_CODE }}</td>
                 <td>{{ item|description:LANGUAGE_CODE }}</td>
+                <td>{{ item|prop:"date" |html}}</td>
+                <td>{{item|prop:"provenance"|html}}</td>
+                <td>{{item|prop:"main_edition"|html}}</td>
                 <td>
                     <a class="button" disabled="true"
                        href='{% url "document_display" item.display_id %}'>{% trans "global.see" %}</a>
 
+                    <a class="button" disabled="true"
+                       href='{% url "item_display" item.display_id %}'>{% trans "global.item" %}</a>
                     {% if user.is_authenticated %}
-                        <a class="button" href='{% url "document_update_metadata" item.display_id %}'>
-                            {% trans "document.edit.metadata" %}
-                        </a>
                         <a class="button" href='{% url "document_update_text" item.display_id %}'>
                             {% trans "document.edit.text" %}
                         </a>

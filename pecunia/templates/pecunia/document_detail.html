@@ -7,10 +7,9 @@
     <h1>🗎&nbsp;{{ document|prop:'title'|html }}</h1>
     <div style="margin: -1em 1em 2em;">
         {% if user.is_authenticated %}
-            <a href='{% url "document_update_metadata" document.display_id %}'>{% trans "document.edit.metadata" %}</a>
-            -
             <a href='{% url "document_update_text" document.display_id %}'>{% trans "document.edit.text" %}</a> -
         {% endif %}
+        <a href="{% url "item_display" document.display_id %}">{% trans "global.item" %}</a> - 
         <a href="{% url "document_list" %}">{% trans "global.back" %}</a>
     </div>
     <div style="margin: -1em 1em 2em; ">
@@ -27,13 +26,13 @@
         <div>{{ document|prop_label:'provenance'|capitalize }}: {{ document|prop:'provenance'|html }}</div>
         {% if document|has_prop:'text' %}
             <br/>
-            <div>{{ document|prop_label:'language'|capitalize }}: {{ document|prop_mtv_langage:'text'|html }}</div>
+            <div>{{ document|prop_label:'language'|capitalize }}: {{ document|prop:'language'|html }}</div>
             <div {% if document.translation %}style="display: grid; grid-template-columns: auto auto;"{% endif %}>
                 <div class="text-wrapper">
-                    <div class="line-numbers">
-                        {{ document|line_numbers }}
-                    </div>
-                    <article>{{ document|prop_mtv_value:'text'|highlight_words }}</article>
+{#                    FIXME <div class="line-numbers">#}
+{#                        {{ document|line_numbers }}#}
+{#                    </div>#}
+                    <article>{{ document|prop:'text'|html  }}</article>{# FIXME |highlight_words #}
                 </div>
                 {% if document.translation %}
                     <article>{{ document|prop_mtv_value:'translation' }}</article>
