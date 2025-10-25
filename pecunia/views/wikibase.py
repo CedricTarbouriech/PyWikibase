@@ -59,10 +59,6 @@ class ItemDashboard(ModelDashboardView):
     model = m.Item
 
 
-# TODO Rendre paramétrable
-
-
-
 class ItemDisplay(TemplateView):
     template_name = 'wikibase/item_detail.html'
 
