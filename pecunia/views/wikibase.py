@@ -75,16 +75,30 @@ class ItemDisplay(TemplateView):
         props = set()
         for statement_prop in item.statements.all():
             props.add(statement_prop.mainsnak.property)
-        prop_order = {
-            PropertyMapping.get('is_a'): -1
-        }
+
         statements = []
         for prop in props:
             values = []
             for statement in item.statements.filter(mainsnak__property=prop):
                 values.append(statement)
             statements.append((prop, values))
-        context['statements'] = sorted(statements, key=lambda x: prop_order.get(x[0], 0))
+
+        prop_is_a = m.PropertyMapping.get('is_a')
+        is_a_statements = list(filter(lambda s: s[0] == prop_is_a, statements))[0][1]
+
+        prop_order = {
+            PropertyMapping.get('is_a'): -1
+        }
+        if is_a_statements:
+            non_empty_statements = list(filter(lambda s: s.mainsnak.type == m.PropertySnak.Type.VALUE, is_a_statements))
+            if non_empty_statements:
+                nature = non_empty_statements[0].mainsnak.value
+                prefs = m.PropertyOrderPreference.objects.filter(item=nature)
+                for pref in prefs:
+                    prop_order[pref.prop] = pref.ordering
+        print(prop_order)
+        max_value = max(prop_order.values()) + 1
+        context['statements'] = sorted(statements, key=lambda x: prop_order.get(x[0], max_value))
 
         matching_statements = m.Statement.objects.filter(mainsnak__value=item)
         field_name = "subject__describedentity__item__display_id"
