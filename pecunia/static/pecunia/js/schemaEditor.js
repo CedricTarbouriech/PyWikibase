@@ -241,7 +241,7 @@ class Reference {
 
     this._node.addEventListener('propertyselected', async event => {
       event.stopPropagation();
-      const data = await getAsJson(`/api/property/${this.propertySelector.elementId}`, `Erreur de chargement des informations sur la propriété ${this.propertySelector.elementId}.`);
+      const data = await getAsJson(`/api/properties/${this.propertySelector.elementId}`, `Erreur de chargement des informations sur la propriété ${this.propertySelector.elementId}.`);
       this.snak = createSnakFromDatatype(data.type, env);
       this._node.append(this.snak.node);
     });
@@ -301,7 +301,7 @@ class Qualifier {
 
     this._node.addEventListener('propertyselected', async event => {
       event.stopPropagation();
-      const data = await getAsJson(`/api/property/${this.propertySelector.elementId}`, `Erreur de chargement des informations sur la propriété ${this.propertySelector.elementId}.`);
+      const data = await getAsJson(`/api/properties/${this.propertySelector.elementId}`, `Erreur de chargement des informations sur la propriété ${this.propertySelector.elementId}.`);
       this.snak = createSnakFromDatatype(data.type, env);
       this._node.append(this.snak.node);
     });
@@ -418,7 +418,7 @@ class StatementGroup {
     this._node.addEventListener('propertyselected', async _ => {
       this.statements.forEach(statement => statement.node.remove());
       this.statements = [];
-      const data = await getAsJson(`/api/property/${this.propertySelector.elementId}`, `Erreur de chargement des informations sur la propriété ${this.propertySelector.elementId}.`);
+      const data = await getAsJson(`/api/properties/${this.propertySelector.elementId}`, `Erreur de chargement des informations sur la propriété ${this.propertySelector.elementId}.`);
       this.datatype = data.type;
       // TODO Refresh au changement de propriété
       createStatement(this.datatype, env);

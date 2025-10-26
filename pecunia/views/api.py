@@ -10,24 +10,6 @@ import pecunia.models as m
 from pecunia.models import ItemMapping, PropertyMapping, PropertySnak
 
 
-class PropertyApiView(View):
-    def get(self, request, prop_id=None):
-        if prop_id:
-            prop = m.Property.objects.get(display_id=prop_id)
-            return JsonResponse({
-                'type': prop.data_type.class_name,
-                'labels': {mlt.language: mlt.text for mlt in prop.labels.all()}
-            })
-        else:
-            properties = {}
-            for prop in m.Property.objects.all():
-                properties[prop.display_id] = {
-                    'type': prop.data_type.class_name,
-                    'labels': {mlt.language: mlt.text for mlt in prop.labels.all()}
-                }
-            return JsonResponse(properties)
-
-
 class SearchApiView(View):
     result_class = None
 

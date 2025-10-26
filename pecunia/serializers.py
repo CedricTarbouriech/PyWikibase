@@ -12,6 +12,7 @@ class PrefixedByLanguageField(serializers.ListSerializer):
             grouped[item['language']] = item['text']
         return grouped
 
+
 class LabelSerializer(serializers.ModelSerializer):
     class Meta:
         model = Label
@@ -27,9 +28,10 @@ class ItemSerializer(serializers.ModelSerializer):
         fields = ['display_id', 'labels']
 
     def __init__(self, *args, **kwargs):
-        super().__init__(args, **kwargs)
+        super().__init__(*args, **kwargs)
         request = self.context.get('request')
-        if not request:
+
+        if not request or self.context.get('view').action == 'retrieve':
             return
 
         fields_param = request.query_params.get('fields', '')
@@ -38,7 +40,28 @@ class ItemSerializer(serializers.ModelSerializer):
         if 'labels' not in fields:
             self.fields.pop('labels', None)
 
+
 class PropertySerializer(serializers.ModelSerializer):
+    type = serializers.SlugRelatedField(
+        read_only=True,
+        slug_field='class_name',
+        source='data_type'
+    )
+    labels = LabelSerializer(many=True, required=False, default=list(), read_only=True)
+
     class Meta:
         model = Property
-        fields = ['display_id', 'data_type']
+        fields = ['display_id', 'type', 'labels']
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        request = self.context.get('request')
+
+        if not request or self.context.get('view').action == 'retrieve':
+            return
+
+        fields_param = request.query_params.get('fields', '')
+        fields = fields_param.split(',') if fields_param else []
+
+        if 'labels' not in fields:
+            self.fields.pop('labels', None)

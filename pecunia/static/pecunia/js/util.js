@@ -47,7 +47,7 @@ export function updateDivWithNewStatement(updatedHtml, snakDiv) {
  * @returns {Promise<HTMLElement>}
  */
 export async function createPropertySelector(langCode) {
-  const data = await getAsJson('/api/properties', 'Erreur de chargement des propriétés');
+  const data = await getAsJson('/api/properties/?fields=labels', 'Erreur de chargement des propriétés');
 
   const propertySelector = generateElement('<select><option value="" disabled selected>-- Select a property --</option></select>');
   Object.entries(data).forEach(([key, value]) => {

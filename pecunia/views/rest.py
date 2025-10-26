@@ -14,3 +14,4 @@ class PropertyViewSet(viewsets.ModelViewSet):
     queryset = Property.objects.all().order_by('display_id')
     serializer_class = PropertySerializer
     permission_classes = [permissions.IsAuthenticated]
+    lookup_field = 'display_id'

@@ -36,7 +36,7 @@ export async function postAsJson(url, errorMessage, data) {
 }
 
 export async function fetchPropertyDataType(propertyId) {
-  const data = await getAsJson(`/api/property/${propertyId}`, `Impossible de charger les données de la propriété ${propertyId}.`);
+  const data = await getAsJson(`/api/properties/${propertyId}`, `Impossible de charger les données de la propriété ${propertyId}.`);
   return data.type;
 }
 
