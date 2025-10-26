@@ -7,7 +7,7 @@ from django.template.loader import render_to_string
 from django.views.generic import View
 
 import pecunia.models as m
-from pecunia.models import ItemMapping, PropertyMapping, PropertySnak
+from pecunia.models import ItemMapping, PropertySnak
 
 
 class SearchApiView(View):
@@ -29,31 +29,6 @@ class SearchItemApiView(View):
 
 class SearchPropertyApiView(View):
     result_class = m.Property
-
-
-class NewItemApiView(LoginRequiredMixin, View):
-    def post(self, request, *args, **kwargs):
-        with transaction.atomic():
-            item = m.Item.objects.create()
-            post_data = json.loads(request.body.decode('utf-8'))
-            if post_data:
-                for statement in post_data['statements']:
-                    prop = None
-                    value = None
-                    if isinstance(statement['property'], str):
-                        prop = PropertyMapping.get(statement['property'])
-                    elif isinstance(statement['property'], int):
-                        prop = m.Property.objects.get(display_id=statement['property'])
-                    if isinstance(statement['value'], str):
-                        value = ItemMapping.get(statement['value'])
-                    elif isinstance(statement['value'], int):
-                        value = m.Item.objects.get(display_id=statement['value'])
-
-                    snak = m.PropertySnak(property=prop, value=value, type=0)
-                    snak.save()
-                    statement = m.Statement(subject=item, mainsnak=snak, rank=0)
-                    statement.save()
-        return JsonResponse({'display_id': item.display_id})
 
 
 class QualifierAddApiView(LoginRequiredMixin, View):
