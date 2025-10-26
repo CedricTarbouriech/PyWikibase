@@ -1,3 +1,5 @@
+import sys
+
 from django.db import migrations
 
 from pecunia.models import Datatype, Property, Item, PropertyMapping, ItemMapping, PropertySnak, Statement
@@ -175,4 +177,4 @@ class Migration(migrations.Migration):
 
     operations = [
         migrations.RunPython(populate_db),
-    ]
+    ] if 'test' not in sys.argv else [] # The migration is not applied for unit testing.
