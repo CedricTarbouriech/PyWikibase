@@ -69,7 +69,7 @@ const datatypeHandlers = {
      * @returns {Promise<HTMLElement>}
      */
     createInput: async (langCode, defaultValue) => {
-      const data = await getAsJson('/api/items', 'Erreur de chargement des éléments.');
+      const data = await getAsJson('/api/items/?fields=labels', 'Erreur de chargement des éléments.');
 
       let valueInput = generateElement('<select class="value-selector">');
       if (!defaultValue) {

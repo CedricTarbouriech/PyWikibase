@@ -31,7 +31,6 @@ urlpatterns = [
     path("api/properties", views.PropertyApiView.as_view(), name="api_properties"),
     path("api/property/<int:prop_id>", views.PropertyApiView.as_view(), name="api_properties"),
     path("api/property/search/<str:search>", views.SearchPropertyApiView.as_view(), name="api_search_property"),
-    path("api/items", views.ItemApiView.as_view(), name="api_items"),
     path("api/items/new", views.NewItemApiView.as_view(), name="api_new_item"),
     path("api/items/search/<str:search>", views.SearchItemApiView.as_view(), name="api_search_item"),
     path("api/statement/add", views.StatementAddApiView.as_view(), name="api_statement_snak_new"),

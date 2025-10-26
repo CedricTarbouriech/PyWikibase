@@ -1,6 +1,6 @@
 from django.views.generic import TemplateView
 
-from .api import PropertyApiView, SearchPropertyApiView, ItemApiView, NewItemApiView, SearchItemApiView, \
+from .api import PropertyApiView, SearchPropertyApiView, NewItemApiView, SearchItemApiView, \
     StatementAddApiView, StatementUpdateApiView, StatementApiView, StatementDeleteApiView, QualifierAddApiView, \
     QualifierDeleteApiView
 from .document import DocumentDashboard, DocumentDisplay, DocumentCreation, DocumentUpdateMetadata, \
@@ -13,4 +13,3 @@ from .wikibase import InstanceDashboardView, ItemDashboard, ItemCreation, ItemDi
 
 class Home(TemplateView):
     template_name = 'pecunia/index.html'
-

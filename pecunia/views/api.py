@@ -28,14 +28,6 @@ class PropertyApiView(View):
             return JsonResponse(properties)
 
 
-class ItemApiView(View):
-    def get(self, request):
-        items = {}
-        for item in m.Item.objects.all():
-            items[item.display_id] = {'labels': {mlt.language: mlt.text for mlt in item.labels.all()}}
-        return JsonResponse(items)
-
-
 class SearchApiView(View):
     result_class = None
 
