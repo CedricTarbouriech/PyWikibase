@@ -1,8 +1,11 @@
+.item-content {
+    margin: -1em 1em 2em;
+}
 
 .statement-group {
     border: 1px solid grey;
     display: grid;
-    grid-template-columns: 30% 1fr;
+    grid-template-columns: 25% 1fr;
     grid-template-rows: auto auto;
     margin: 10px;
 }

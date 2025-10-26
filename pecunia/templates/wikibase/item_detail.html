@@ -6,7 +6,7 @@
 {% block content %}
     <script type="module" src="{% static "pecunia/js/wikibase.js" %}"></script>
     <h1 data-item-id="{{ item.display_id }}">Item Q{{ item.display_id }}</h1>
-    <div style="margin: -1em 1em 2em; ">
+    <div class="item-content" >
         <table>
             <tr>
                 <th>{% trans "global.language_code" %}</th>
