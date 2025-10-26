@@ -31,7 +31,9 @@ class Document(Item):
 
     @classmethod
     def get_by_id(cls, display_id: int) -> Document:
-        return cls.objects.get(display_id=display_id)
+        return cls.objects.get(display_id=display_id,
+                               statements__mainsnak__property=PropertyMapping.get('is_a'),
+                               statements__mainsnak__value=ItemMapping.get('document'))
 
     def set_title(self, title) -> None:
         self.add_or_set_value(PropertyMapping.get('title'), title)
