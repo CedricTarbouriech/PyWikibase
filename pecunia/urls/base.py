@@ -22,20 +22,8 @@ from .rest import router
 urlpatterns = [
 
     path("", views.Home.as_view(), name="index"),
-    path("document/", views.DocumentDashboard.as_view(), name="document_list"),
-    path("document/new/", views.DocumentCreation.as_view(), name="document_create"),
-    path("document/<int:display_id>/", views.DocumentDisplay.as_view(), name="document_display"),
-    path("document/update/metadata/<int:display_id>/", views.DocumentUpdateMetadata.as_view(),
-         name="document_update_metadata"),
-    path("document/update/text/<int:display_id>/", views.DocumentUpdateText.as_view(), name="document_update_text"),
-    path("document/delete/<int:display_id>/", views.DocumentDelete.as_view(), name="document_delete"),
-    path("person/", views.PersonDashboard.as_view(), name="person_list"),
-    path("person/<int:display_id>/", views.PersonDisplay.as_view(), name="person_display"),
-    path("place/", views.PlaceDashboard.as_view(), name="place_list"),
-    path("place/<int:display_id>/", views.PlaceDisplay.as_view(), name="place_display"),
-    #
-    # path("process/", views.ProcessDashboard.as_view(), name="process_list"),
-    # path("vocabulary/", views.VocabularyDashboard.as_view(), name="vocabulary_list"),
+    path('', include('pecunia.urls.domain')),
+    path('', include('pecunia.urls.wikibase')),
 
     path("api/annotator", views.AnnotatorApiView.as_view(), name="api_annotator"),
 
@@ -52,16 +40,4 @@ urlpatterns = [
     path("api/statement/delete", views.StatementDeleteApiView.as_view(), name="api_statement_delete"),
     path("api/qualifier/add", views.QualifierAddApiView.as_view(), name="api_new_qualifier"),
     path("api/qualifier/delete", views.QualifierDeleteApiView.as_view(), name="api_qualifier_delete"),
-    path("item/", views.ItemDashboard.as_view(), name="item_list"),
-    path("item/new/", views.ItemCreation.as_view(), name="item_create"),
-    path("item/<int:display_id>/", views.ItemDisplay.as_view(), name="item_display"),
-    path("item/updatelabeldescription/<int:display_id>/<str:lang>/",
-         views.ItemUpdateLabelDescription.as_view(), name="item_updatelabeldescription"),
-    path("item/delete/<int:display_id>/", views.ItemDelete.as_view(), name="item_delete"),
-    path("property/", views.PropertyDashboard.as_view(), name="property_list"),
-    path("property/new/", views.PropertyCreation.as_view(), name="property_create"),
-    path("property/<int:display_id>/", views.PropertyDisplay.as_view(), name="property_display"),
-    path("property/update/labeldescription/<int:display_id>/<str:lang>/",
-         views.PropertyUpdateLabelDescription.as_view(), name="property_update_labeldescription"),
-    path("property/delete/<int:display_id>/", views.PropertyDelete.as_view(), name="property_delete"),
 ]
