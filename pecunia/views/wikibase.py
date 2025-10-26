@@ -1,6 +1,7 @@
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.core.exceptions import ObjectDoesNotExist
 from django.core.paginator import Paginator
+from django.db.models import Q
 from django.http import Http404
 from django.shortcuts import redirect
 from django.urls import reverse, reverse_lazy
@@ -68,38 +69,24 @@ class ItemDisplay(TemplateView):
         item = m.Item.objects.get(display_id=self.kwargs['display_id'])
         context['item'] = item
 
-        props = set()
-        for statement_prop in item.statements.all():
-            props.add(statement_prop.mainsnak.property)
+        props = m.Property.objects.filter(using_as_property_snaks__used_in_statement__subject=item).distinct()
+        statements = [(prop, item.statements.filter(mainsnak__property=prop)) for prop in props]
+        prop_order = ({m.PropertyMapping.get('is_a'): -1} |
+                      {pop.prop: pop.ordering
+                       for pop in m.PropertyOrderPreference.objects.filter(
+                          item__using_as_value_snaks__property=m.PropertyMapping.get('is_a'),
+                          item__using_as_value_snaks__used_in_statement__subject=item)}
+                      )
 
-        statements = []
-        for prop in props:
-            values = []
-            for statement in item.statements.filter(mainsnak__property=prop):
-                values.append(statement)
-            statements.append((prop, values))
-
-        prop_is_a = m.PropertyMapping.get('is_a')
-        is_a_statements = list(filter(lambda s: s[0] == prop_is_a, statements))[0][1]
-
-        prop_order = {
-            PropertyMapping.get('is_a'): -1
-        }
-        if is_a_statements:
-            non_empty_statements = list(filter(lambda s: s.mainsnak.type == m.PropertySnak.Type.VALUE, is_a_statements))
-            if non_empty_statements:
-                nature = non_empty_statements[0].mainsnak.value
-                prefs = m.PropertyOrderPreference.objects.filter(item=nature)
-                for pref in prefs:
-                    prop_order[pref.prop] = pref.ordering
-        print(prop_order)
         max_value = max(prop_order.values()) + 1
         context['statements'] = sorted(statements, key=lambda x: prop_order.get(x[0], max_value))
 
-        matching_statements = m.Statement.objects.filter(mainsnak__value=item)
-        field_name = "subject__describedentity__item__display_id"
-        linked_items = matching_statements.values_list(field_name, flat=True).distinct()
-        context['linked_items'] = sorted(linked_items)
+        context['linked_items'] = m.Item.objects.filter(
+            Q(statements__mainsnak__value=item) |
+            Q(statements__qualifiers__snak__value=item) |
+            Q(statements__reference_records__snaks__snak__value=item)
+        ).distinct()
+
         return context
 
 

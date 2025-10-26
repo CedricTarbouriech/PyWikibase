@@ -54,7 +54,7 @@
             <p>This item is used by:</p>
             <ul>
                 {% for linked_item in linked_items %}
-                    <li><a href='{% url 'item_display' linked_item %}'>Q{{ linked_item }}</a></li>
+                    <li><a href='{% url 'item_display' linked_item.display_id %}'>Q{{ linked_item.display_id }}</a></li>
                 {% endfor %}
             </ul>
         {% endif %}
