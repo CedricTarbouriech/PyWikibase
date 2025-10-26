@@ -297,5 +297,33 @@ class Migration(migrations.Migration):
                 'constraints': [],
             },
             bases=('pecunia.item',),
+        ), migrations.CreateModel(
+            name='PropertyOrderPreference',
+            fields=[
+                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
+                ('ordering', models.PositiveIntegerField(default=0)),
+                ('item', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to='pecunia.item')),
+                ('prop', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to='pecunia.property')),
+            ],
+            options={
+                'ordering': ['ordering'],
+            },
+        ),
+        migrations.CreateModel(
+            name='PropertyOrderPreferenceAdminProxy',
+            fields=[
+            ],
+            options={
+                'verbose_name': 'Property order list',
+                'verbose_name_plural': 'Property order lists',
+                'proxy': True,
+                'indexes': [],
+                'constraints': [],
+            },
+            bases=('pecunia.item',),
+        ),
+        migrations.AlterUniqueTogether(
+            name='propertyorderpreference',
+            unique_together={('item', 'prop')},
         ),
     ]

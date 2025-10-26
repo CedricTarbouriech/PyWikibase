@@ -56,7 +56,7 @@ class ItemMappingAdmin(admin.ModelAdmin):
 admin.site.register(Datatype)
 
 
-class ItemPropertyAdminProxy(Item):
+class PropertyOrderPreferenceAdminProxy(Item):
     class Meta:
         proxy = True
         verbose_name = "Property order list"
@@ -71,7 +71,7 @@ class ItemPropertyInline(SortableInlineAdminMixin, admin.TabularInline):
     verbose_name_plural = "Propriétés de l’Item"
 
 
-@admin.register(ItemPropertyAdminProxy)
+@admin.register(PropertyOrderPreferenceAdminProxy)
 class ItemAdmin(SortableAdminBase, admin.ModelAdmin):
     inlines = [ItemPropertyInline]
     ordering = ['display_id']
