@@ -2,7 +2,7 @@ from collections import defaultdict
 
 from rest_framework import serializers
 
-from .models import Item, Property, Label
+from .models import Item, Property, Label, Description
 
 
 class PrefixedByLanguageField(serializers.ListSerializer):
@@ -20,12 +20,19 @@ class LabelSerializer(serializers.ModelSerializer):
         list_serializer_class = PrefixedByLanguageField
 
 
+class DescriptionSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Description
+        fields = ['language', 'text']
+        list_serializer_class = PrefixedByLanguageField
+
 class ItemSerializer(serializers.ModelSerializer):
     labels = LabelSerializer(many=True, required=False, default=list(), read_only=True)
+    descriptions = DescriptionSerializer(many=True, required=False, default=list(), read_only=True)
 
     class Meta:
         model = Item
-        fields = ['display_id', 'labels']
+        fields = ['display_id', 'labels', 'descriptions']
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -39,6 +46,9 @@ class ItemSerializer(serializers.ModelSerializer):
 
         if 'labels' not in fields:
             self.fields.pop('labels', None)
+
+        if 'descriptions' not in fields:
+            self.fields.pop('descriptions', None)
 
 
 class PropertySerializer(serializers.ModelSerializer):
@@ -48,10 +58,11 @@ class PropertySerializer(serializers.ModelSerializer):
         source='data_type'
     )
     labels = LabelSerializer(many=True, required=False, default=list(), read_only=True)
+    descriptions = DescriptionSerializer(many=True, required=False, default=list(), read_only=True)
 
     class Meta:
         model = Property
-        fields = ['display_id', 'type', 'labels']
+        fields = ['display_id', 'type', 'labels', 'descriptions']
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -65,3 +76,6 @@ class PropertySerializer(serializers.ModelSerializer):
 
         if 'labels' not in fields:
             self.fields.pop('labels', None)
+
+        if 'descriptions' not in fields:
+            self.fields.pop('descriptions', None)
