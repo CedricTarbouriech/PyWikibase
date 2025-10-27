@@ -1,4 +1,5 @@
 {% extends "base.html" %}
+{% load pecunia_tags %}
 {% load i18n %}
 {% block content %}
     <h1>🏛️&nbsp;{{ place.name }}</h1>
@@ -15,7 +16,26 @@
         </div>
         <br/>
         <div>Type: {{ place.get_type_display }}</div>
-        <div>Pleiades: <a href="https://pleiades.stoa.org/places/{{ place.pleiades_id }}">link</a></div>
+        <div>Pleiades: {{ place|prop:'pleiades'|as_link:'link' }}</div>
+    <div>{{ place|prop_label:'coordinates'|capitalize }}: {{ place|prop:'coordinates'|html2 }}</div>
 
     </div>
+    <script>/**
+ *
+ * @param {HTMLElement} mapElement
+ */
+function generateLeafletMap(mapElement) {
+  const id = mapElement.getAttribute('id');
+  const latitude = parseFloat(mapElement.dataset.lat);
+  const longitude = parseFloat(mapElement.dataset.lon);
+
+  const map = L.map(id).setView([latitude, longitude], 6);
+  L.tileLayer('https://dh.gu.se/tiles/imperium/{z}/{x}/{y}.png', {
+    attribution: '&copy; <a href="http://imperium.ahlfeldt.se/">DARE</a>',
+    maxZoom: 10
+  }).addTo(map);
+  L.marker([latitude, longitude]).addTo(map);
+}
+
+  document.querySelectorAll('.map').forEach(item => generateLeafletMap(item));</script>
 {% endblock %}

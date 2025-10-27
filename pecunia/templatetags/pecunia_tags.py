@@ -253,6 +253,10 @@ def generate_div_for_lb(value):
 def has_prop(value: m.Entity, prop_key: str) -> bool:
     return value.statements.filter(mainsnak__property=PropertyMapping.get(prop_key)).count() != 0
 
+@register.filter
+def as_link(link, label):
+    return mark_safe(f"<a href='{link.value.value}'>{label}</a>")
+
 
 @register.filter
 def html(snak: m.PropertySnak | str) -> str:
