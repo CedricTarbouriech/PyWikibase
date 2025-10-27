@@ -13,6 +13,7 @@ def create_property(label, description, datatype):
     prop.save()
     return prop
 
+
 def is_a(item1, item2):
     snak = PropertySnak.objects.create(property=PropertyMapping.get('is_a'), type=PropertySnak.Type.VALUE,
                                        value=item2)
@@ -67,9 +68,9 @@ def populate_db(apps, *_ignored):
 
     # Propriété pour les lieux
     create_property('ancient name', '', 'MonolingualTextValue')
-    create_property('coordinates', '', 'GlobeCoordinatesValue')
+    coords = create_property('coordinates', '', 'GlobeCoordinatesValue')
     create_property('part of', '', 'Item')  # Expliquez ça dans le guide d’annotations
-    create_property('Pleiades link', '', 'UrlValue')
+    pleiades = create_property('Pleiades link', '', 'UrlValue')
     create_property('Trismegistos link', '', 'UrlValue')
     create_property('size', '', 'Item')
     # Statut : utiliser is_a
@@ -138,6 +139,8 @@ def populate_db(apps, *_ignored):
     create_property_mapping('bibliography', prop_biblio)
     create_property_mapping('commentary', prop_commentary)
     create_property_mapping('provenance', prop_prov)
+    create_property_mapping('coordinates', pleiades)
+    create_property_mapping('pleiades', pleiades)
 
     higher_type = create_item('type', 'higher type')
     doc = create_item('document', '')
@@ -162,13 +165,16 @@ def populate_db(apps, *_ignored):
     create_item_mapping('earth', create_item('Earth', ''))
 
     social_level = create_item('social level', '')
-    social_level_1 = create_item('social level 1 - top family', 'such as ancestors belonging to the first in the city of Aphrodisias')
-    social_level_1p = create_item('social level 1+', 'such as M. Ulpius Carminius Claudianus Claudianus at Aphrodisias (convergence of political importance + able of giving 100000 of denarii)')
+    social_level_1 = create_item('social level 1 - top family',
+                                 'such as ancestors belonging to the first in the city of Aphrodisias')
+    social_level_1p = create_item('social level 1+',
+                                  'such as M. Ulpius Carminius Claudianus Claudianus at Aphrodisias (convergence of political importance + able of giving 100000 of denarii)')
     social_level_2 = create_item('social level 2', 'such as top family, and sculptor in Aphrodisias')
 
     is_a(social_level_1, social_level)
     is_a(social_level_1p, social_level)
     is_a(social_level_2, social_level)
+
 
 class Migration(migrations.Migration):
     dependencies = [
@@ -177,4 +183,4 @@ class Migration(migrations.Migration):
 
     operations = [
         migrations.RunPython(populate_db),
-    ] if 'test' not in sys.argv else [] # The migration is not applied for unit testing.
+    ] if 'test' not in sys.argv else []  # The migration is not applied for unit testing.
