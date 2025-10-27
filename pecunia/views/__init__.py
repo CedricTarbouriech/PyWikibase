@@ -1,8 +1,7 @@
 from django.views.generic import TemplateView
 
-from .api import SearchPropertyApiView, SearchItemApiView, \
-    StatementAddApiView, StatementUpdateApiView, StatementApiView, StatementDeleteApiView, QualifierAddApiView, \
-    QualifierDeleteApiView
+from .api import StatementAddApiView, StatementUpdateApiView, StatementApiView, StatementDeleteApiView, \
+    QualifierAddApiView, QualifierDeleteApiView
 from .document import DocumentDashboard, DocumentDisplay, DocumentCreation, DocumentUpdateMetadata, \
     DocumentDelete, DocumentUpdateText, AnnotatorApiView
 from .person import PersonDashboard, PersonDisplay

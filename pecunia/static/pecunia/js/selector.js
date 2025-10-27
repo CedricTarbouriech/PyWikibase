@@ -167,10 +167,16 @@ export class Selector {
     }
     try {
       const items = await getAsJson(
-        `/api/${this.type}/search/` + encodeURIComponent(q),
+        `/api/${this.type}/?fields=labels,descriptions&label_like=` + encodeURIComponent(q),
         `Unable to search items for ${q}.`
       );
-      this.render(items);
+
+      const result = {};
+      for (const item of items) {
+        result[item['display_id']] = item;
+      }
+
+      this.render(result);
     } catch (err) {
       // en cas d’erreur, afficher une ligne d’état
       this.render([]);

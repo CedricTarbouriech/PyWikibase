@@ -10,26 +10,6 @@ import pecunia.models as m
 from pecunia.models import ItemMapping, PropertySnak
 
 
-class SearchApiView(View):
-    result_class = None
-
-    def get(self, request, search):
-        results = {}
-        for item in self.result_class.objects.filter(labels__text__contains=search).distinct():
-            results[item.display_id] = {
-                'labels': {mlt.language: mlt.text for mlt in item.labels.all()},
-                'descriptions': {mlt.language: mlt.text for mlt in item.descriptions.all()}
-            }
-        return JsonResponse(results)
-
-
-class SearchItemApiView(View):
-    result_class = m.Item
-
-
-class SearchPropertyApiView(View):
-    result_class = m.Property
-
 
 class QualifierAddApiView(LoginRequiredMixin, View):
     def post(self, request, *args, **kwargs):

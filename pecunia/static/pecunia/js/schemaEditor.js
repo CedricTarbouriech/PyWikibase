@@ -235,7 +235,7 @@ class Reference {
     const propertyDiv = createDiv({
       class: 'property-cell'
     });
-    this.propertySelector = new Selector('property');
+    this.propertySelector = new Selector('properties');
     propertyDiv.append(this.propertySelector.node);
     this._node.append(propertyDiv);
 
@@ -295,7 +295,7 @@ class Qualifier {
     const propertyDiv = createDiv({
       class: 'property-cell'
     });
-    this.propertySelector = new Selector('property');
+    this.propertySelector = new Selector('properties');
     propertyDiv.append(this.propertySelector.node);
     this._node.append(propertyDiv);
 
@@ -394,7 +394,7 @@ class StatementGroup {
       class: ''
     });
     this.statements = [];
-    this.propertySelector = new Selector('property');
+    this.propertySelector = new Selector('properties');
     propertyDiv.append(this.propertySelector.node);
     this._node.append(propertyDiv);
 
