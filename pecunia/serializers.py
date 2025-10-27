@@ -2,10 +2,10 @@ from collections import defaultdict
 
 from rest_framework import serializers
 
-from .models import Item, Property, Label, Description
+from .models import Item, Property, Label, Description, Alias
 
 
-class PrefixedByLanguageField(serializers.ListSerializer):
+class SingleValuePrefixedByLanguageField(serializers.ListSerializer):
     def to_representation(self, data):
         grouped = defaultdict(list)
         for item in super().to_representation(data):
@@ -13,26 +13,45 @@ class PrefixedByLanguageField(serializers.ListSerializer):
         return grouped
 
 
+class MultipleValuesPrefixedByLanguageField(serializers.ListSerializer):
+    def to_representation(self, data):
+        grouped = defaultdict(list)
+        for item in super().to_representation(data):
+            if item['language'] not in grouped:
+                grouped[item['language']] = []
+            grouped[item['language']].append(item['text'])
+        return grouped
+
+
 class LabelSerializer(serializers.ModelSerializer):
     class Meta:
         model = Label
         fields = ['language', 'text']
-        list_serializer_class = PrefixedByLanguageField
+        list_serializer_class = SingleValuePrefixedByLanguageField
 
 
 class DescriptionSerializer(serializers.ModelSerializer):
     class Meta:
         model = Description
         fields = ['language', 'text']
-        list_serializer_class = PrefixedByLanguageField
+        list_serializer_class = SingleValuePrefixedByLanguageField
+
+
+class AliasSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Alias
+        fields = ['language', 'text']
+        list_serializer_class = MultipleValuesPrefixedByLanguageField
+
 
 class ItemSerializer(serializers.ModelSerializer):
     labels = LabelSerializer(many=True, required=False, default=list(), read_only=True)
     descriptions = DescriptionSerializer(many=True, required=False, default=list(), read_only=True)
+    aliases = AliasSerializer(many=True, required=False, default=list(), read_only=True)
 
     class Meta:
         model = Item
-        fields = ['display_id', 'labels', 'descriptions']
+        fields = ['display_id', 'labels', 'descriptions', 'aliases']
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -49,6 +68,9 @@ class ItemSerializer(serializers.ModelSerializer):
 
         if 'descriptions' not in fields:
             self.fields.pop('descriptions', None)
+
+        if 'aliases' not in fields:
+            self.fields.pop('aliases', None)
 
 
 class PropertySerializer(serializers.ModelSerializer):
@@ -59,10 +81,11 @@ class PropertySerializer(serializers.ModelSerializer):
     )
     labels = LabelSerializer(many=True, required=False, default=list(), read_only=True)
     descriptions = DescriptionSerializer(many=True, required=False, default=list(), read_only=True)
+    aliases = AliasSerializer(many=True, required=False, default=list(), read_only=True)
 
     class Meta:
         model = Property
-        fields = ['display_id', 'type', 'labels', 'descriptions']
+        fields = ['display_id', 'type', 'labels', 'descriptions', 'aliases']
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -79,3 +102,6 @@ class PropertySerializer(serializers.ModelSerializer):
 
         if 'descriptions' not in fields:
             self.fields.pop('descriptions', None)
+
+        if 'aliases' not in fields:
+            self.fields.pop('aliases', None)
