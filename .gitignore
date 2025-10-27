@@ -4,3 +4,8 @@
 /locale/fr/LC_MESSAGES/django.mo
 /db.sqlite3
 /static/
+/PyWikibase/settings/.env
+/package.json
+/package-lock.json
+/pywikibase.conf
+/qodana.yaml
