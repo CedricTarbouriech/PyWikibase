@@ -50,11 +50,11 @@ export async function createPropertySelector(langCode) {
   const data = await getAsJson('/api/properties/?fields=labels', 'Erreur de chargement des propriétés');
 
   const propertySelector = generateElement('<select><option value="" disabled selected>-- Select a property --</option></select>');
-  Object.entries(data).forEach(([key, value]) => {
+  data.forEach(property => {
     const option = generateElement('<option>');
-    option.value = key;
-    option.dataset.type = value.type;
-    option.textContent = getLabel(value, langCode);
+    option.value = property['display_id'];
+    option.dataset.type = property['type'];
+    option.textContent = getLabel(property, langCode);
     propertySelector.append(option);
   });
   return propertySelector;
@@ -76,12 +76,12 @@ const datatypeHandlers = {
         valueInput.append(generateElement('<option value="" disabled selected>-- Select an item --</option>'));
       }
 
-      Object.entries(data).forEach(([key, value]) => {
-        let itemName = getLabel(value, langCode);
+      data.forEach(item => {
+        let itemName = getLabel(item, langCode);
         const option = generateElement('<option>');
-        option.value = key;
+        option.value = item['display_id'];
         option.textContent = itemName;
-        if (defaultValue && parseInt(key) === parseInt(defaultValue.id))
+        if (defaultValue && parseInt(item['display_id']) === parseInt(defaultValue.id))
           option.selected = true;
         valueInput.append(option);
       });
