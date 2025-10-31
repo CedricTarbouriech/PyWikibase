@@ -65,13 +65,8 @@ class DocumentUpdateText(LoginRequiredMixin, FormView):
     def form_valid(self, form):
         display_id = self.kwargs['display_id']
         document = Document.get_by_id(display_id)
-        if document.get_value(PropertyMapping.get('language')):
-            document.set_value(PropertyMapping.get('language'), form.cleaned_data['language'])
-        else:
-            # FIXME
-            # document.add_value(PropertyMapping.get('language'), form.cleaned_data['language'])
-            pass
-        document.set_value(PropertyMapping.get('text'), m.StringValue.objects.create(value=form.cleaned_data['text']))
+        document.add_or_set_value(PropertyMapping.get('language'), m.ItemMapping.get(form.cleaned_data['language']))
+        document.add_or_set_value(PropertyMapping.get('text'), m.StringValue.objects.create(value=form.cleaned_data['text']))
         document.save()
         return super().form_valid(form)
 
