@@ -26,6 +26,9 @@ class Term {
     })
 
     deleteButton.addEventListener('click', _ => {
+      const confirmed = window.confirm("Are you sure?");
+      if (!confirmed) return;
+
       this._node.dispatchEvent(new CustomEvent('termremoved', {
         bubbles: true,
         detail: {term: this}
@@ -487,6 +490,9 @@ class Item {
     });
 
     deleteButton.addEventListener('click', _ => {
+      const confirmed = window.confirm("Are you sure?");
+      if (!confirmed) return;
+
       this._node.dispatchEvent(new CustomEvent('itemremoved', {
         bubbles: true,
         detail: {item: this}

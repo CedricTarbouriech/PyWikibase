@@ -16,6 +16,9 @@ class Link {
       style: 'margin-right: 10px'
     });
     deleteButton.addEventListener('click', _ => {
+      const confirmed = window.confirm("Are you sure?");
+      if (!confirmed) return;
+
       this._node.dispatchEvent(new CustomEvent('linkremoved', {
         bubbles: true,
         detail: {link: this}
