@@ -19,12 +19,9 @@ from django.urls import path
 import pecunia.views as views
 
 urlpatterns = [
-
     path("document/", views.DocumentDashboard.as_view(), name="document_list"),
     path("document/new/", views.DocumentCreation.as_view(), name="document_create"),
     path("document/<int:display_id>/", views.DocumentDisplay.as_view(), name="document_display"),
-    path("document/update/metadata/<int:display_id>/", views.DocumentUpdateMetadata.as_view(),
-         name="document_update_metadata"),
     path("document/update/text/<int:display_id>/", views.DocumentUpdateText.as_view(), name="document_update_text"),
     path("document/delete/<int:display_id>/", views.DocumentDelete.as_view(), name="document_delete"),
     path("person/", views.PersonDashboard.as_view(), name="person_list"),

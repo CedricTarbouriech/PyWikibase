@@ -21,25 +21,6 @@ class DocumentMetadataForm(forms.Form):
     title_language = forms.ChoiceField(label=_('document.title_language'),
                                        choices=(('en', 'English'), ('fr', 'Français')))
     title = forms.CharField(label=_('document.title'))
-    source_type = forms.ChoiceField(label=_('document.type'))
-    author = forms.ChoiceField(label=_('document.author'))
-    author_function = forms.ChoiceField(label=_('document.author_function'))
-    # date = forms.DateField(label=_('document.date'), input_formats=['%Y', ])
-    # calendar = forms.ChoiceField(label=_('document.calendar'))
-    place = forms.ChoiceField(label=_('document.place'))
-
-    # TODO: Main editions, see also, bibliography
-
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-        self.fields['source_type'].choices = [(x.display_id, tags.label_or_default(x, get_language())) for x in
-                                              m.Item.objects.all()]
-        self.fields['author_function'].choices = [(x.display_id, tags.label_or_default(x, get_language())) for x in
-                                                  m.Item.objects.all()]
-        self.fields['place'].choices = [(x.display_id, tags.label_or_default(x, get_language())) for x in
-                                        get_instances_of(ItemMapping.get('place'))]
-        self.fields['author'].choices = [(x.display_id, tags.label_or_default(x, get_language())) for x in
-                                         get_instances_of(ItemMapping.get('person'))]
 
 
 class PersonForm(forms.Form):

@@ -45,63 +45,17 @@ class DocumentCreation(LoginRequiredMixin, FormView):
     def form_valid(self, form):
         with transaction.atomic():
             document = Document.objects.create()
-            print(form.cleaned_data)
             document.set_label(form.cleaned_data['title_language'], form.cleaned_data['title'])
             title = m.MonolingualTextValue(language=form.cleaned_data['title_language'],
                                            text=form.cleaned_data['title'])
             title.save()
             document.set_title(title)
-            document.set_source_type(m.Item.objects.get(display_id=form.cleaned_data['source_type']))
-            document.set_author(m.Item.objects.get(display_id=form.cleaned_data['author']))
-            document.set_author_function(m.Item.objects.get(display_id=form.cleaned_data['author_function']))
-            document.set_provenance(m.Item.objects.get(display_id=form.cleaned_data['place']))
-            print(form.cleaned_data)
-            print(self.kwargs)
-            print(document.get_value(PropertyMapping.get('text')))
             document.save()
-            print(document.statements)
             self.kwargs['display_id'] = document.display_id
-            print(document.get_value(PropertyMapping.get('text')))
         return super().form_valid(form)
 
     def get_success_url(self):
         return reverse('document_display', kwargs=self.kwargs)
-
-
-class DocumentUpdateMetadata(LoginRequiredMixin, FormView):
-    template_name = 'pecunia/document_form.html'
-    form_class = DocumentMetadataForm
-
-    def form_valid(self, form):
-        with transaction.atomic():
-            display_id = self.kwargs['display_id']
-            document = Document.get_by_id(display_id)
-            title = document.get_title()
-            title.language = form.cleaned_data['title_language']
-            title.text = form.cleaned_data['title']
-            title.save()
-            document.set_source_type(m.Item.objects.get(display_id=form.cleaned_data['source_type']))
-            document.set_author(m.Item.objects.get(display_id=form.cleaned_data['author']))
-            document.set_author_function(m.Item.objects.get(display_id=form.cleaned_data['author_function']))
-            document.set_provenance(m.Item.objects.get(display_id=form.cleaned_data['place']))
-            document.save()
-        return super().form_valid(form)
-
-    def get_success_url(self):
-        return reverse('document_display', kwargs=self.kwargs)
-
-    def get_form_kwargs(self):
-        kwargs = super().get_form_kwargs()
-        document = m.Item.objects.get(display_id=self.kwargs['display_id'])
-        kwargs["initial"] = {
-            'title': document.get_value(PropertyMapping.get('title')).text,
-            'title_language': document.get_value(PropertyMapping.get('title')).language,
-            'source_type': document.get_value(PropertyMapping.get('source_type')).display_id,
-            'author': document.get_value(PropertyMapping.get('author')).display_id,
-            'author_function': document.get_value(PropertyMapping.get('author_function')).display_id,
-            'place': document.get_value(PropertyMapping.get('provenance')).display_id,
-        }
-        return kwargs
 
 
 class DocumentUpdateText(LoginRequiredMixin, FormView):
