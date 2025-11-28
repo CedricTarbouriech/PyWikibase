@@ -12,6 +12,7 @@ def populate_db(apps, *_ignored):
     datatype(class_name='GlobeCoordinatesValue').save()
     datatype(class_name='MonolingualTextValue').save()
     datatype(class_name='UserValue').save()
+    datatype(class_name='StatementValue').save()
 
 
 class Migration(migrations.Migration):

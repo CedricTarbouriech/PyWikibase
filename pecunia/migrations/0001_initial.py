@@ -326,4 +326,12 @@ class Migration(migrations.Migration):
             name='propertyorderpreference',
             unique_together={('item', 'prop')},
         ),
+        migrations.CreateModel(
+            name='StatementValue',
+            fields=[
+                ('datavalue_ptr', models.OneToOneField(auto_created=True, on_delete=django.db.models.deletion.CASCADE, parent_link=True, primary_key=True, serialize=False, to='pecunia.datavalue')),
+                ('statement', models.ForeignKey(on_delete=django.db.models.deletion.PROTECT, to='pecunia.statement')),
+            ],
+            bases=('pecunia.datavalue',),
+        ),
     ]
