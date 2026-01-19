@@ -123,6 +123,8 @@ textarea, #middle {
     border-radius: var(--standard-border-radius);
     border: var(--border-width) solid var(--border);
     margin-bottom: 1em;
+    height: 300px;
+    overflow: scroll;
 }
 
 .columns {

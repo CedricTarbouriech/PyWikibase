@@ -209,10 +209,40 @@ function transformFromLeiden(nodes) {
 export default class TextEditor extends Component {
   constructor(env) {
     super(document.getElementById('annotator'));
+
     this.textArea = document.getElementById('id_text');
     this.displayArea = createDiv({id: 'middle'});
-
     this.textArea.after(this.displayArea);
+
+    const teiButton = createButton('TEI', {
+      id: 'tei-tab-button', type: 'button', class: 'progressive'
+    });
+    const textButton = createButton('Text', {
+      id: 'text-tab-button', type: 'button', class: 'progressive'
+    });
+    const bothButton = createButton('TEI & Text', {
+      id: 'both-tab-button', type: 'button', class: 'progressive'
+    });
+    this.textArea.before(teiButton, textButton, bothButton);
+
+    teiButton.addEventListener('click', () => {
+      this.textArea.style.display = "";
+      this.displayArea.style.display = "none";
+    });
+    textButton.addEventListener('click', () => {
+      this.textArea.style.display = "none";
+      this.displayArea.style.display = "";
+    });
+    bothButton.addEventListener('click', () => {
+      this.textArea.style.display = "";
+      this.displayArea.style.display = "";
+    });
+
+    if (this.textArea.value === "") {
+      teiButton.click();
+    } else {
+      textButton.click();
+    }
 
     this.textArea.addEventListener('input', debounce(_ => this.updateTokensFromText()));
 
@@ -230,12 +260,6 @@ export default class TextEditor extends Component {
     const tagButton = createButton('Tag entity', {
       id: 'tag-button', type: 'button', class: 'progressive'
     });
-
-    // tagButton.addEventListener('click', _ => {
-    //   this.tag(this.textArea, tagId);
-    //   this.textArea.dispatchEvent(new CustomEvent('input', {}));
-    //   tagId++;
-    // });
 
     tagButton.addEventListener('click', event => {
 
