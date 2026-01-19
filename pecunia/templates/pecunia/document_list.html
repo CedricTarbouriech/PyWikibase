@@ -5,7 +5,7 @@
 {% block content %}
     <h1>{% trans "form.document.list_title" %}</h1>
     {% if user.is_authenticated %}
-        <a class="button" href='{% url "document_create" %}'>{% trans "form.document.new" %}</a>
+        <a class="button progressive" href='{% url "document_create" %}'>{% trans "form.document.new" %}</a>
     {% endif %}
     <table>
         <tr>
@@ -20,20 +20,20 @@
             <tr>
                 <td>{{ item|label:LANGUAGE_CODE }}</td>
                 <td>{{ item|description:LANGUAGE_CODE }}</td>
-                <td>{{ item|prop:"date" |html}}</td>
-                <td>{{item|prop:"provenance"|html}}</td>
-                <td>{{item|prop:"main_edition"|html}}</td>
+                <td>{{ item|prop:"date" |html }}</td>
+                <td>{{ item|prop:"provenance"|html }}</td>
+                <td>{{ item|prop:"main_edition"|html }}</td>
                 <td>
-                    <a class="button" disabled="true"
+                    <a class="button neutral" disabled="true"
                        href='{% url "document_display" item.display_id %}'>{% trans "global.see" %}</a>
 
-                    <a class="button" disabled="true"
+                    <a class="button neutral" disabled="true"
                        href='{% url "item_display" item.display_id %}'>{% trans "global.item" %}</a>
                     {% if user.is_authenticated %}
-                        <a class="button" href='{% url "document_update_text" item.display_id %}'>
+                        <a class="button neutral" href='{% url "document_update_text" item.display_id %}'>
                             {% trans "document.edit.text" %}
                         </a>
-                        <a class="button"
+                        <a class="button destructive"
                            href='{% url "document_delete" item.display_id %}'>{% trans "global.delete" %}</a>
                     {% endif %}
                 </td>

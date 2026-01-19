@@ -194,3 +194,19 @@ class StatementTestCase(TestCase):
         self.assertEqual(m.Statement.objects.count(), 0)
         self.assertEqual(m.PropertySnak.objects.count(), 0)
         self.assertEqual(m.QuantityValue.objects.count(), 0)
+
+
+    def test2(self):
+        self.assertEqual(m.Statement.objects.count(), 0)
+        p = m.Property.objects.create(data_type=m.Datatype.objects.get(class_name='Item'))
+        i1 = m.Item.objects.create()
+        i2 = m.Item.objects.create()
+        sn = PropertySnak.objects.create(property=p, type=0, value=i2)
+        st = m.Statement.objects.create(subject=i1, mainsnak=sn, rank=0)
+        self.assertEqual(m.Item.objects.count(), 2)
+        self.assertEqual(PropertySnak.objects.count(), 1)
+        self.assertEqual(m.Statement.objects.count(), 1)
+        i1.delete()
+        self.assertEqual(m.Item.objects.count(), 1)
+        self.assertEqual(m.Statement.objects.count(), 0)
+        self.assertEqual(PropertySnak.objects.count(), 0)

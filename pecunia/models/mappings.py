@@ -48,6 +48,14 @@ class ItemMapping(Mapping):
         except cls.DoesNotExist:
             raise UnknownMappingException(f"Item mapping '{key}' does not exist.")
 
+    @classmethod
+    def get_key(cls, item: Item) -> str:
+        try:
+            return cls.objects.get(item=item).key
+        except cls.DoesNotExist:
+            raise UnknownMappingException(f"Item mapping for '{item}' does not exist.")
+
+
 
 class PropertyMapping(Mapping):
     """

@@ -2,12 +2,12 @@
 
 import {
   createQualifier,
-  createStatement,
+  createStatement, deleteAsJson,
   fetchPropertyDataType,
   getAsJson,
   postAsJson,
   updateStatement
-} from './api.js';
+} from '../api.js';
 import {
   createPropertySelector,
   createSnakInput,
@@ -15,7 +15,7 @@ import {
   generateElement,
   getValueFromInputTd,
   updateDivWithNewStatement
-} from './util.js';
+} from '../util.js';
 
 
 /**
@@ -55,7 +55,7 @@ async function addNewStatement(event) {
     const datatype = selectedOption.dataset.type;
     const propertyId = selectedOption.value;
     const data = await createStatement(valueDiv.querySelector('.snak-type-selector').value,
-      valueDiv.querySelector('.rank-selector').value, propertyId, document.querySelector('h1').dataset.itemId,
+      valueDiv.querySelector('.rank-selector').value, propertyId.substring(1), document.querySelector('h1').dataset.itemId,
       getValueFromInputTd(datatype, valueDiv));
     statementsDiv.outerHTML = data.updatedHtml;
   };
@@ -119,7 +119,7 @@ async function editSnak(event) {
   const {
     rank,
     mainSnak
-  } = await getAsJson(`/api/statement/${statementId}`, "Erreur de chargement des données du statement.");
+  } = await getAsJson(`/api/statements/${statementId}`, "Erreur de chargement des données du statement.");
   const {propertyType, value, snak_type} = mainSnak;
   const valueDiv = snakDiv.querySelector('.value-cell');
 
@@ -129,9 +129,8 @@ async function editSnak(event) {
     snakInput
   } = await createSnakInput(langCode, propertyType, value, rank, snak_type);
   valueDiv.replaceChildren();
-  valueDiv.append(rankSelector, snakTypeSelector, snakInput);
-
-  const actionsDiv = snakDiv.querySelector('.actions-cell');
+  const actionsDiv = generateElement('<div class="actions-cell">');
+  valueDiv.append(rankSelector, snakTypeSelector, snakInput, actionsDiv);
 
   const getSubmitHandler = async event => {
     event.preventDefault();
@@ -161,7 +160,7 @@ async function deleteValue(event) {
   const confirmed = window.confirm("Are you sure?");
   if (!confirmed) return;
 
-  const data = await postAsJson('/api/statement/delete', `Erreur lors de la suppression du statement ${statementId}`, {statement_id: statementId});
+  const data = await deleteAsJson('/api/statements/', `Erreur lors de la suppression du statement ${statementId}`, {statement_id: statementId});
   const statementNumber = data.number;
   if (statementNumber === 0) {
     statementDiv.remove();
@@ -217,7 +216,7 @@ async function addNewQualifier(event) {
 
     const selectedOption = propertySelector.querySelector('option:checked');
     const datatype = selectedOption.dataset.type;
-    const propertyId = selectedOption.value;
+    const propertyId = selectedOption.value.substring(1);
     console.log(event.currentTarget, event.target);
     const data = await createQualifier(statementId, propertyId, getValueFromInputTd(datatype, valueDiv));
     propertyDiv.parentNode.outerHTML = data.updatedHtml;
@@ -246,7 +245,7 @@ async function editQualifier(event) {
   const {
     rank,
     mainSnak
-  } = await getAsJson(`/api/statement/${statementId}`, "Erreur de chargement des données du statement.");
+  } = await getAsJson(`/api/statements/${statementId}`, "Erreur de chargement des données du statement.");
   const {propertyType, value, snak_type} = mainSnak;
   const valueDiv = snakDiv.querySelector('.value-cell');
 
@@ -288,7 +287,7 @@ async function deleteQualifier(event) {
   const confirmed = window.confirm("Are you sure?");
   if (!confirmed) return;
 
-  const data = await postAsJson('/api/qualifier/delete', `Erreur lors de la suppression du qualifier ${qualifierId}`, {qualifier_id: qualifierId});
+  const data = await deleteAsJson('/api/qualifiers/', `Erreur lors de la suppression du qualifier ${qualifierId}`, {qualifier_id: qualifierId});
   const qualifierNumber = data.number;
   qualifierDiv.remove();
   if (qualifierNumber === 0) {
@@ -315,7 +314,6 @@ document.addEventListener("DOMContentLoaded", () => {
         await editQualifier(event);
       if (event.target.closest('.btn-delete-qualifier'))
         await deleteQualifier(event);
-
     })
   );
   document.querySelectorAll('.map').forEach(item => generateLeafletMap(item));

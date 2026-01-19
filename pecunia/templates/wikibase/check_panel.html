@@ -1,0 +1,15 @@
+{% extends "base.html" %}
+{% load i18n %}
+{% block content %}
+    <h3>Knowledge base</h3>
+    <ul>
+        <li><a href="{% url "unused_items" %}">Unused items</a>: list of items that are not used in any statements
+        </li>
+        <li><a href="{% url "out_of_taxonomy_items" %}">Items out of taxonomy</a>: list of items that don’t have a statement with the “is a” property</li>
+    </ul>
+    <h3>Domain constraints</h3>
+    <ul>
+        <li>Documents without associated processes</li>
+        <li>Unused tagged passages</li>
+    </ul>
+{% endblock %}

@@ -3,7 +3,7 @@
 {% block content %}
     <form method="post">{% csrf_token %}
         <p>Are you sure you want to delete {{ object }}?</p>
-        <input type="submit" name="confirm" value="{% trans "global.confirm" %}">
+        <input type="submit" class="destructive" name="confirm" value="{% trans "global.confirm" %}">
         <a class="button" href="{{ request.META.HTTP_REFERER|escape }}">{% trans "global.cancel" %}</a>
     </form>
 {% endblock %}

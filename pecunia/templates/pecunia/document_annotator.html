@@ -2,7 +2,7 @@
 {% load static %}
 {% load i18n %}
 {% block content %}
-    <script type="module" src="{% static "pecunia/js/app.js" %}"></script>
+    <script type="module" src="{% static "pecunia/js/annotator/app.js" %}"></script>
     <form method="post">{% csrf_token %}
         <div id="app" data-document-id="{{ object }}">
             <div id="annotator">
@@ -11,7 +11,7 @@
                 {{ form.text.as_widget }}
             </div>
         </div>
-        <input id="submit" type="submit" value="{% trans "global.save" %}">
+        <input id="submit" type="submit" class="progressive" value="{% trans "global.save" %}">
     </form>
 
 {% endblock %}

@@ -9,13 +9,17 @@
     <link rel="icon" type="image/png" href="{% static "pecunia/images/favicon.png" %}">
     <link rel="icon" href="{% static 'pecunia/images/favicon.ico' %}" type="image/x-icon">
 
-    <link rel="stylesheet" href="https://cdn.simplecss.org/simple.min.css">
+    <link rel="stylesheet" href="{% static "pecunia/css/base.css" %}">
     <link rel="stylesheet" href="{% static "pecunia/css/wikibase.css" %}">
     <link rel="stylesheet" href="{% static "pecunia/css/annotator.css" %}">
+    <link rel="stylesheet" href="{% static "pecunia/css/collapsible.css" %}">
     <script type="module" src="{% static 'pecunia/js/api.js' %}"></script>
 
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" crossorigin=""/>
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" crossorigin=""></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/split.js/1.6.2/split.min.js"
+            integrity="sha512-to2k78YjoNUq8+hnJS8AwFg/nrLRFLdYYalb18SlcsFRXavCOTfBF3lNyplKkLJeB8YjKVTb1FPHGSy9sXfSdg=="
+            crossorigin="anonymous" referrerpolicy="no-referrer"></script>
 
     <title>Pecunia</title>
 </head>
@@ -23,24 +27,25 @@
 <header>
     <nav style="display: grid; grid-template-columns: auto auto">
         <div>
-            <a class="button" style="color: black" href='{% url "index" %}'>{% trans 'nav.home' %}</a>
-            <a class="button" style="color: black" href='{% url "document_list" %}'>{% trans 'nav.document' %}</a>
-            <a class="button" style="color: black" href='{% url "person_list" %}' disabled>{% trans 'nav.person' %}</a>
-            <a class="button" style="color: black" href='{% url "place_list" %}' disabled>{% trans 'nav.place' %}</a>
-{#            <a class="button" style="color: black" href='{% url "process_list" %}'>{% trans 'nav.process' %}</a>#}
-{#            <a class="button" style="color: black" href='{% url "vocabulary_list" %}'>{% trans 'nav.vocabulary' %}</a>#}
-            <a class="button" style="color: black" href='{% url "item_list" %}'>{% trans 'nav.item' %}</a>
-            <a class="button" style="color: black" href='{% url "property_list" %}'>{% trans 'nav.property' %}</a>
+            <a href='{% url "index" %}'>{% trans 'nav.home' %}</a>
+            <a href='{% url "document_list" %}'>{% trans 'nav.document' %}</a>
+            <a href='{% url "person_list" %}' disabled>{% trans 'nav.person' %}</a>
+            <a href='{% url "place_list" %}' disabled>{% trans 'nav.place' %}</a>
+            {#            <a href='{% url "process_list" %}'>{% trans 'nav.process' %}</a>#}
+            {#            <a  href='{% url "vocabulary_list" %}'>{% trans 'nav.vocabulary' %}</a>#}
+            <a href='{% url "item_list" %}'>{% trans 'nav.item' %}</a>
+            <a href='{% url "property_list" %}'>{% trans 'nav.property' %}</a>
+            {#            <a class="button" style="color: black" href='{% url "wikibase_check" %}'>{% trans 'nav.check' %}</a>#}
         </div>
         <div style="display: flex">
-            <form method="post" action="{% url 'set_language' %}">
-                {% csrf_token %}
-                <select id="language-select" name="language">
-                    <option value="en" {% if LANGUAGE_CODE == "en" %}selected{% endif %}>English</option>
-                    <option value="fr" {% if LANGUAGE_CODE == "fr" %}selected{% endif %}>Français</option>
-                </select>
-                <button type="submit">{% trans 'nav.language.submit' %}</button>
-            </form>
+            {#            <form method="post" action="{% url 'set_language' %}">#}
+            {#                {% csrf_token %}#}
+            {#                <select id="language-select" name="language">#}
+            {#                    <option value="en" {% if LANGUAGE_CODE == "en" %}selected{% endif %}>English</option>#}
+            {#                    <option value="fr" {% if LANGUAGE_CODE == "fr" %}selected{% endif %}>Français</option>#}
+            {#                </select>#}
+            {#                <button type="submit">{% trans 'nav.language.submit' %}</button>#}
+            {#            </form>#}
             {% if user.is_authenticated %}
                 <form method="post" action="{% url 'logout' %}">
                     {% csrf_token %}

@@ -5,7 +5,7 @@
 {% block content %}
     <h1>{% trans "form.item.list_title" %}</h1>
     {% if user.is_authenticated %}
-        <a class="button" href='{% url "item_create" %}'>{% trans "form.item.new" %}</a>
+        <a class="button progressive" href='{% url "item_create" %}'>{% trans "form.item.new" %}</a>
     {% endif %}
 
     {% include "wikibase/widgets/pagination.html" %}
@@ -23,10 +23,10 @@
                 <td>{{ item|label_or_default:LANGUAGE_CODE }}</td>
                 <td>{{ item|description_or_default:LANGUAGE_CODE }}</td>
                 <td>
-                    <a class="button" href='{% url "item_display" item.display_id %}'>{% trans "global.see" %}</a>
+                    <a class="button neutral" href='{% url "item_display" item.display_id %}'>{% trans "global.see" %}</a>
 
                     {% if user.is_authenticated %}
-                        <a class="button" href='{% url "item_delete" item.display_id %}'>{% trans "global.delete" %}</a>
+                        <a class="button destructive" href='{% url "item_delete" item.display_id %}'>{% trans "global.delete" %}</a>
                     {% endif %}
                 </td>
             </tr>

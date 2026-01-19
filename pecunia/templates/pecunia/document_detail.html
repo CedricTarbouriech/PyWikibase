@@ -9,7 +9,7 @@
         {% if user.is_authenticated %}
             <a href='{% url "document_update_text" document.display_id %}'>{% trans "document.edit.text" %}</a> -
         {% endif %}
-        <a href="{% url "item_display" document.display_id %}">{% trans "global.item" %}</a> - 
+        <a href="{% url "item_display" document.display_id %}">{% trans "global.item" %}</a> -
         <a href="{% url "document_list" %}">{% trans "global.back" %}</a>
     </div>
     <div style="margin: -1em 1em 2em; ">
@@ -29,9 +29,9 @@
             <div>{{ document|prop_label:'language'|capitalize }}: {{ document|prop:'language'|html }}</div>
             <div {% if document.translation %}style="display: grid; grid-template-columns: auto auto;"{% endif %}>
                 <div class="text-wrapper">
-{#                    FIXME <div class="line-numbers">#}
-{#                        {{ document|line_numbers }}#}
-{#                    </div>#}
+                     <div class="line-numbers">
+                        {{ document|line_numbers }}
+                    </div>
                     <article>{{ document|prop:'text'|html  }}</article>{# FIXME |highlight_words #}
                 </div>
                 {% if document.translation %}
@@ -47,6 +47,6 @@
             {% endfor %}
         </div>
         <div>{{ document|prop_label:'bibliography'|capitalize }}: {{ document|prop_list:'bibliography'|html }}</div>
-        <div>{{ document|prop_label:'commentary'|capitalize }}: {{ document|prop_mtv_value:'commentary'|html }}</div>
+        <div>{{ document|prop_label:'commentary'|capitalize }}: {{ document|prop:'commentary'|html }}</div>
     </div>
 {% endblock %}

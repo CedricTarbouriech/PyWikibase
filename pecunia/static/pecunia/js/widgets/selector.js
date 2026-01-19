@@ -1,14 +1,12 @@
-import {debounce} from "./util2.js";
-import {getAsJson} from './api.js';
-import {createDiv} from "./nodeUtil.js";
+import {debounce} from "../util.js";
+import {getAsJson} from '../api.js';
+import {Component, createDiv} from "../nodeUtil.js";
 
-export class Selector {
+export class Selector extends Component {
   constructor(type) {
+    super(createDiv({class: 'search-wrapper'}));
     this.type = type;
     this.state = {items: [], highlighted: -1};
-    this._node = createDiv({
-      class: 'search-wrapper'
-    });
 
     this.suggestionList = document.createElement('ul');
     this.suggestionList.className = 'search-suggestions';
@@ -17,20 +15,20 @@ export class Selector {
 
     this.inputField = document.createElement('input');
     this.inputField.setAttribute('type', 'text');
-    this.inputField.setAttribute('placeholder', 'Search…');
+    this.inputField.setAttribute('placeholder', `Search ${this.type}…`);
     this.inputField.setAttribute('role', 'combobox');
     this.inputField.setAttribute('aria-autocomplete', 'list');
     this.inputField.setAttribute('aria-expanded', 'false');
     this.inputField.setAttribute('aria-controls', this.suggestionList.id);
 
-    this._node.append(this.inputField, this.suggestionList);
+    this.node.append(this.inputField, this.suggestionList);
 
     this.inputField.addEventListener('input', debounce(this.doSearch.bind(this)));
     this.inputField.addEventListener('keydown', this.onKeyDown.bind(this));
 
     // fermer au clic extérieur
     document.addEventListener('click', (ev) => {
-      if (!this._node.contains(ev.target)) this.hideList();
+      if (!this.node.contains(ev.target)) this.hideList();
     });
   }
 
@@ -38,8 +36,12 @@ export class Selector {
     return this.inputField.getAttribute('data-item-id');
   }
 
-  get node() {
-    return this._node;
+  enable() {
+    this.inputField.disabled = false;
+  }
+
+  disable() {
+    this.inputField.disabled = true;
   }
 
   hideList() {
@@ -119,15 +121,19 @@ export class Selector {
     }
   };
 
+  showValue(label, id) {
+    this.inputField.value = (label ?? "-") + ` (${id})`;
+    this.inputField.dataset.itemId = id;
+  }
+
   select(idx) {
     const item = this.state.items[idx];
     if (!item) return;
-    this.inputField.value = (item['labels']['en'] ?? "-") + ` (Q${idx})`;
-    this.inputField.dataset.itemId = idx;
+    this.showValue(item['labels']['en'], idx);
     this.hideList();
-    this._node.dispatchEvent(new CustomEvent('propertyselected', {
+    this.node.dispatchEvent(new CustomEvent('selectionchanged-' + this.type, {
       bubbles: true,
-      detail: {id: idx}
+      detail: {id: idx, label: (item['labels']['en'] ?? "-") + ` (${idx})`}
     }));
   };
 
@@ -172,8 +178,8 @@ export class Selector {
       );
 
       const result = {};
-      for (const item of items) {
-        result[item['display_id']] = item;
+      for (const [id, item] of Object.entries(items)) {
+        result[id] = item;
       }
 
       this.render(result);

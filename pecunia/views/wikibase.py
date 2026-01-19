@@ -277,3 +277,6 @@ class PropertyDelete(LoginRequiredMixin, TemplateView):
         context = super().get_context_data(**kwargs)
         context['entity'] = f"Property P{self.kwargs['display_id']}"
         return context
+
+class WikibaseCheck(LoginRequiredMixin, TemplateView):
+    template_name = 'wikibase/check_panel.html'

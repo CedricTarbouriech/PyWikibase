@@ -8,6 +8,12 @@
     {% for stat in statement %}
         <div class="snak-cell" data-statement-id="{{ stat.id }}">
             <div class="value-cell">
+            {% if user.is_authenticated %}
+                <div class="actions-cell">
+                    <a class="btn-edit-value button progressive" href='#'>{% trans "global.edit" %}</a>
+                    <a class="btn-delete-value button destructive" href='#'>{% trans "global.delete" %}</a>
+                </div>
+            {% endif %}
                 <span>{{ stat.rank }}</span>
                 {% if stat.mainsnak.type == 0 %}
                     {{ stat.mainsnak|html2 }}
@@ -33,20 +39,12 @@
                     {% endfor %}
                 </div>
             </div>
-            {% if user.is_authenticated %}
-                <div class="actions-cell">
-                    <ul>
-                        <li><a class="btn-edit-value" href='#'>{% trans "global.edit" %}</a></li>
-                        <li><a class="btn-delete-value" href='#'>{% trans "global.delete" %}</a></li>
-                    </ul>
-                </div>
-            {% endif %}
         </div>
     {% endfor %}
 
     {% if user.is_authenticated %}
         <div class="new-value-cell">
-            <a class="button btn-add-value" data-property="{{ prop.display_id }}" href='#'>
+            <a class="button btn-add-value progressive" data-property="{{ prop.display_id }}" href='#'>
                 {% trans "global.statement_value.new" %}
             </a>
         </div>

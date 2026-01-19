@@ -19,6 +19,21 @@ class InheritanceForeignKey(models.ForeignKey):
 class Value(models.Model):
     objects = InheritanceManager()
 
+    def get_datatype(self):
+        raise NotImplementedError(f"{self.__class__.__name__} must implement get_datatype().")
+
+    def get_json_value(self):
+        raise NotImplementedError(f"{self.__class__.__name__} must implement get_json_value().")
+
+    def get_type(self):
+        return self.get_datatype()
+
+    def to_json(self):
+        return {
+            'type': self.get_type(),
+            'value': self.get_json_value()
+        }
+
 
 class Entity(Value):
     def get_value(self, prop: Property) -> Value | None:
@@ -54,6 +69,10 @@ class Entity(Value):
             self.set_value(prop, value)
         else:
             self.add_value(prop, value)
+
+    def delete(self, using=None, keep_parents=False):
+        
+        super().delete(using, keep_parents)
 
 
 class DescribedEntity(Entity):
@@ -111,6 +130,16 @@ class Item(DescribedEntity):
     @property
     def pretty_display_id(self):
         return f"Q{self.display_id}"
+
+    def get_datatype(self):
+        return 'item'
+
+    def get_json_value(self):
+        return {
+            'entity-type': 'item',
+            'numeric-id': self.display_id,
+            'id': f'Q{self.display_id}'
+        }
 
 
 class Property(DescribedEntity):
@@ -195,7 +224,6 @@ class PropertySnak(models.Model):
         return f"{self.property} --> {value}"
 
 
-
 class Statement(models.Model):
     class Rank(models.IntegerChoices):
         DEPRECATED = -1, "deprecated"
@@ -205,11 +233,6 @@ class Statement(models.Model):
     subject = InheritanceForeignKey(Entity, on_delete=models.CASCADE, related_name='statements')
     mainsnak = OneToOneField(PropertySnak, on_delete=models.PROTECT, related_name='used_in_statement')
     rank = models.IntegerField(choices=Rank)
-
-    def delete(self, using=None, keep_parents=False):
-        mainsnak = self.mainsnak
-        super().delete(using, keep_parents)
-        mainsnak.delete(using, keep_parents)
 
     def save(self, *args, **kwargs):
         self.full_clean()
@@ -232,13 +255,14 @@ class Qualifier(models.Model):
     statement = models.ForeignKey(Statement, on_delete=models.CASCADE, related_name='qualifiers')
     snak = models.ForeignKey(PropertySnak, on_delete=models.CASCADE)
 
+
 class PropertyOrderPreference(models.Model):
     item = models.ForeignKey(Item, on_delete=models.CASCADE)
     prop = models.ForeignKey(Property, on_delete=models.CASCADE)
     ordering = models.PositiveIntegerField(default=0)
 
     class Meta:
-        ordering=['ordering']
+        ordering = ['ordering']
         unique_together = ('item', 'prop')
 
     def __str__(self):

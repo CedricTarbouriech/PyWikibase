@@ -1,3 +1,7 @@
+#app {
+    padding: 1rem;
+}
+
 span.tagged-element {
     color: green;
 }
@@ -49,12 +53,11 @@ span.tagged-element {
 
 article {
     width: 100%;
-    padding: 10px;
+    padding: 1rem;
     white-space: pre; /* préserve les retours à la ligne */
     overflow-x: auto;
     margin-bottom: 0;
 }
-
 
 .annotator-columns {
     display: grid;
@@ -82,8 +85,8 @@ article {
     left: 0;
     right: 0;
     z-index: 1000;
-    background: #666;
-    border: 1px solid #666;
+    background-color: var(--background-color-interactive-subtle);
+    border: 1px solid var(--border-color-base);
     border-radius: 8px;
     margin: 4px 0 0;
     padding: 4px 0;
@@ -100,7 +103,7 @@ article {
 
 .search-suggestions li[aria-selected="true"],
 .search-suggestions li:hover {
-    background: #f5f5f5;
+    background-color: var(--background-color-interactive-subtle--hover);
 }
 
 .search-suggestions .empty {
@@ -109,10 +112,17 @@ article {
     cursor: default;
 }
 
-textarea {
+textarea, #middle {
     width: 100%;
     resize: vertical;
     min-height: 200px;
+}
+
+#middle {
+    padding: 0.5rem;
+    border-radius: var(--standard-border-radius);
+    border: var(--border-width) solid var(--border);
+    margin-bottom: 1em;
 }
 
 .columns {
@@ -122,34 +132,49 @@ textarea {
 }
 
 .entity-token {
-    border: solid 1px;
+    border-width: 2px;
     width: fit-content;
     padding: 0 10px;
     border-radius: 10px;
-    display: flex;
-    align-items: center;
+    vertical-align: baseline;
     justify-content: center;
     text-align: center;
-    background: rgba(255, 255, 255, 0.9);
-    backdrop-filter: blur(4px);
-    -webkit-backdrop-filter: blur(4px);
-    border-radius: 10px;
     transition: 0.3s;
+    user-select: none;
+}
+
+.entity-token-unused {
+    border-style: dotted;
+}
+
+.entity-token-unknown {
+    border-style: dashed;
+}
+
+.entity-token-new {
+    border-style: solid;
+}
+
+.entity-token-linked {
+    border: double 5px;
+}
+
+.drop-zone.disabled {
+    cursor: not-allowed;
+    background-color: var(--background-color-interactive-subtle);
 }
 
 .drop-zone {
     align-items: center;
     justify-content: center;
     text-align: center;
-    background: rgba(0, 0, 0, 0.7);
-    backdrop-filter: blur(4px);
-    -webkit-backdrop-filter: blur(4px);
+    background: var(--pool);
     border-radius: 10px;
     transition: 0.3s;
 }
 
 .multi-drop {
-    width: 100%;
+    margin: 10px;
     min-height: 5rem;
     height: fit-content;
     border-radius: 10px;
@@ -157,12 +182,21 @@ textarea {
 }
 
 .single-drop {
-    min-width: 2em;
+    min-width: 5em;
     width: fit-content;
     height: 1.5em;
     border-radius: 10px;
     display: inline-block;
     vertical-align: middle;
+}
+
+.single-drop:has(.entity-token) {
+    min-width: 1em;
+}
+
+.delete-drop span {
+    user-select: none;
+    opacity: 50%;
 }
 
 .beingDragged {
@@ -175,38 +209,14 @@ textarea {
     border: solid 5px #2a9d8f;
 }
 
-/* Style the button that is used to open and close the collapsible content */
-.collapsible {
-    background-color: #eee;
-    color: #444;
-    cursor: pointer;
-    padding: 18px;
-    width: 100%;
-    border: none;
-    text-align: left;
-    outline: none;
-    font-size: 15px;
-}
-
-/* Add a background color to the button if it is clicked on (add the .active class with JS), and when you move the mouse over it (hover) */
-.active, .collapsible:hover {
-    background-color: #ccc;
-}
-
-/* Style the collapsible content. Note: hidden by default */
-.content {
-    padding: 0 18px;
-    margin-bottom: 10px;
-    transition: max-height 0.2s ease-out;
-}
-
 .pool {
     display: flex;
     flex-wrap: wrap;
-    background: #111;
+    background: var(--pool);
     padding: 5px;
     border-radius: 10px;
     margin: 10px;
+    min-height: 2rem;
 }
 
 .pool .entity-token {
@@ -223,4 +233,62 @@ textarea {
 
 .qualifier-cell {
     background: #2a9d8f;
+}
+
+.schema-drop-zone {
+    margin-bottom: .5rem;
+}
+
+.bordered-content {
+    border: 1px solid;
+    border-radius: 8px;
+    border-color: var(--border-color-base);
+    padding-top: 10px !important;
+}
+
+.split {
+    display: flex;
+    flex-direction: row;
+}
+
+.gutter {
+    background-color: var(--background-color-interactive-subtle);
+    background-repeat: no-repeat;
+    background-position: 50%;
+    margin: 0 0.3em;
+}
+
+.gutter.gutter-horizontal {
+    background-image: url('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAUAAAAeCAYAAADkftS9AAAAIklEQVQoU2M4c+bMfxAGAgYYmwGrIIiDjrELjpo5aiZeMwF+yNnOs5KSvgAAAABJRU5ErkJggg==');
+    cursor: col-resize;
+}
+
+
+
+#middle > span[data-tei-tag="lb"]:first-of-type {
+    display: none;
+}
+
+[data-tei-attr-id]::before {
+    color: red;
+    content: "{{";
+}
+
+[data-tei-attr-id]::after {
+    color: red;
+    content: "}}";
+}
+
+span[data-tei-tag="lb"][data-tei-attr-break="no"]::before,
+span[data-tei-tag="lb"][data-tei-attr-type="worddiv"]::before {
+    content: "-";
+}
+
+span[data-tei-tag="orig"] {
+    text-transform: uppercase;
+}
+
+span[data-tei-tag="unclear"] {
+    text-emphasis-style: dot;
+    text-emphasis-position: under;
 }

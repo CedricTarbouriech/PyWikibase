@@ -278,16 +278,6 @@ class Migration(migrations.Migration):
             ],
         ),
         migrations.CreateModel(
-            name='UserValue',
-            fields=[
-                ('datavalue_ptr',
-                 models.OneToOneField(auto_created=True, on_delete=django.db.models.deletion.CASCADE, parent_link=True,
-                                      primary_key=True, serialize=False, to='pecunia.datavalue')),
-                ('user', models.ForeignKey(on_delete=django.db.models.deletion.PROTECT, to=settings.AUTH_USER_MODEL)),
-            ],
-            bases=('pecunia.datavalue',),
-        ),
-        migrations.CreateModel(
             name='Document',
             fields=[
             ],

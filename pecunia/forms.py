@@ -98,7 +98,8 @@ class PropertyLabelDescriptionForm(forms.Form):
                                  ("TimeValue", 'Time'),
                                  ("GlobeCoordinatesValue", 'Globe coordinates'),
                                  ("MonolingualTextValue", 'Monolingual string'),
-                                 ("UserValue", 'User')
+                                 ("UserValue", 'User'),
+                                 ("StatementValue", 'Statement')
                              ))
 
     def __init__(self, *args, **kwargs):

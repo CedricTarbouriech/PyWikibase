@@ -13,7 +13,7 @@
                 <i>No value</i>
             {% endif %}
             <span>
-                (<a class="btn-delete-qualifier" href='#'>supprimer</a>)
+                (<a class="btn-delete-qualifier button destructive" href='#'>supprimer</a>)
             </span>
         </div>
     {% empty %}
@@ -22,6 +22,6 @@
         </div>
     {% endfor %}
 
-    <a class="btn-add-qualifier" data-statement-id="{{ stat.id }}"
+    <a class="btn-add-qualifier button progressive" data-statement-id="{{ stat.id }}"
        href='#'>{% trans "form.qualifier.new" %}</a>
 </div>

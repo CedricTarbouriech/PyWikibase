@@ -8,7 +8,7 @@ environ.Env.read_env()
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = False
 
-ALLOWED_HOSTS = ['localhost', 'pecunia-app.huma-num.fr']
+ALLOWED_HOSTS = ['localhost', 'pecunia-app.huma-num.fr', '134.158.38.148']
 
 SECRET_KEY = env('SECRET_KEY')
 DATABASES = {'default':

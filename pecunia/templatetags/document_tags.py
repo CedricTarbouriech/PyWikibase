@@ -18,7 +18,7 @@ def line_numbers(document: m.Item) -> str:
             return f"Missing property mapping for key: {'text'}"
         statements = document.statements.filter(mainsnak__property=prop)
 
-        l = list(map(int, re.findall('<lb n="(\d+)', statements[0].mainsnak.value.text)))
+        l = list(map(int, re.findall('<lb n="(\d+)', statements[0].mainsnak.value.value)))
         max_n = 1
         if l:
             max_n = max(l)

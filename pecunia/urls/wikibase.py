@@ -31,4 +31,5 @@ urlpatterns = [
     path("property/update/labeldescription/<int:display_id>/<str:lang>/",
          views.PropertyUpdateLabelDescription.as_view(), name="property_update_labeldescription"),
     path("property/delete/<int:display_id>/", views.PropertyDelete.as_view(), name="property_delete"),
+    path("check/", views.WikibaseCheck.as_view(), name="wikibase_check")
 ]

@@ -50,7 +50,8 @@ export async function createPropertySelector(langCode) {
   const data = await getAsJson('/api/properties/?fields=labels', 'Erreur de chargement des propriétés');
 
   const propertySelector = generateElement('<select><option value="" disabled selected>-- Select a property --</option></select>');
-  data.forEach(property => {
+  console.log(data)
+  Object.values(data).forEach(property => {
     const option = generateElement('<option>');
     option.value = property['display_id'];
     option.dataset.type = property['type'];
@@ -76,7 +77,7 @@ const datatypeHandlers = {
         valueInput.append(generateElement('<option value="" disabled selected>-- Select an item --</option>'));
       }
 
-      data.forEach(item => {
+      Object.values(data).forEach(item => {
         let itemName = getLabel(item, langCode);
         const option = generateElement('<option>');
         option.value = item['display_id'];
@@ -90,7 +91,7 @@ const datatypeHandlers = {
 
     getValue: (input) => {
       const selected = input.querySelector('.value-selector option:checked');
-      return {item: selected ? selected.value : ""};
+      return {item: selected ? selected.value.substring(1) : ""};
     }
   },
   StringValue: {
@@ -202,7 +203,8 @@ const datatypeHandlers = {
       }
     }
   },
-  TimeValue: {}
+  TimeValue: {
+  }
 };
 
 export async function createSnakInput(langCode, datatype, defaultValue = null, rank = 0, snakType = 0) {
@@ -274,4 +276,12 @@ export function createRankSelector(rank = 0) {
     rankSelector.append(option);
   }
   return rankSelector;
+}
+
+export function debounce(fn, wait = 250) {
+  let t;
+  return (...args) => {
+    clearTimeout(t);
+    t = setTimeout(() => fn(...args), wait);
+  };
 }

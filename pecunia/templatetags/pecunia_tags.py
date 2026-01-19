@@ -222,6 +222,7 @@ def handle_tag(el: etree._Element) -> str:
 def highlight_words(value):
     if not value:
         return ''
+    print(value)
     root = etree.fromstring(f"<xml>{value}</xml>")
 
     # Conteneur HTML
@@ -302,6 +303,10 @@ def html2(snak: m.PropertySnak | str) -> str:
             f"<span>{snak.value.latitude}, {snak.value.longitude}"
             f"<div id='map-{snak.value.id}' class='map' "
             f"data-lat='{snak.value.latitude}' data-lon='{snak.value.longitude}'></div></span>"
+        )
+    elif isinstance(snak.value, m.TimeValue):
+        return mark_safe(
+            f"<span>{snak.value.time} ({snak.value.precision})</span>"
         )
     else:
         return mark_safe(snak.value)

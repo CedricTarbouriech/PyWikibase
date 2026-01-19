@@ -4,7 +4,7 @@
 {% load i18n %}
 {% get_current_language as LANGUAGE_CODE %}
 {% block content %}
-    <script type="module" src="{% static "pecunia/js/wikibase.js" %}"></script>
+    <script type="module" src="{% static "pecunia/js/wikibase/wikibase.js" %}"></script>
     <h1 data-item-id="{{ item.display_id }}">Item Q{{ item.display_id }}</h1>
     <div class="item-content" >
         <table>
@@ -23,7 +23,7 @@
                 <td>{{ item|description:"en" }}</td>
 
                 {% if user.is_authenticated %}
-                    <td><a class="button"
+                    <td><a class="button progressive"
                            href='{% url "item_updatelabeldescription" item.display_id "en" %}'>{% trans "global.edit" %}</a>
                     </td>
                 {% endif %}
@@ -35,19 +35,19 @@
 
                 {% if user.is_authenticated %}
                     <td>
-                        <a class="button"
+                        <a class="button progressive"
                            href='{% url "item_updatelabeldescription" item.display_id "fr" %}'>{% trans "global.edit" %}</a>
                     </td>
                 {% endif %}
             </tr>
         </table>
-        <div class="statements">
+        <div id="app-statement" class="statements" data-item-id="{{ item.display_id }}">
             {% for prop, statement in statements %}
                 {% include "wikibase/widgets/property_table.html" %}
             {% endfor %}
 
             {% if user.is_authenticated %}
-                <a id="btn-new-statement" class="button" href="#">{% trans "global.statement.new" %}</a>
+                <a id="btn-new-statement" class="button progressive" href="#">{% trans "global.statement.new" %}</a>
             {% endif %}
         </div>
         {% if linked_items|length != 0 %}

@@ -11,7 +11,7 @@ from django.views.generic import TemplateView, FormView
 
 import pecunia.models as m
 from pecunia.forms import DocumentMetadataForm, DocumentTextForm
-from pecunia.models import Document, PropertyMapping
+from pecunia.models import Document, PropertyMapping, ItemMapping
 from .api import json_to_python
 from .wikibase import InstanceDashboardView
 
@@ -66,7 +66,8 @@ class DocumentUpdateText(LoginRequiredMixin, FormView):
         display_id = self.kwargs['display_id']
         document = Document.get_by_id(display_id)
         document.add_or_set_value(PropertyMapping.get('language'), m.ItemMapping.get(form.cleaned_data['language']))
-        document.add_or_set_value(PropertyMapping.get('text'), m.StringValue.objects.create(value=form.cleaned_data['text']))
+        document.add_or_set_value(PropertyMapping.get('text'),
+                                  m.StringValue.objects.create(value=form.cleaned_data['text']))
         document.save()
         return super().form_valid(form)
 
@@ -82,9 +83,10 @@ class DocumentUpdateText(LoginRequiredMixin, FormView):
         kwargs = super().get_form_kwargs()
         document = m.Item.objects.get(display_id=self.kwargs['display_id'])
         if document.get_value(PropertyMapping.get('text')):
+            print(document.get_value(PropertyMapping.get('language')))
             kwargs["initial"] = {
                 'text': document.get_value(PropertyMapping.get('text')),
-                'language': document.get_value(PropertyMapping.get('language'))
+                'language': ItemMapping.get_key(document.get_value(PropertyMapping.get('language')))
             }
         return kwargs
 
@@ -121,17 +123,13 @@ class AnnotatorApiView(LoginRequiredMixin, View):
 
         reconciliations = data['reconciliations']
         items = {}
-        unknown_entities = []
         for new_entity in reconciliations['newEntities']:
             items[new_entity['tokenId']] = m.Item.objects.create()
-
-        for unknown_entity in reconciliations['unknownEntities']:
-            unknown_entities.append(unknown_entity['tokenId'])
 
         for linked_entity in reconciliations['linkedEntities']:
             items[linked_entity['token']['tokenId']] = m.Item.objects.get(display_id=linked_entity['qid'])
 
-        schemata = data['schemata']
+        schemata = data['schemas']
         for schema in schemata:
             token = schema['token']
             item = items[token['tokenId']]
@@ -148,20 +146,21 @@ class AnnotatorApiView(LoginRequiredMixin, View):
                 prop = m.Property.objects.get(display_id=json_statement['property'])
 
                 for snak in json_statement['statements']:
+                    print(f"snak {snak}")
                     json_snaktype = snak['mainSnak']['type']
-                    json_value = snak['mainSnak']['value']
 
                     mainsnak = m.PropertySnak(property=prop)
-                    print(f"snak {snak}")
-                    if json_snaktype == 'Item':
-                        if snak['mainSnak']['value']['item']['tokenId'] in unknown_entities:
-                            mainsnak.type = m.PropertySnak.Type.SOME_VALUE
-                        else:
-                            mainsnak.type = m.PropertySnak.Type.VALUE
-                            mainsnak.value = items[snak['mainSnak']['value']['item']['tokenId']]
+                    if snak['mainSnak']['snakType'] == 'somevalue':
+                        mainsnak.type = m.PropertySnak.Type.SOME_VALUE
+                    elif snak['mainSnak']['snakType'] == 'novalue':
+                        mainsnak.type = m.PropertySnak.Type.NO_VALUE
                     else:
                         mainsnak.type = m.PropertySnak.Type.VALUE
-                        mainsnak.value = json_to_python(json_snaktype, json_value)
+                        if json_snaktype == 'Item':
+                            mainsnak.value = items[snak['mainSnak']['value']['item']['tokenId']]
+                        else:
+                            mainsnak.value = json_to_python(json_snaktype, snak['mainSnak']['value'])
+                        print(json_snaktype, snak['mainSnak']['value'], mainsnak.value)
                     mainsnak.save()
                     statement = m.Statement(subject=item, mainsnak=mainsnak, rank=0)
                     statement.save()
@@ -171,11 +170,16 @@ class AnnotatorApiView(LoginRequiredMixin, View):
                         json_qsnak = json_qualifier['snak']
                         json_snaktype = json_qsnak['type']
                         qsnak = m.PropertySnak(property=prop)
-                        if json_snaktype == 'Item' and json_qsnak['value']['item']['tokenId'] in unknown_entities:
+                        if json_qsnak['snakType'] == 'somevalue':
                             qsnak.type = m.PropertySnak.Type.SOME_VALUE
+                        elif json_qsnak['snakType'] == 'novalue':
+                            qsnak.type = m.PropertySnak.Type.NO_VALUE
                         else:
                             qsnak.type = m.PropertySnak.Type.VALUE
-                            qsnak.value = json_to_python(json_snaktype, json_qsnak['value'])
+                            if json_snaktype == 'Item':
+                                qsnak.value = items[json_qsnak['value']['item']['tokenId']]
+                            else:
+                                qsnak.value = json_to_python(json_snaktype, json_qsnak['value'])
                         qsnak.save()
                         qualifier = m.Qualifier(statement=statement, snak=qsnak)
                         qualifier.save()
@@ -189,11 +193,17 @@ class AnnotatorApiView(LoginRequiredMixin, View):
                             json_rsnak = json_reference['snak']
                             json_snaktype = json_rsnak['type']
                             rsnak = m.PropertySnak(property=prop)
-                            if json_snaktype == 'Item' and json_value['value']['item']['tokenId'] in unknown_entities:
+                            print(json_reference)
+                            if json_rsnak['snakType'] == 'somevalue':
                                 rsnak.type = m.PropertySnak.Type.SOME_VALUE
+                            elif json_rsnak['snakType'] == 'novalue':
+                                rsnak.type = m.PropertySnak.Type.NO_VALUE
                             else:
                                 rsnak.type = m.PropertySnak.Type.VALUE
-                                rsnak.value = json_to_python(json_snaktype, json_rsnak['value'])
+                                if json_snaktype == 'Item':
+                                        rsnak.value = items[json_rsnak['value']['item']['tokenId']]
+                                else:
+                                    rsnak.value = json_to_python(json_snaktype, json_rsnak['value'])
                             rsnak.save()
                             reference = m.ReferenceSnak(reference=record, snak=rsnak)
                             reference.save()

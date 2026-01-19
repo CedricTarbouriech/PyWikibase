@@ -35,6 +35,32 @@ export async function postAsJson(url, errorMessage, data) {
   return await response.json();
 }
 
+export async function putAsJson(url, errorMessage, data) {
+  const response = await fetch(url, {
+    method: 'PUT',
+    headers: {
+      'Content-Type': 'application/json',
+      'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value
+    },
+    body: JSON.stringify(data)
+  });
+  if (!response.ok) throw new Error(errorMessage);
+  return await response.json();
+}
+
+export async function deleteAsJson(url, errorMessage, data) {
+  const response = await fetch(url, {
+    method: 'DELETE',
+    headers: {
+      'Content-Type': 'application/json',
+      'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value
+    },
+    body: JSON.stringify(data)
+  });
+  if (!response.ok) throw new Error(errorMessage);
+  return await response.json();
+}
+
 export async function fetchPropertyDataType(propertyId) {
   const data = await getAsJson(`/api/properties/${propertyId}`, `Impossible de charger les données de la propriété ${propertyId}.`);
   return data.type;
@@ -50,7 +76,7 @@ export async function fetchPropertyDataType(propertyId) {
  * @returns {Promise<{updatedHtml: string}>}
  */
 export async function createStatement(snakType, rank, propertyId, entityId, value) {
-  return await postAsJson('/api/statement/add', 'Erreur lors de l’ajout d’un statement.', {
+  return await postAsJson('/api/statements/', 'Erreur lors de l’ajout d’un statement.', {
     snak_type: snakType,
     prop_id: propertyId,
     entity_id: entityId,
@@ -68,7 +94,7 @@ export async function createStatement(snakType, rank, propertyId, entityId, valu
  */
 export async function createQualifier(statementId, propertyId, value) {
   console.log(statementId, propertyId, value);
-  return await postAsJson('/api/qualifier/add', 'Erreur lors de l’ajout d’un qualifier.', {
+  return await postAsJson('/api/qualifiers/', 'Erreur lors de l’ajout d’un qualifier.', {
     statement_id: statementId,
     prop_id: propertyId,
     value: value
@@ -84,7 +110,7 @@ export async function createQualifier(statementId, propertyId, value) {
  * @returns {Promise<{updatedHtml: string}>}
  */
 export async function updateStatement(statementId, rank, snakType, value) {
-  return await postAsJson('/api/statement/update', 'Erreur dans la mise à jour du statement.', {
+  return await putAsJson('/api/statements/', 'Erreur dans la mise à jour du statement.', {
     statement_id: statementId,
     rank: rank,
     snak_type: snakType,

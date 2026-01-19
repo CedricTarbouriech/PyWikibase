@@ -3,7 +3,7 @@
 {% load pecunia_tags %}
 {% block content %}
     <h1>{% trans "form.place.list_title" %}</h1>
-    <a class="button" href='{% url "item_create" %}'>{% trans "form.place.new" %}</a>
+    <a class="button progressive" href='{% url "item_create" %}'>{% trans "form.place.new" %}</a>
     <table>
         <tr>
             <th>{% trans "form.place.name" %}</th>
@@ -15,9 +15,9 @@
             <td>{{ item|label:LANGUAGE_CODE }}</td>
             <td>{{ item|description:LANGUAGE_CODE }}</td>
             <td>
-                <a class="button" href='{% url "place_display" item.display_id %}'>{% trans "global.see" %}</a>
-                <a class="button" href='{% url "item_display" item.display_id %}'>{% trans "global.item" %}</a>
-                <a class="button" href='{% url "item_delete" item.display_id %}'>{% trans "global.delete" %}</a>
+                <a class="button neutral" href='{% url "place_display" item.display_id %}'>{% trans "global.see" %}</a>
+                <a class="button neutral" href='{% url "item_display" item.display_id %}'>{% trans "global.item" %}</a>
+                <a class="button destructive" href='{% url "item_delete" item.display_id %}'>{% trans "global.delete" %}</a>
             </td>
         </tr>
         {% endfor %}

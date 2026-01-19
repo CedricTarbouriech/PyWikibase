@@ -77,11 +77,6 @@ class ItemAdmin(SortableAdminBase, admin.ModelAdmin):
     ordering = ['display_id']
     list_display = ('display_name',)
 
-    def get_queryset(self, request):
-        qs = super().get_queryset(request)
-        # Ne garder que les Items ayant au moins une ItemProperty
-        return qs.filter(itemproperty__isnull=False).distinct()
-
     def display_name(self, obj):
         return str(obj)
 

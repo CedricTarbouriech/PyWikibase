@@ -6,7 +6,7 @@
     <h1>{% trans "form.property.list_title" %}</h1>
 
     {% if user.is_authenticated %}
-        <a class="button" href='{% url "property_create" %}'>{% trans "form.property.new" %}</a>
+        <a class="button progressive" href='{% url "property_create" %}'>{% trans "form.property.new" %}</a>
     {% endif %}
 
     {% include "wikibase/widgets/pagination.html" %}
@@ -24,10 +24,10 @@
                 <td>{{ item|label_or_default:LANGUAGE_CODE }}</td>
                 <td>{{ item|description_or_default:LANGUAGE_CODE }}</td>
                 <td>
-                    <a class="button" href='{% url "property_display" item.display_id %}'>{% trans "global.see" %}</a>
+                    <a class="button neutral" href='{% url "property_display" item.display_id %}'>{% trans "global.see" %}</a>
 
                     {% if user.is_authenticated %}
-                        <a class="button"
+                        <a class="button destructive"
                            href='{% url "property_delete" item.display_id %}'>{% trans "global.delete" %}</a>
                     {% endif %}
                 </td>

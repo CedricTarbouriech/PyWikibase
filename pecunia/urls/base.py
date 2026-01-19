@@ -28,10 +28,7 @@ urlpatterns = [
     path("api/annotator", views.AnnotatorApiView.as_view(), name="api_annotator"),
 
     path('api/', include(router.urls)),
-    path("api/statement/add", views.StatementAddApiView.as_view(), name="api_statement_snak_new"),
-    path("api/statement/update", views.StatementUpdateApiView.as_view(), name="api_statement_snak_update"),
-    path("api/statement/<int:statement_id>", views.StatementApiView.as_view(), name="api_statements"),
-    path("api/statement/delete", views.StatementDeleteApiView.as_view(), name="api_statement_delete"),
-    path("api/qualifier/add", views.QualifierAddApiView.as_view(), name="api_new_qualifier"),
-    path("api/qualifier/delete", views.QualifierDeleteApiView.as_view(), name="api_qualifier_delete"),
+    path("api/statements/", views.StatementApiView.as_view(), name="api_statement"),
+    path("api/statements/<int:statement_id>", views.StatementApiView.as_view(), name="api_statements"),
+    path("api/qualifiers/", views.QualifierApiView.as_view(), name="api_qualifier"),
 ]

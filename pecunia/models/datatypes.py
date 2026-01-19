@@ -1,4 +1,3 @@
-from django.contrib.auth.models import User
 from django.core import exceptions
 from django.core.exceptions import ValidationError
 from django.db import models
@@ -43,8 +42,6 @@ class Datatype(Entity):
             return GlobeCoordinatesValue
         if self.class_name == 'MonolingualTextValue':
             return MonolingualTextValue
-        if self.class_name == 'UserValue':
-            return UserValue
         if self.class_name == 'StatementValue':
             return StatementValue
         raise UnknownDatatypeException(self.class_name)
@@ -66,11 +63,26 @@ class StringValue(DataValue):
     def __str__(self):
         return self.value
 
+    def get_datatype(self):
+        return 'string'
+
+    def get_json_value(self):
+        return self.value
+
 
 class UrlValue(DataValue):
     value = models.TextField()
 
     def __str__(self):
+        return self.value
+
+    def get_datatype(self):
+        return 'url'
+
+    def get_type(self):
+        return 'string'
+
+    def get_json_value(self):
         return self.value
 
 
@@ -82,6 +94,15 @@ class QuantityValue(DataValue):
 
     def __str__(self):
         return f"{self.number}"
+
+    def get_datatype(self):
+        return 'quantity'
+
+    def get_json_value(self):
+        return {
+            'amount': self.number,
+            'unit': '1'
+        }
 
 
 class TimeValue(DataValue):
@@ -109,6 +130,19 @@ class TimeValue(DataValue):
     before = models.IntegerField(blank=True, null=True)
     calendar_model = models.ForeignKey(Item, on_delete=models.PROTECT)
 
+    def get_datatype(self):
+        return 'time'
+
+    def get_json_value(self):
+        return {
+            'time': self.time,
+            'timezone': self.timezone,
+            'before': self.before,
+            'after': self.after,
+            'precision': self.precision,
+            'calendarmodel': self.calendar_model.pretty_display_id
+        }
+
 
 class GlobeCoordinatesValue(DataValue):
     latitude = models.DecimalField(max_digits=11, decimal_places=9)
@@ -116,6 +150,20 @@ class GlobeCoordinatesValue(DataValue):
     precision = models.DecimalField(max_digits=12, decimal_places=9, validators=[positive])
     # Changed IRI to Item
     globe = models.ForeignKey(Item, on_delete=models.PROTECT)
+
+    def get_datatype(self):
+        return 'globe-coordinate'
+
+    def get_type(self):
+        return 'globecoordinate'
+
+    def get_json_value(self):
+        return {
+            "latitude": self.latitude,
+            "longitude": self.longitude,
+            "precision": self.precision,
+            "globe": self.globe.pretty_display_id
+        },
 
 
 class MonolingualTextValue(DataValue):
@@ -125,9 +173,14 @@ class MonolingualTextValue(DataValue):
     def __str__(self):
         return f'({self.language}) {self.text}'
 
+    def get_datatype(self):
+        return 'monolingualtext'
 
-class UserValue(DataValue):
-    user = models.ForeignKey(User, on_delete=models.PROTECT)
+    def get_json_value(self):
+        return {
+            'language': self.language,
+            'text': self.text
+        }
 
 
 class StatementValue(DataValue):

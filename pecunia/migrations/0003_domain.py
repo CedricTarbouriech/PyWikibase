@@ -2,7 +2,8 @@ import sys
 
 from django.db import migrations
 
-from pecunia.models import Datatype, Property, Item, PropertyMapping, ItemMapping, PropertySnak, Statement
+from pecunia.models import Datatype, Property, Item, PropertyMapping, ItemMapping, PropertySnak, Statement, \
+    PropertyOrderPreference
 
 
 def create_property(label, description, datatype):
@@ -37,22 +38,27 @@ def create_item_mapping(key, item):
     ItemMapping.objects.create(key=key, item=item)
 
 
+def set_property_order_list(item, properties):
+    PropertyOrderPreference.objects.bulk_create([PropertyOrderPreference(item=item, prop=prop, ordering=i + 1) for i, prop in enumerate(properties)])
+
 def populate_db(apps, *_ignored):
     prop_is_a = create_property('is a', '', 'Item')
     create_property('subclass', '', 'Item')
-    prop_date = create_property('date', 'date when an event occured', 'TimeValue')
-    create_property('date (reign)', '', 'Item')
+    prop_date = create_property('date', 'date when an event happened', 'TimeValue')
+    create_property('earliest date', 'earliest date at which an event could have happened', 'TimeValue')
+    create_property('latest date', 'latest date at which an event could have happened', 'TimeValue')
+    create_property('during', '', 'Item')
     ## Relatif à l’épistémologie
-    # TODO create_property('') explicite / implicite (écrit dans le texte / interprété par les historiens)
-
-    # 54 BCE - 58 (CE)?
-    # 15/03/44 BCE - 14/06/44 (CE)?
+    create_property('asserted in', '', 'Item')
+    create_property('passage', 'token id ', 'StringValue')
+    create_property('hypothesided from text', '', 'Item')
+    create_property('hypothesided from statement', '', 'StatementValue') # FIXME Vérifier StatementValue
 
     # Propriétés des documents
     ##
     prop_title = create_property('title', '', 'MonolingualTextValue')
     prop_source_type = create_property('type of source', '', 'Item')  # Epigraphique, Papyrologique, Littéraire
-    create_property('type of text', '', 'Item')  # Decree, Edict, etc.
+    prop_text_type = create_property('type of text', '', 'Item')  # Decree, Edict, etc.
     prop_lang = create_property('lang', '', 'Item')
     prop_text = create_property('text', '', 'StringValue')
     prop_author = create_property('author', 'person (natural or civic body or association) who wrote the text', 'Item')
@@ -68,25 +74,33 @@ def populate_db(apps, *_ignored):
 
     # Propriété pour les lieux
     create_property('ancient name', '', 'MonolingualTextValue')
-    coords = create_property('coordinates', '', 'GlobeCoordinatesValue')
-    create_property('part of', '', 'Item')  # Expliquez ça dans le guide d’annotations
-    pleiades = create_property('Pleiades link', '', 'UrlValue')
+    prop_coords = create_property('coordinates', '', 'GlobeCoordinatesValue')
+    prop_part_of = create_property('part of', '', 'Item')  # Expliquez ça dans le guide d’annotations
+    prop_pleiades_link = create_property('Pleiades link', '', 'UrlValue')
     create_property('Trismegistos link', '', 'UrlValue')
-    create_property('size', '', 'Item')
+    prop_size = create_property('size', '', 'Item')
     # Statut : utiliser is_a
 
     # Propriétés pour les personnes physiques
     # Pour les noms, utiliser les labels ?
     create_property('sex', '', 'Item')
     create_property('legal status', '', 'Item')  # Esclave, Affranchi, Libre
-    create_property('citizenship', '', 'Item')  # Cité de rattachement : origo
-    create_property('civic status', 'foreigner/Latin/Roman', 'Item')
+    create_property('citizenship', 'city of origin', 'Item')  # Cité de rattachement : origo
+    prop_civic_status = create_property('civic status', 'peregrinus/Roman', 'Item')
     # Si esclave pas de civic status ni citizenship
-    create_property('social level', '', 'Item')
-    create_property('function', '', 'Item')
+    prop_social_level = create_property('social level', '', 'Item')
+    create_property('function', '', 'Item') # Fonctions publiques civiles et militaires -> détenteur d’un pouvoir public
+    create_property('occupation', '', 'Item') # Métiers
     create_property('member of', '', 'Item')
-    create_property('recognised as', 'quality/? attributed to the person by someone else',
-                    'Item')  # FIXME Voir avec Elizabeth pour les qualités négatives
+
+    # Process -> Expression
+    # Personne -[|-> Expression]> Process
+    create_property('described as', 'expression used to describe something (e.g. a person or a process)', 'Item')
+    create_property('described by', 'the person describing the subject', 'Item')
+
+    create_property('ruled as', 'expression used to ', 'Item') # Pour les décisions de justice
+    create_property('ruled by', 'the person taking a decision about the subject', 'Item')
+
     # Utiliser propriété Trismegistos link
 
     # Propriétés pour les personnes morales (civic body or association)
@@ -99,31 +113,31 @@ def populate_db(apps, *_ignored):
     # Pour les noms, utiliser les labels
 
     # Propriétés pour les processus
-    create_property('place', 'place where the event took place', 'Item')
-    create_property('legality', 'is the process legal?', 'Item')
-    create_property('challenged by', 'person who challenged the process', 'Item')
-    create_property('challenge type', '', 'Item')  # judiciairement, moralement
+    prop_place = create_property('place', 'place where the event took place', 'Item')
     create_property('quantity', '', 'QuantityValue')
     create_property('unit', '', 'Item')
-    create_property('benefit', 'resource obtained through the process', 'Item')  # FIXME check description
-    create_property('beneficiary', '', 'Item')
-    create_property('provider', '', 'Item')
-    # FIXME broker
+    prop_benefit = create_property('benefit', 'resource obtained through the process', 'Item')
+    prop_beneficiary = create_property('beneficiary', '', 'Item')
+    prop_provider = create_property('provider', '', 'Item')
+    # FIXME broker = participant au processus sans qui le processus ne pourrait avoir lieu
     create_property('function', '', 'Item')
 
+    # Au moment où ça se produit, c’est vraisemblablement légal, mais c’est du favoritisme
+    # C’est attaqué par l’avocat lorsque c’est devenu illégal
+    # L’empereur Trajan reconnait que ce type d’acte est aujourd’hui est illégal, mais comme ç’a été fait il y a longtemps, on oublie (prescription ?)
+
     # Propriétés pour les fonctions ou les titres
-    create_property('administrative level', '', 'Item')  # Infra-civic / civic / provincial / empire / emperor / army
-    create_property('Greek or Roman position', '', 'Item')  # Greek or Roman position FIXME Is a ?
+    create_property('administrative level', '', 'Item')  # Infra-civic / civic / provincial / emperor / army
 
     # Propriétés pour les ouvrages bibliographiques
     create_property('zotero link', '', 'UrlValue')
 
-    # À trier
-    create_property('certainty degree', '', 'Item')
     create_property('is mentioned in', 'document in which an entity is mentioned', 'Item')
     create_property('capital of an endowment', '', 'QuantityValue')
     create_property('percentage extracted from a capital', '', 'QuantityValue')
-    create_property('edited by', 'user who edited the document', 'UserValue')
+    create_property('process manner', 'adverb to describe a process', 'Item')
+    create_property('remainder of', 'remaining resource after some part of it has been used', 'Item')
+    create_property('edited by', 'user who edited the document', 'Item')
     create_property('editing role', '', 'Item')
 
     create_property_mapping('is_a', prop_is_a)
@@ -139,30 +153,126 @@ def populate_db(apps, *_ignored):
     create_property_mapping('bibliography', prop_biblio)
     create_property_mapping('commentary', prop_commentary)
     create_property_mapping('provenance', prop_prov)
-    create_property_mapping('coordinates', pleiades)
-    create_property_mapping('pleiades', pleiades)
+    create_property_mapping('coordinates', prop_coords)
+    create_property_mapping('pleiades', prop_pleiades_link)
 
     higher_type = create_item('type', 'higher type')
-    doc = create_item('document', '')
-    person = create_item('person', '')
-    place = create_item('place', '')
+    item_document = create_item('document', '')
+    item_person = create_item('person', '')
+    item_place = create_item('place', '')
     resource = create_item('resource', '')
-    process = create_item('benefit process', '')
+    item_process = create_item('benefit process', '')
 
-    is_a(doc, higher_type)
-    is_a(person, higher_type)
-    is_a(place, higher_type)
+    is_a(item_document, higher_type)
+    is_a(item_person, higher_type)
+    is_a(item_place, higher_type)
     is_a(resource, higher_type)
-    is_a(process, higher_type)
+    is_a(item_process, higher_type)
 
     create_item_mapping('type', higher_type)
-    create_item_mapping('document', doc)
-    create_item_mapping('person', person)
-    create_item_mapping('place', place)
+    create_item_mapping('document', item_document)
+    create_item_mapping('person', item_person)
+    create_item_mapping('place', item_place)
     create_item_mapping('resource', resource)
-    create_item_mapping('process', process)
+    create_item_mapping('process', item_process)
     create_item_mapping('calendar', create_item('calendar', ''))
     create_item_mapping('earth', create_item('Earth', ''))
+
+    item_source_type = create_item('type of source', '')
+    item_epi = create_item('epigraphic', '')
+    item_papy = create_item('papyrological', '')
+    item_lit = create_item('literary', '')
+    item_leg_comp = create_item('legal compilations', 'digest, Codex Theodosianus')
+
+    is_a(item_epi, item_source_type)
+    is_a(item_papy, item_source_type)
+    is_a(item_lit, item_source_type)
+    is_a(item_leg_comp, item_source_type)
+
+    item_text_type = create_item('type of text', '')
+
+    item_dedication = create_item('dedication', '')
+    is_a(item_dedication, item_text_type)
+    item_building_dedi = create_item('dedication of building', '')
+    is_a(item_building_dedi, item_dedication)
+    item_endowment_dedi = create_item('dedication of a endowment', '')
+    is_a(item_endowment_dedi, item_dedication)
+
+    item_honorific = create_item('honorific', '')
+    is_a(item_honorific, item_text_type)
+    item_emperor_honorific = create_item('honorific for an emperor', '')
+    is_a(item_emperor_honorific, item_honorific)
+    item_governor_honorific = create_item('honorific for a governor', '')
+    is_a(item_governor_honorific, item_honorific)
+    item_civic_honorific = create_item('honorific for a civic official', '')
+    is_a(item_civic_honorific, item_honorific)
+
+    is_a(create_item('edict', ''), item_text_type)
+
+    item_decree = create_item('decree', '')
+    is_a(item_decree, item_text_type)
+    is_a(create_item('consolatory decree', ''), item_decree)
+    is_a(create_item('honorific decree', ''), item_decree)
+
+    is_a(create_item('rescript', ''), item_text_type)
+    is_a(create_item('graffito', ''), item_text_type)
+    is_a(create_item('funerary', ''), item_text_type)
+    is_a(create_item('municipal charter', ''), item_text_type)
+    is_a(create_item('votive', ''), item_text_type)
+    is_a(create_item('petition', ''), item_text_type)
+    is_a(create_item('juristic excerpt', ''), item_text_type)
+
+    is_a(create_item('historical narrative', ''), item_text_type)
+    is_a(create_item('encomiastic literature', ''), item_text_type)
+    is_a(create_item('apologetic literature', ''), item_text_type)
+    is_a(create_item('philosophical discourse', ''), item_text_type)
+    is_a(create_item('technical literature', ''), item_text_type)
+    is_a(create_item('official correspondence', ''), item_text_type)
+    is_a(create_item('epistolary literature', ''), item_text_type)
+
+    item_lang = create_item('language', '')
+    item_ancient_greek = create_item('Ancient greek', '')
+    is_a(item_ancient_greek, item_lang)
+    item_latin = create_item('Latin', '')
+    is_a(item_latin, item_lang)
+
+    create_item_mapping('grc', item_ancient_greek)
+    create_item_mapping('la', item_latin)
+
+    item_role = create_item('role', '')
+
+    # role privé = occupation, role public = fonction
+    item_private = create_item('private role', '') #TODO Expliciter dans le guide d’annotation + Mettre en place un processus de controle des roles créés
+    item_semi_public = create_item('semi-public role', '')
+    item_public = create_item('public role', '')
+
+    item_individual = create_item('individual role', 'role for a natural person')
+    item_corporate = create_item('corporate body role', 'role for a civic group or an association')
+
+    item_roman_role = create_item('Roman role', 'official function in western cities')
+    item_greek_role = create_item('Greek role', 'official function in eastern cities')
+
+    is_a(item_private, item_role)
+    is_a(item_semi_public, item_role)
+    is_a(item_public, item_role)
+    is_a(item_individual, item_role)
+    is_a(item_corporate, item_role)
+
+    item_place_size = create_item('size of a place', '')
+    is_a(create_item('small', 'size of a place'), item_place_size)
+    is_a(create_item('medium', 'size of a place'), item_place_size)
+    is_a(create_item('large', 'size of a place'), item_place_size)
+    is_a(create_item('very large', 'size of a place'), item_place_size)
+
+    # TODO Gérer l’empire et l’Italie (qui n’est pas une province)
+    create_item('province', '')
+    create_item('city', '')
+    create_item('Roman colony', '')
+    create_item('municipium', '')
+    create_item('non-Roman city', '')
+    create_item('Egyptian nome', '')
+    create_item('nome capital', '')
+    create_item('village', '')
 
     social_level = create_item('social level', '')
     social_level_1 = create_item('social level 1 - top family',
@@ -170,11 +280,56 @@ def populate_db(apps, *_ignored):
     social_level_1p = create_item('social level 1+',
                                   'such as M. Ulpius Carminius Claudianus Claudianus at Aphrodisias (convergence of political importance + able of giving 100000 of denarii)')
     social_level_2 = create_item('social level 2', 'such as top family, and sculptor in Aphrodisias')
+    social_level_3 = create_item('social level 3', 'such as plain boulettes/senator in the city, minor official functions')
+    social_level_4 = create_item('social level 4', 'working person, owner of shop, professional activity belonging top upper level of the plebs')
+    social_level_5 = create_item('social level 5', 'the 90%')
 
     is_a(social_level_1, social_level)
     is_a(social_level_1p, social_level)
     is_a(social_level_2, social_level)
+    is_a(social_level_3, social_level)
+    is_a(social_level_4, social_level)
+    is_a(social_level_5, social_level)
 
+    item_sex = create_item('sex', '')
+    is_a(create_item('male', 'sex'), item_sex)
+    is_a(create_item('female', 'sex'), item_sex)
+
+    item_legal_status = create_item('legal status', '')
+    is_a(create_item('enslaved person', 'legal status'), item_legal_status)
+    is_a(create_item('freed person', 'legal status'), item_legal_status)
+    is_a(create_item('freeborn', 'legal status'), item_legal_status)
+
+    item_civic_status = create_item('civic status', '')
+    is_a(create_item('peregrinus', 'civic status'), item_civic_status)
+    is_a(create_item('Roman', 'civic status'), item_civic_status)
+
+    item_recruitment_process = create_item('recruitment process', 'how people can become members')
+    is_a(create_item('elected', 'recruitment process'), item_recruitment_process)
+    is_a(create_item('drawn by lots', 'recruitment process'), item_recruitment_process)
+    is_a(create_item('designated', 'recruitment process'), item_recruitment_process)
+    is_a(create_item('property qualification', 'recruitment process'), item_recruitment_process)
+    is_a(create_item('by birth', 'recruitment process'), item_recruitment_process)
+
+    item_administrative_level = create_item('administrative level', '')
+    is_a(create_item('infra-civic', ''), item_administrative_level)
+    is_a(create_item('civic', ''), item_administrative_level)
+    is_a(create_item('provincial', ''), item_administrative_level)
+    # is_a(create_item('emperor', ''), item_administrative_level) TODO C’est pas un niveau, c’est le titre lui-même (voir pb avec Empire et Italie)
+    is_a(create_item('army', ''), item_administrative_level)
+
+    item_editing_role = create_item('editing role', '')
+    is_a(create_item('author', ''), item_editing_role)
+    is_a(create_item('reviewer', ''), item_editing_role)
+
+    set_property_order_list(item_document, [prop_title, prop_is_a, prop_source_type, prop_text_type, prop_prov, prop_date, prop_text, prop_author, prop_biblio])
+    set_property_order_list(item_person, [prop_is_a, #prop_place,
+                                           prop_social_level, prop_see_also])
+    set_property_order_list(item_place, [prop_is_a, prop_coords, prop_part_of, prop_civic_status, prop_pleiades_link, prop_size,
+                                         #prop_mentioned_in
+                                         ])
+    set_property_order_list(item_process, [prop_is_a, #prop_mentioned_in,
+        prop_date, prop_place, prop_beneficiary, prop_benefit, prop_provider, ])#TODO prop_broker
 
 class Migration(migrations.Migration):
     dependencies = [

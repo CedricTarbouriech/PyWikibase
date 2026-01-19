@@ -2,7 +2,7 @@ from .base import *
 
 DEBUG = True
 
-ALLOWED_HOSTS = ['localhost']
+ALLOWED_HOSTS = ['localhost', 'pecunia-app.huma-num.fr']
 
 SECRET_KEY = 'django-insecure-@l6scf77o1fa%k*+s=lkvpt1+pp)f0q*c(0ozcoba(-ys%bb2v'
 

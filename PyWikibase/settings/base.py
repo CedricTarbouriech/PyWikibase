@@ -92,7 +92,6 @@ LANGUAGE_CODE = 'en-us'
 
 LANGUAGES = [
     ('en', 'English'),
-    ('fr', 'French'),
 ]
 
 PROJECT_PATH = os.path.dirname(os.path.abspath(__file__))
