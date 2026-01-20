@@ -21,51 +21,6 @@ function getNextFreeUntagId() {
 
 /**
  *
- * @param {string} text
- * @param {string} selection
- * @param {number} selectionStart
- * @returns {{charOverlap: boolean, msgOverlap: string}}
- */
-function checkCharacterOverlap(text, selection, selectionStart) {
-  let stack = new Stack();
-  for (const c of selection) {
-    if (c === "<") stack.push("<");
-    else if (c === ">") {
-      if (stack.isEmpty()) {
-        return {charOverlap: true, msgOverlap: 'Fin de balise sélectionnée'};
-      } else if (stack.top() === "<") {
-        stack.pop();
-      } else {
-        return {charOverlap: true, msgOverlap: ''}; // Cette situation ne peut pas arriver.
-      }
-    }
-  }
-
-  if (!stack.isEmpty())
-    return {'charOverlap': true, 'msgOverlap': 'Début de balise sélectionné'};
-
-  for (let i = selectionStart - 1; i >= 0; i--) {
-    if (text.at(i) === ">") break;
-    if (text.at(i) === "<")
-      return {charOverlap: true, msgOverlap: 'Intérieur d’une balise sélectionné'};
-  }
-
-  return {charOverlap: false, msgOverlap: ''};
-}
-
-function checkTagOverlap(text, selection) {
-  let stack = new Stack();
-  for (const c of selection) {
-    if (c === "<") {
-      // TODO Implementer
-    }
-  }
-  return false;
-}
-
-
-/**
- *
  * @param {HTMLElement} node
  * @returns {boolean}
  */
