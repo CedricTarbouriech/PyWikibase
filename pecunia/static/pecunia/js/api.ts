@@ -17,6 +17,18 @@ async function getAsJson(
 }
 
 /**
+ * Retrieves a CSRF token from the page.
+ * Throws an error if no token is found.
+ * @returns {string} a CSRF token.
+ */
+function getCSRFTokenFromDocument(): string {
+    const inputWithCSRF = document.querySelector<HTMLInputElement>('[name=csrfmiddlewaretoken]');
+    if (!inputWithCSRF)
+        throw new Error('No CSRF token available!');
+    return inputWithCSRF.value;
+}
+
+/**
  * Send JSON data to the specified URL using a POST request.
  * Throws an error with the provided message if the response is not successful.
  * @param {string} url The endpoint to send data to.
@@ -33,7 +45,7 @@ async function postAsJson(
         method: 'POST',
         headers: {
             'Content-Type': 'application/json',
-            'X-CSRFToken': (document.querySelector<HTMLInputElement>('[name=csrfmiddlewaretoken]') as HTMLInputElement).value
+            'X-CSRFToken': getCSRFTokenFromDocument()
         },
         body: JSON.stringify(data)
     });
@@ -50,7 +62,7 @@ async function putAsJson(
         method: 'PUT',
         headers: {
             'Content-Type': 'application/json',
-            'X-CSRFToken': (document.querySelector<HTMLInputElement>('[name=csrfmiddlewaretoken]') as HTMLInputElement).value
+            'X-CSRFToken': getCSRFTokenFromDocument()
         },
         body: JSON.stringify(data)
     });
@@ -67,7 +79,7 @@ async function deleteAsJson(
         method: 'DELETE',
         headers: {
             'Content-Type': 'application/json',
-            'X-CSRFToken': (document.querySelector<HTMLInputElement>('[name=csrfmiddlewaretoken]') as HTMLInputElement).value
+            'X-CSRFToken': getCSRFTokenFromDocument()
         },
         body: JSON.stringify(data)
     });
