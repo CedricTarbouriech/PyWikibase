@@ -96,6 +96,7 @@ export default class Reconciler extends Component {
      * @type {MultiDropZone}
      */
     this.newEntitiesDropZone = new MultiDropZone(env, {reconciliationType: Token.NEW});
+    this.newEntitiesDropZone.node.append(createSpan('Drop here to create a new item'));
 
     this.linkGroup = new LinkGroup(env, [this.newEntitiesDropZone]);
 

@@ -196,7 +196,7 @@ textarea, #middle {
     min-width: 1em;
 }
 
-.delete-drop span {
+.delete-drop span, .multi-drop span {
     user-select: none;
     opacity: 50%;
 }
