@@ -42,63 +42,66 @@ def set_property_order_list(item, properties):
     PropertyOrderPreference.objects.bulk_create([PropertyOrderPreference(item=item, prop=prop, ordering=i + 1) for i, prop in enumerate(properties)])
 
 def populate_db(apps, *_ignored):
-    prop_is_a = create_property('is a', '', 'Item')
-    create_property('subclass', '', 'Item')
+    prop_is_a = create_property('is a', 'nature of the item (what is this item?)', 'Item')
+    create_property('subclass of', 'X subclass of Y: every instance of X is an instance of Y', 'Item')
     prop_date = create_property('date', 'date when an event happened', 'TimeValue')
     create_property('earliest date', 'earliest date at which an event could have happened', 'TimeValue')
     create_property('latest date', 'latest date at which an event could have happened', 'TimeValue')
-    create_property('during', '', 'Item')
+    create_property('during', 'the process occurred during another process', 'Item')
+
     ## Relatif à l’épistémologie
-    create_property('asserted in', '', 'Item')
-    create_property('passage', 'token id ', 'StringValue')
+    create_property('passage', 'token id', 'StringValue')
+    create_property('asserted in', 'document in which a statement is asserted', 'Item')
     create_property('hypothesided from text', '', 'Item')
     create_property('hypothesided from statement', '', 'StatementValue') # FIXME Vérifier StatementValue
 
     # Propriétés des documents
     ##
-    prop_title = create_property('title', '', 'MonolingualTextValue')
-    prop_source_type = create_property('type of source', '', 'Item')  # Epigraphique, Papyrologique, Littéraire
-    prop_text_type = create_property('type of text', '', 'Item')  # Decree, Edict, etc.
-    prop_lang = create_property('lang', '', 'Item')
-    prop_text = create_property('text', '', 'StringValue')
+    prop_title = create_property('title', 'title of a document', 'MonolingualTextValue')
+    prop_source_type = create_property('type of source', 'epigraphic/papyrological/literary/legal compilations', 'Item')  # Epigraphique, Papyrologique, Littéraire
+    prop_text_type = create_property('type of text', 'decree/edict', 'Item')  # Decree, Edict, etc.
+    prop_lang = create_property('lang', 'language of the text', 'Item')
+    prop_text = create_property('text', 'text of the document', 'StringValue')
     prop_author = create_property('author', 'person (natural or civic body or association) who wrote the text', 'Item')
-    prop_author_role = create_property('role of the author', 'role of the author when they wrote the text', 'Item')
+    prop_author_role = create_property('role of the author', 'role of the author when they wrote the text (only used if natural person)', 'Item') # TODO Add constraint of exclusivity with is_a civic_body ou is_a association
     create_property('English translation', 'English translation of the text', 'StringValue')
     prop_prov = create_property('provenance', 'place from where the document originates', 'Item')
     # - date de composition : utiliser date.
+
     ## Références et bibliographie
-    prop_main_ed = create_property('main edition', '', 'Item')
     prop_see_also = create_property('see also', 'online edition of the text', 'UrlValue')
-    prop_biblio = create_property('bibliography', 'scientific publication discussing the text', 'Item')
-    prop_commentary = create_property('commentary', '', 'StringValue')
+    prop_main_ed = create_property('main edition', 'edition giving the most recent and best version of the text', 'UrlValue')
+    prop_biblio = create_property('bibliography', 'scientific publication discussing the text', 'UrlValue')
+    create_property('link label', 'label used to nicely display the link, instead of the url', 'StringValue') # Qualifier d’un lien TODO Ajouter contrainte
+    prop_commentary = create_property('commentary', 'commentary of the historian adding the text', 'StringValue')
 
     # Propriété pour les lieux
-    create_property('ancient name', '', 'MonolingualTextValue')
-    prop_coords = create_property('coordinates', '', 'GlobeCoordinatesValue')
-    prop_part_of = create_property('part of', '', 'Item')  # Expliquez ça dans le guide d’annotations
-    prop_pleiades_link = create_property('Pleiades link', '', 'UrlValue')
-    create_property('Trismegistos link', '', 'UrlValue')
-    prop_size = create_property('size', '', 'Item')
+    create_property('ancient name', 'name of a place used in Roman empire', 'MonolingualTextValue')
+    prop_coords = create_property('coordinates', 'coordinates of the place on Earth', 'GlobeCoordinatesValue')
+    prop_part_of = create_property('part of', 'object the subject is a part of', 'Item')  # TODO Expliquez ça dans le guide d’annotations
+    prop_pleiades_link = create_property('Pleiades link', 'link to the Pleiades page about the subject', 'UrlValue')
+    create_property('Trismegistos link', 'link to the Trismegistos page about the subject', 'UrlValue')
+    prop_size = create_property('size', 'estimated size of the city', 'Item')
     # Statut : utiliser is_a
 
     # Propriétés pour les personnes physiques
     # Pour les noms, utiliser les labels ?
-    create_property('sex', '', 'Item')
-    create_property('legal status', '', 'Item')  # Esclave, Affranchi, Libre
+    create_property('sex', 'male/female', 'Item')
+    create_property('legal status', 'status of a person', 'Item')  # Esclave, Affranchi, Libre
     create_property('citizenship', 'city of origin', 'Item')  # Cité de rattachement : origo
     prop_civic_status = create_property('civic status', 'peregrinus/Roman', 'Item')
     # Si esclave pas de civic status ni citizenship
-    prop_social_level = create_property('social level', '', 'Item')
-    create_property('function', '', 'Item') # Fonctions publiques civiles et militaires -> détenteur d’un pouvoir public
-    create_property('occupation', '', 'Item') # Métiers
-    create_property('member of', '', 'Item')
+    prop_social_level = create_property('social level', 'estimated social level of the person', 'Item')
+    create_property('public function', 'public function (civic or military) of the subject', 'Item') # Fonctions publiques civiles et militaires -> détenteur d’un pouvoir public
+    create_property('occupation', 'job of the subject', 'Item') # Métiers
+    create_property('member of', 'group or institution the subject is a member of', 'Item')
 
     # Process -> Expression
     # Personne -[|-> Expression]> Process
     create_property('described as', 'expression used to describe something (e.g. a person or a process)', 'Item')
     create_property('described by', 'the person describing the subject', 'Item')
 
-    create_property('ruled as', 'expression used to ', 'Item') # Pour les décisions de justice
+    create_property('ruled as', 'expression used to', 'Item') # Pour les décisions de justice
     create_property('ruled by', 'the person taking a decision about the subject', 'Item')
 
     # Utiliser propriété Trismegistos link
@@ -114,31 +117,21 @@ def populate_db(apps, *_ignored):
 
     # Propriétés pour les processus
     prop_place = create_property('place', 'place where the event took place', 'Item')
-    create_property('quantity', '', 'QuantityValue')
-    create_property('unit', '', 'Item')
+    create_property('quantity', 'quantity of the benefit', 'QuantityValue')
+    create_property('unit', 'unit of the benefit', 'Item')
     prop_benefit = create_property('benefit', 'resource obtained through the process', 'Item')
-    prop_beneficiary = create_property('beneficiary', '', 'Item')
-    prop_provider = create_property('provider', '', 'Item')
+    prop_beneficiary = create_property('beneficiary', 'person obtaining the benefit', 'Item')
+    prop_provider = create_property('provider', 'person giving the benefit', 'Item')
     # FIXME broker = participant au processus sans qui le processus ne pourrait avoir lieu
-    create_property('function', '', 'Item')
-
-    # Au moment où ça se produit, c’est vraisemblablement légal, mais c’est du favoritisme
-    # C’est attaqué par l’avocat lorsque c’est devenu illégal
-    # L’empereur Trajan reconnait que ce type d’acte est aujourd’hui est illégal, mais comme ç’a été fait il y a longtemps, on oublie (prescription ?)
+    create_property('role in a process', 'role (function/occupation) of the person explaining why they are involved in the process', 'Item')
 
     # Propriétés pour les fonctions ou les titres
-    create_property('administrative level', '', 'Item')  # Infra-civic / civic / provincial / emperor / army
-
-    # Propriétés pour les ouvrages bibliographiques
-    create_property('zotero link', '', 'UrlValue')
-
+    create_property('administrative level', '', 'Item')  # Infra-civic / civic / provincial / emperor / army TODO Mettre dans la description
     create_property('is mentioned in', 'document in which an entity is mentioned', 'Item')
-    create_property('capital of an endowment', '', 'QuantityValue')
-    create_property('percentage extracted from a capital', '', 'QuantityValue')
+    create_property('capital of an endowment', 'capital first invested in the endowment', 'QuantityValue')
+    create_property('percentage extracted from a capital', 'known or estimated rate of interest', 'QuantityValue')
     create_property('process manner', 'adverb to describe a process', 'Item')
     create_property('remainder of', 'remaining resource after some part of it has been used', 'Item')
-    create_property('edited by', 'user who edited the document', 'Item')
-    create_property('editing role', '', 'Item')
 
     create_property_mapping('is_a', prop_is_a)
     create_property_mapping('date', prop_date)
