@@ -196,7 +196,7 @@ textarea, #middle {
     min-width: 1em;
 }
 
-.delete-drop span, .multi-drop span {
+.delete-drop span, .multi-drop span:not(.entity-token) {
     user-select: none;
     opacity: 50%;
 }
