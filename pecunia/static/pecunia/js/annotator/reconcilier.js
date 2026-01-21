@@ -115,8 +115,8 @@ export default class Reconcilier extends Component {
 
   aggregate() {
     return {
-      newEntities: this.newEntitiesDropZone.aggregate(),
-      linkedEntities: this.linkGroup.aggregate()
+      newItems: this.newEntitiesDropZone.aggregate(),
+      linkedItems: this.linkGroup.aggregate()
     };
   }
 }

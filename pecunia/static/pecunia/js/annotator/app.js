@@ -125,8 +125,8 @@ document.addEventListener('DOMContentLoaded', () => {
     const reconciliationsLabel = document.createElement('li');
     reconciliationsLabel.textContent = 'Reconciliations';
     reconciliations.append(
-      ...generateList('New entities', Object.values(aggregations.reconciliations.newEntities)),
-      ...generateList('Linked entities', Object.values(aggregations.reconciliations.linkedEntities))
+      ...generateList('New items', Object.values(aggregations.reconciliations.newItems)),
+      ...generateList('Linked items', Object.values(aggregations.reconciliations.linkedItems))
     );
 
     const schemas = document.createElement('ul');
