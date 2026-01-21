@@ -101,8 +101,8 @@ export default class Reconciler extends Component {
     this.linkGroup = new LinkGroup(env, [this.newEntitiesDropZone]);
 
     this.node.append(
-      ...createCollapsible('New entities', this.newEntitiesDropZone.node),
-      ...createCollapsible('Linked entities', this.linkGroup._node)
+      ...createCollapsible('New items', this.newEntitiesDropZone.node),
+      ...createCollapsible('Linked items', this.linkGroup._node)
     );
   }
 
