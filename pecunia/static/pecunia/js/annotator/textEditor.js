@@ -1,6 +1,5 @@
 import {debounce} from "../util.js";
 import {DeleteDropZone, Pool, Token} from "./dragAndDrop.js";
-import {Stack} from "../stack.js";
 import {Component, createButton, createDiv, createSpan} from "../nodeUtil.js";
 
 /**
@@ -217,21 +216,19 @@ export default class TextEditor extends Component {
     });
 
     tagButton.addEventListener('click', event => {
-
       const selection = document.getSelection();
-      let anchorNode = selection.anchorNode;
-      let focusNode = selection.focusNode;
-      let anchorOffset = selection.anchorOffset;
-      let focusOffset = selection.focusOffset;
+      const range = selection.getRangeAt(0);
 
-      if (selection.direction === 'backward') {
-        let tmp = focusNode;
-        focusNode = anchorNode;
-        anchorNode = tmp;
+      if (range.startContainer.nodeType === Node.ELEMENT_NODE
+        && range.startContainer.hasAttribute('data-tei-tag')
+        && range.startContainer.getAttribute('data-tei-tag') === 'lb') {
+        range.setStartAfter(range.startContainer);
+      }
 
-        tmp = focusOffset;
-        focusOffset = anchorOffset;
-        anchorOffset = tmp;
+      if (range.endContainer.nodeType === Node.ELEMENT_NODE
+        && range.endContainer.hasAttribute('data-tei-tag')
+        && range.endContainer.getAttribute('data-tei-tag') === 'lb') {
+        range.setEndBefore(range.endContainer);
       }
 
       const span = document.createElement('span');
@@ -240,17 +237,13 @@ export default class TextEditor extends Component {
       span.setAttribute('data-tei-attr-id', tagId);
       tagId++;
 
-      const range = document.createRange();
-      range.setStart(anchorNode, anchorOffset);
-      range.setEnd(focusNode, focusOffset);
-
       const content = range.extractContents();
       span.appendChild(content);
       range.insertNode(span);
       selection.removeAllRanges();
 
       this.textArea.value = transformFromLeiden(this.displayArea.childNodes);
-      this.updateTokensFromText()
+      this.updateTokensFromText();
     });
 
     const buttonsDiv = document.createElement('div');
