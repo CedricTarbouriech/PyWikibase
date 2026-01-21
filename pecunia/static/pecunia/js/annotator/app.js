@@ -151,6 +151,9 @@ document.addEventListener('DOMContentLoaded', () => {
 
     checkDiv.append(entitiesLabel, entities, reconciliationsLabel, reconciliations, schemasLabel, schemas);
   });
+  submitButton.addEventListener('click', event => {
+    if (!window.confirm('Do you want to save? If you haven’t send data, it will be lost.')) event.preventDefault();
+  });
   submitButton.before(testButton, sendButton);
   app.start();
 });
