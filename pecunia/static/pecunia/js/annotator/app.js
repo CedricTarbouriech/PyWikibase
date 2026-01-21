@@ -107,7 +107,15 @@ document.addEventListener('DOMContentLoaded', () => {
   sendButton.addEventListener('click', async _ => {
     const aggregations = app.aggregate();
     console.log(aggregations);
-    console.log(await postAsJson('/api/annotator', 'Marche pas', {document: app.node.getAttribute('data-document-id'), ...aggregations}));
+    const response = await postAsJson('/api/annotator', 'Marche pas', {document: app.node.getAttribute('data-document-id'), ...aggregations});
+    if (response['message'] !== 'ok') {
+      alert('Something went wrong.');
+      return;
+    }
+    for (const [tokenId, itemId] of Object.entries(response['newItems'])) {
+      const token = app.annotator.getToken(tokenId);
+      app.reconciler.linkToken(token, itemId);
+    }
   });
 
   const checkDiv = document.createElement('ul');

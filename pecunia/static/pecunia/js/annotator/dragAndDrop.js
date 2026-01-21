@@ -320,9 +320,6 @@ export class SingleDropZone extends DropZone {
         this.env.draggedToken = null;
         return;
       }
-      for (const disjointDropZone of this.disjointDropZones) {
-        disjointDropZone.remove(token);
-      }
 
       this.add(token);
       this.node.dispatchEvent(new CustomEvent('addedtoken', {
@@ -339,6 +336,9 @@ export class SingleDropZone extends DropZone {
    */
   add(token) {
     this.remove();
+    for (const disjointDropZone of this.disjointDropZones) {
+      disjointDropZone.remove(token);
+    }
     this.token = token;
     if (this.reconciliationType) {
       token.reconciliationType = this.reconciliationType;

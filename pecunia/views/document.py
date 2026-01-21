@@ -108,104 +108,107 @@ class DocumentDelete(LoginRequiredMixin, TemplateView):
 
 class AnnotatorApiView(LoginRequiredMixin, View):
     def post(self, request, *args, **kwargs):
-        data = json.loads(request.body.decode('utf-8'))
-        print(data)
-        document = Document.get_by_id(data['document'])
-        print(document)
+        with transaction.atomic():
+            data = json.loads(request.body.decode('utf-8'))
+            print(data)
+            document = Document.get_by_id(data['document'])
+            print(document)
 
-        entities = data['entities']
+            entities = data['entities']
 
-        tokens = {}
-        for token in entities['taggedEntities'].values():
-            tokens[token['tokenId']] = token
-        for token in entities['untaggedEntities'].values():
-            tokens[token['tokenId']] = token
+            tokens = {}
+            for token in entities['taggedEntities'].values():
+                tokens[token['tokenId']] = token
+            for token in entities['untaggedEntities'].values():
+                tokens[token['tokenId']] = token
 
-        reconciliations = data['reconciliations']
-        items = {}
-        for new_item in reconciliations['newItems']:
-            items[new_item['tokenId']] = m.Item.objects.create()
+            reconciliations = data['reconciliations']
+            items = {}
+            new_items = {}
+            for new_item in reconciliations['newItems']:
+                items[new_item['tokenId']] = m.Item.objects.create()
+                new_items[new_item['tokenId']] = items[new_item['tokenId']].display_id
 
-        for linked_items in reconciliations['linkedItems']:
-            items[linked_items['token']['tokenId']] = m.Item.objects.get(display_id=linked_items['qid'])
+            for linked_items in reconciliations['linkedItems']:
+                items[linked_items['token']['tokenId']] = m.Item.objects.get(display_id=linked_items['qid'])
 
-        schemata = data['schemas']
-        for schema in schemata:
-            token = schema['token']
-            item = items[token['tokenId']]
+            schemata = data['schemas']
+            for schema in schemata:
+                token = schema['token']
+                item = items[token['tokenId']]
 
-            for term in schema['terms']:
-                if term['type'] == 'label':
-                    item.set_label(term['langCode'], term['value'])
-                if term['type'] == 'description':
-                    item.set_description(term['langCode'], term['value'])
-                if term['type'] == 'alias':
-                    pass  # TODO Implement
+                for term in schema['terms']:
+                    if term['type'] == 'label':
+                        item.set_label(term['langCode'], term['value'])
+                    if term['type'] == 'description':
+                        item.set_description(term['langCode'], term['value'])
+                    if term['type'] == 'alias':
+                        pass  # TODO Implement
 
-            for json_statement in schema['statements']:
-                prop = m.Property.objects.get(display_id=json_statement['property'])
+                for json_statement in schema['statements']:
+                    prop = m.Property.objects.get(display_id=json_statement['property'])
 
-                for snak in json_statement['statements']:
-                    print(f"snak {snak}")
-                    json_snaktype = snak['mainSnak']['type']
+                    for snak in json_statement['statements']:
+                        print(f"snak {snak}")
+                        json_snaktype = snak['mainSnak']['type']
 
-                    mainsnak = m.PropertySnak(property=prop)
-                    if snak['mainSnak']['snakType'] == 'somevalue':
-                        mainsnak.type = m.PropertySnak.Type.SOME_VALUE
-                    elif snak['mainSnak']['snakType'] == 'novalue':
-                        mainsnak.type = m.PropertySnak.Type.NO_VALUE
-                    else:
-                        mainsnak.type = m.PropertySnak.Type.VALUE
-                        if json_snaktype == 'Item':
-                            mainsnak.value = items[snak['mainSnak']['value']['item']['tokenId']]
+                        mainsnak = m.PropertySnak(property=prop)
+                        if snak['mainSnak']['snakType'] == 'somevalue':
+                            mainsnak.type = m.PropertySnak.Type.SOME_VALUE
+                        elif snak['mainSnak']['snakType'] == 'novalue':
+                            mainsnak.type = m.PropertySnak.Type.NO_VALUE
                         else:
-                            mainsnak.value = json_to_python(json_snaktype, snak['mainSnak']['value'])
-                        print(json_snaktype, snak['mainSnak']['value'], mainsnak.value)
-                    mainsnak.save()
-                    statement = m.Statement(subject=item, mainsnak=mainsnak, rank=0)
-                    statement.save()
-
-                    for json_qualifier in snak['qualifiers']:
-                        prop = m.Property.objects.get(display_id=json_qualifier['property'])
-                        json_qsnak = json_qualifier['snak']
-                        json_snaktype = json_qsnak['type']
-                        qsnak = m.PropertySnak(property=prop)
-                        if json_qsnak['snakType'] == 'somevalue':
-                            qsnak.type = m.PropertySnak.Type.SOME_VALUE
-                        elif json_qsnak['snakType'] == 'novalue':
-                            qsnak.type = m.PropertySnak.Type.NO_VALUE
-                        else:
-                            qsnak.type = m.PropertySnak.Type.VALUE
+                            mainsnak.type = m.PropertySnak.Type.VALUE
                             if json_snaktype == 'Item':
-                                qsnak.value = items[json_qsnak['value']['item']['tokenId']]
+                                mainsnak.value = items[snak['mainSnak']['value']['item']['tokenId']]
                             else:
-                                qsnak.value = json_to_python(json_snaktype, json_qsnak['value'])
-                        qsnak.save()
-                        qualifier = m.Qualifier(statement=statement, snak=qsnak)
-                        qualifier.save()
+                                mainsnak.value = json_to_python(json_snaktype, snak['mainSnak']['value'])
+                            print(json_snaktype, snak['mainSnak']['value'], mainsnak.value)
+                        mainsnak.save()
+                        statement = m.Statement(subject=item, mainsnak=mainsnak, rank=0)
+                        statement.save()
 
-                    for json_record in snak['referenceRecords']:
-                        record = m.ReferenceRecord(statement=statement)
-                        record.save()
-
-                        for json_reference in json_record:
-                            prop = m.Property.objects.get(display_id=json_reference['property'])
-                            json_rsnak = json_reference['snak']
-                            json_snaktype = json_rsnak['type']
-                            rsnak = m.PropertySnak(property=prop)
-                            print(json_reference)
-                            if json_rsnak['snakType'] == 'somevalue':
-                                rsnak.type = m.PropertySnak.Type.SOME_VALUE
-                            elif json_rsnak['snakType'] == 'novalue':
-                                rsnak.type = m.PropertySnak.Type.NO_VALUE
+                        for json_qualifier in snak['qualifiers']:
+                            prop = m.Property.objects.get(display_id=json_qualifier['property'])
+                            json_qsnak = json_qualifier['snak']
+                            json_snaktype = json_qsnak['type']
+                            qsnak = m.PropertySnak(property=prop)
+                            if json_qsnak['snakType'] == 'somevalue':
+                                qsnak.type = m.PropertySnak.Type.SOME_VALUE
+                            elif json_qsnak['snakType'] == 'novalue':
+                                qsnak.type = m.PropertySnak.Type.NO_VALUE
                             else:
-                                rsnak.type = m.PropertySnak.Type.VALUE
+                                qsnak.type = m.PropertySnak.Type.VALUE
                                 if json_snaktype == 'Item':
-                                        rsnak.value = items[json_rsnak['value']['item']['tokenId']]
+                                    qsnak.value = items[json_qsnak['value']['item']['tokenId']]
                                 else:
-                                    rsnak.value = json_to_python(json_snaktype, json_rsnak['value'])
-                            rsnak.save()
-                            reference = m.ReferenceSnak(reference=record, snak=rsnak)
-                            reference.save()
+                                    qsnak.value = json_to_python(json_snaktype, json_qsnak['value'])
+                            qsnak.save()
+                            qualifier = m.Qualifier(statement=statement, snak=qsnak)
+                            qualifier.save()
 
-        return JsonResponse({'message': "ok"})
+                        for json_record in snak['referenceRecords']:
+                            record = m.ReferenceRecord(statement=statement)
+                            record.save()
+
+                            for json_reference in json_record:
+                                prop = m.Property.objects.get(display_id=json_reference['property'])
+                                json_rsnak = json_reference['snak']
+                                json_snaktype = json_rsnak['type']
+                                rsnak = m.PropertySnak(property=prop)
+                                print(json_reference)
+                                if json_rsnak['snakType'] == 'somevalue':
+                                    rsnak.type = m.PropertySnak.Type.SOME_VALUE
+                                elif json_rsnak['snakType'] == 'novalue':
+                                    rsnak.type = m.PropertySnak.Type.NO_VALUE
+                                else:
+                                    rsnak.type = m.PropertySnak.Type.VALUE
+                                    if json_snaktype == 'Item':
+                                        rsnak.value = items[json_rsnak['value']['item']['tokenId']]
+                                    else:
+                                        rsnak.value = json_to_python(json_snaktype, json_rsnak['value'])
+                                rsnak.save()
+                                reference = m.ReferenceSnak(reference=record, snak=rsnak)
+                                reference.save()
+
+        return JsonResponse({'message': "ok", 'newItems': new_items})
