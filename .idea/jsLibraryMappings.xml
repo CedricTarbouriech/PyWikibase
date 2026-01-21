@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="JavaScriptLibraryMappings">
-    <file url="file://$PROJECT_DIR$" libraries="{jquery-3.7.1.slim, leaflet, simple}" />
+    <file url="file://$PROJECT_DIR$" libraries="{jquery-3.7.1.slim, leaflet, simple, split.js}" />
     <file url="PROJECT" libraries="{@types/jquery, leaflet}" />
     <includedPredefinedLibrary name="Node.js Core" />
   </component>

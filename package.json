@@ -2,6 +2,7 @@
   "dependencies": {
     "highlight.js": "^11.11.1",
     "leaflet": "^1.9.4",
+    "lodash": "^4.17.21",
     "split.js": "^1.6.5"
   },
   "devDependencies": {
