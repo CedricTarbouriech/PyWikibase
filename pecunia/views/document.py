@@ -123,11 +123,11 @@ class AnnotatorApiView(LoginRequiredMixin, View):
 
         reconciliations = data['reconciliations']
         items = {}
-        for new_entity in reconciliations['newEntities']:
-            items[new_entity['tokenId']] = m.Item.objects.create()
+        for new_item in reconciliations['newItems']:
+            items[new_item['tokenId']] = m.Item.objects.create()
 
-        for linked_entity in reconciliations['linkedEntities']:
-            items[linked_entity['token']['tokenId']] = m.Item.objects.get(display_id=linked_entity['qid'])
+        for linked_items in reconciliations['linkedItems']:
+            items[linked_items['token']['tokenId']] = m.Item.objects.get(display_id=linked_items['qid'])
 
         schemata = data['schemas']
         for schema in schemata:
