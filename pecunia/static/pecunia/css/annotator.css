@@ -201,6 +201,16 @@ textarea, #middle {
     opacity: 50%;
 }
 
+.dragging .drop-zone {
+    animation: pulse 2s infinite;
+}
+
+@keyframes pulse {
+    50% {
+        background-color: rgba(0, 100, 0, 0.5);
+    }
+}
+
 .beingDragged {
     color: white;
     background-color: black;

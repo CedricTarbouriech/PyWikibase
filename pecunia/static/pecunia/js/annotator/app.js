@@ -10,6 +10,12 @@ class Application extends Component {
     super(document.getElementById(id));
 
     this._node.className = "split";
+    this._node.addEventListener('dragstart', () => {
+      this._node.classList.add('dragging');
+    })
+    this._node.addEventListener('dragend', () => {
+      this._node.classList.remove('dragging');
+    })
 
     const column1 = createDiv({id: 'split-0'});
     const column2 = createDiv({id: 'split-1'});
