@@ -87,7 +87,7 @@ class LinkGroup extends Component {
   }
 }
 
-export default class Reconcilier extends Component {
+export default class Reconciler extends Component {
   constructor(env) {
     super(createDiv());
 

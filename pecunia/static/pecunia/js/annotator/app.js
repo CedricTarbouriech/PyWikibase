@@ -1,6 +1,6 @@
 import {DragAndDropEnv} from './dragAndDrop.js';
 import TextEditor from './textEditor.js';
-import Reconciler from './reconcilier.js';
+import Reconciler from './reconciler.js';
 import SchemaEditor from './schemaEditor.js';
 import {Component, createCollapsible, createDiv} from "../nodeUtil.js";
 import {postAsJson} from "../api.js";
