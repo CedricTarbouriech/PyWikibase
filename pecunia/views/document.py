@@ -169,10 +169,10 @@ class AnnotatorApiView(LoginRequiredMixin, View):
                         statement.save()
 
                         for json_qualifier in snak['qualifiers']:
-                            prop = m.Property.objects.get(display_id=json_qualifier['property'])
+                            qual_prop = m.Property.objects.get(display_id=json_qualifier['property'])
                             json_qsnak = json_qualifier['snak']
                             json_snaktype = json_qsnak['type']
-                            qsnak = m.PropertySnak(property=prop)
+                            qsnak = m.PropertySnak(property=qual_prop)
                             if json_qsnak['snakType'] == 'somevalue':
                                 qsnak.type = m.PropertySnak.Type.SOME_VALUE
                             elif json_qsnak['snakType'] == 'novalue':
@@ -192,10 +192,10 @@ class AnnotatorApiView(LoginRequiredMixin, View):
                             record.save()
 
                             for json_reference in json_record:
-                                prop = m.Property.objects.get(display_id=json_reference['property'])
+                                ref_prop = m.Property.objects.get(display_id=json_reference['property'])
                                 json_rsnak = json_reference['snak']
                                 json_snaktype = json_rsnak['type']
-                                rsnak = m.PropertySnak(property=prop)
+                                rsnak = m.PropertySnak(property=ref_prop)
                                 print(json_reference)
                                 if json_rsnak['snakType'] == 'somevalue':
                                     rsnak.type = m.PropertySnak.Type.SOME_VALUE
